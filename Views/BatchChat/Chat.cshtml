@@ -1,0 +1,176 @@
+﻿@using LearningManagementSystem.Models.DTO
+@model BatchChatViewModel
+
+<div class="chat-container">
+    <h3 class="chat-title">Batch Chat</h3>
+    <div id="messages" class="chat-box">
+        <div id="placeholder" class="placeholder-msg">Your messages will appear here...</div>
+    </div>
+
+    <div class="chat-input">
+        <input type="text" id="messageInput" placeholder="Type a message..." />
+        <button onclick="sendMessage()" class="send-btn">Send</button>
+    </div>
+</div>
+
+<!-- SignalR -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
+
+<script>
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("/chatHub")
+        .build();
+
+    const batchId = "@Model.BatchDMId";
+    const userName = "@Model.UserName";
+
+    connection.start().then(() => {
+        connection.invoke("JoinBatch", batchId);
+    });
+
+    connection.on("ReceiveMessage", (user, message, time) => {
+        const placeholder = document.getElementById("placeholder");
+        if (placeholder) {
+            placeholder.remove(); // remove default text when first message arrives
+        }
+
+        const msg = document.createElement("div");
+
+        if (user === userName) {
+            msg.className = "message sent";
+        } else {
+            msg.className = "message received";
+        }
+
+        msg.innerHTML = `<span class="user">${user}</span>
+                         <p>${message}</p>
+                         <span class="time">${time}</span>`;
+
+        const messagesBox = document.getElementById("messages");
+        messagesBox.appendChild(msg);
+
+        // ✅ Auto-scroll only inside the chatbox
+        messagesBox.scrollTop = messagesBox.scrollHeight;
+    });
+
+    function sendMessage() {
+        const message = document.getElementById("messageInput").value;
+        if (message.trim() === "") return;
+
+        connection.invoke("SendMessage", batchId, userName, message);
+        document.getElementById("messageInput").value = "";
+    }
+</script>
+
+<style>
+    .chat-container {
+        max-width: 600px;
+        margin: 30px auto;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        background: #fff;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-title {
+        margin: 0;
+        padding: 15px;
+        background: #007bff;
+        color: #fff;
+        font-size: 18px;
+    }
+
+    /* ✅ Chatbox scrolls, not the whole area */
+    .chat-box {
+        flex: 1;
+        height: 400px; /* fixed height for messages */
+        overflow-y: auto; /* only messages area scrolls */
+        padding: 15px;
+        background: #f9f9f9;
+    }
+
+    .placeholder-msg {
+        text-align: center;
+        margin-top: 150px;
+        color: #999;
+        font-size: 14px;
+        font-style: italic;
+    }
+
+    .message {
+        max-width: 70%;
+        margin-bottom: 10px;
+        padding: 10px 15px;
+        border-radius: 16px;
+        position: relative;
+        font-size: 14px;
+        line-height: 1.4;
+        clear: both;
+        word-wrap: break-word;
+    }
+
+        .message.sent {
+            background: #007bff;
+            color: #fff;
+            margin-left: auto;
+            border-bottom-right-radius: 0;
+            text-align: right;
+        }
+
+        .message.received {
+            background: #e9ecef;
+            color: #333;
+            margin-right: auto;
+            border-bottom-left-radius: 0;
+            text-align: left;
+        }
+
+        .message .user {
+            font-size: 12px;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 3px;
+            opacity: 0.8;
+        }
+
+        .message .time {
+            font-size: 11px;
+            display: block;
+            margin-top: 4px;
+            opacity: 0.6;
+        }
+
+    .chat-input {
+        display: flex;
+        border-top: 1px solid #ddd;
+        padding: 10px;
+        background: #fff;
+    }
+
+    #messageInput {
+        flex: 1;
+        padding: 8px 12px;
+        border: 1px solid #ccc;
+        border-radius: 20px;
+        outline: none;
+        font-size: 14px;
+    }
+
+    .send-btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 18px;
+        margin-left: 10px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.3s;
+    }
+
+        .send-btn:hover {
+            background: #0056b3;
+        }
+</style>

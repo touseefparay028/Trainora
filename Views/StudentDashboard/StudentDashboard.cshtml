@@ -1,0 +1,177 @@
+﻿@{
+    ViewData["Title"] = "Student Dashboard";
+    Layout = "~/Views/Shared/StudentLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block bg-dark text-white sidebar collapse vh-100 shadow">
+            <div class="position-sticky pt-3">
+                <h4 class="text-center mb-4 fw-bold text-success">Trainora</h4>
+
+                <ul class="nav flex-column">
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white active" asp-action="StudentDashboard">
+                            <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" asp-action="Courses">
+                            <i class="bi bi-journal-bookmark me-2"></i> My Courses
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" asp-action="GetListAAsync" asp-controller="Student">
+                            <i class="bi bi-pencil-square me-2"></i>Pending Assignments
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" asp-action="TakeQuiz" asp-controller="Student">
+                            <i class="bi bi-clipboard-check me-2"></i> Quiz
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" asp-action="Results">
+                            <i class="bi bi-bar-chart-line me-2"></i> Results
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" asp-action="Chat" asp-controller="BatchChat">
+                            <i class="bi bi-person-check me-2"></i> Chat
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white d-flex justify-content-between align-items-center"
+                           asp-action="MyBatchConference" asp-controller="Student">
+                            <span>
+                                <i class="bi bi-person-check me-2"></i> Meetings
+                            </span>
+                            @if (ViewBag.MeetingCount != null && (int)ViewBag.MeetingCount > 0)
+                            {
+                                <span class="badge bg-danger rounded-pill">@ViewBag.MeetingCount</span>
+                            }
+                        </a>
+                    </li>
+
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" asp-action="Notices">
+                            <i class="bi bi-megaphone me-2"></i> College Notices
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="nav-link text-white" asp-action="Profile">
+                            <i class="bi bi-person-circle me-2"></i> Profile
+                        </a>
+                    </li>
+                </ul>
+
+                <hr class="text-secondary">
+
+                <div class="text-center">
+                    <a asp-action="Logout" asp-controller="Student" class="btn btn-sm btn-outline-light w-75">Logout</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            <h2 class="fw-bold text-success mb-4">
+                <i class="bi bi-speedometer2"></i> Welcome, Student!
+            </h2>
+
+            <!-- Stats Section -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card shadow rounded-4 border-0">
+                        <div class="card-body text-center">
+                            <i class="bi bi-journal-bookmark text-success fs-2"></i>
+                            <h5 class="mt-2">Courses</h5>
+                            <p class="fw-bold">5 Active</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card shadow rounded-4 border-0">
+                        <div class="card-body text-center">
+                            <i class="bi bi-pencil-square text-primary fs-2"></i>
+                            <h5 class="mt-2">Assignments</h5>
+                            <p class="fw-bold">@ViewBag.CountOfAssignments Pending</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card shadow rounded-4 border-0">
+                        <div class="card-body text-center">
+                            <i class="bi bi-clipboard-check text-warning fs-2"></i>
+                            <h5 class="mt-2">Quiz</h5>
+                            <p class="fw-bold">1 Upcoming</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card shadow rounded-4 border-0">
+                        <div class="card-body text-center">
+                            <i class="bi bi-bar-chart-line text-danger fs-2"></i>
+                            <h5 class="mt-2">Results</h5>
+                            <p class="fw-bold">View</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notices and Upcoming Exams -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card shadow rounded-4 border-0">
+                        <div class="card-header bg-success text-white rounded-top-4">
+                            <h5 class="mb-0">Latest College Notices</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">Holiday on Friday</li>
+                                <li class="list-group-item">Seminar on AI - Monday</li>
+                                <li class="list-group-item">Exam forms submission till 20th Sept</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card shadow rounded-4 border-0">
+                        <div class="card-header bg-primary text-white rounded-top-4">
+                            <h5 class="mb-0">Upcoming Exams</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Course</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Data Structures</td>
+                                        <td>12 Sept</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Operating Systems</td>
+                                        <td>15 Sept</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Database Systems</td>
+                                        <td>20 Sept</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+
+</div>

@@ -1,0 +1,47 @@
+﻿@model IEnumerable<LearningManagementSystem.Models.DTO.VideoConferenceVM>
+@{
+    Layout = "~/Views/Shared/TeacherLayout.cshtml";
+}
+<div class="container mt-4">
+    <h3 class="fw-bold text-success mb-4">My Created Conferences</h3>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-4">
+            @foreach (var conf in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card shadow-sm rounded-4 h-100">
+                        <div class="card-body d-flex flex-column justify-content-between">
+                            <div>
+                                
+                                <p class="card-text mb-1">
+                                    Batch ID: @conf.BatchId
+                                </p>
+                                <p class="card-text small text-muted">
+                                    @conf.StartTime.ToString("dd MMM yyyy, hh:mm tt")
+                                    @if (conf.EndTime != null)
+                                    {
+                                        <span> - @conf.EndTime?.ToString("hh:mm tt")</span>
+                                    }
+                                </p>
+                            </div>
+                            <div class="mt-3 d-flex justify-content-between align-items-center">
+                                <a href="@conf.MeetingLink" target="_blank" class="btn btn-success btn-sm rounded-pill">
+                                    <i class="bi bi-camera-video me-1"></i> Join
+                                </a>
+                                <span class="badge bg-info rounded-pill">
+                                    @((conf.EndTime != null && conf.EndTime < DateTime.Now) ? "Ended" : "Upcoming")
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted">You have not created any conferences yet.</p>
+    }
+</div>

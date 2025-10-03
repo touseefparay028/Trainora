@@ -1,0 +1,125 @@
+﻿@{
+    ViewData["Title"] = "Trainora - Accelerate Your Learning";
+    Layout=null;
+}
+
+<!-- Bootstrap CSS CDN -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #fdfdfd;
+    }
+
+    .navbar-brand {
+        font-weight: bold;
+        font-size: 1.4rem;
+    }
+
+    .hero-section {
+        padding: 80px 0;
+        background: #fff;
+    }
+
+        .hero-section h1 {
+            font-weight: 700;
+            font-size: 2.5rem;
+            color: #1a1a1a;
+        }
+
+        .hero-section p {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+    .btn-primary {
+        background-color: #1d4ed8;
+        border: none;
+        padding: 12px 28px;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+
+    .btn-outline-primary {
+        padding: 12px 28px;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+
+    .hero-image {
+        max-width: 100%;
+    }
+</style>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+        <a class="navbar-brand text-primary" asp-action="Index" asp-controller="Home">
+            @* <img src="~/images/trainora-logo.png" alt="Trainora" width="35" class="me-2" /> *@
+            Train𝓞ra
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarNav" aria-controls="navbarNav"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" asp-action="Features" asp-controller="Home" >Features</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Pricing</a></li>
+                <li class="nav-item"><a class="nav-link"asp-action="About" asp-controller="Home">About</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+            </ul>
+            <a class="btn btn-primary ms-3" asp-action="Join" asp-controller="Home">Log In/Sign Up</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <!-- Text content -->
+            <div class="col-lg-6">
+                <h1>Accelerate <br />Your Learning</h1>
+                <p>
+                    Train𝓞ra is an online platform that offers a wide range of courses
+                    to help you develop new skills and advance your career.
+                </p>
+                <div class="d-flex gap-3">
+                    <a class="btn btn-primary" asp-action="Join" asp-controller="Home">Get started</a>
+                    <a asp-action="About" asp-controller="Home" class="btn btn-outline-primary">About Train𝓞ra</a>
+                </div>
+            </div>
+            <!-- Image -->
+            <div class="col-lg-6 text-center">
+                <img src="~/images/LearningManagement.jpg" alt="Learning Illustration" class="hero-image" />
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container-fluid my-5 col-md-6 text-start">
+    <div class="row align-items-center rounded-4 p-5" style="background: linear-gradient(135deg, #007BFF, #3399FF); color: white;">
+
+        @* <!-- Left Illustration -->
+        <div class="col-md-5 text-center mb-4 mb-md-0">
+            <img src="~/images/contact-illustration.png" alt="Get in Touch Illustration" class="img-fluid" style="max-height: 250px;">
+        </div> *@
+
+        <!-- Right Content -->
+        <div class="col-md-6 text-center text-md-start">
+            <h2 class="fw-bold">Get in Touch</h2>
+            <p class="mb-4">Please write to us for any queries related to the platform</p>
+            <a href="/Contact" class="btn btn-light px-4 py-2 fw-semibold shadow-sm" style="color: #007BFF; border-radius: 10px;">
+                Get in Touch
+            </a>
+        </div>
+    </div>
+</div>
+
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

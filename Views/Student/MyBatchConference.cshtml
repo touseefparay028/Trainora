@@ -1,0 +1,33 @@
+﻿@model IEnumerable<LearningManagementSystem.Models.DTO.VideoConferenceVM>
+@{
+    Layout = "~/Views/Shared/StudentLayout.cshtml";
+}
+<div class="card shadow-lg border-0 rounded-4 mb-4">
+    <div class="card-header bg-success text-white fw-bold">
+        <i class="bi bi-camera-video-fill me-2"></i> My Batch Conferences
+    </div>
+    <div class="card-body">
+        @if (Model != null && Model.Any())
+        {
+            <div class="list-group">
+                @foreach (var conf in Model)
+                {
+                    <a href="@conf.MeetingLink" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="bi bi-calendar-event me-2 text-success"></i>
+                         
+                            <div class="small text-muted">
+                                @conf.StartTime.ToString("dd MMM yyyy, hh:mm tt")
+                            </div>
+                        </div>
+                        <span class="badge bg-success rounded-pill">Join</span>
+                    </a>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-muted mb-0">No active or upcoming conferences right now.</p>
+        }
+    </div>
+</div>

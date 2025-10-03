@@ -1,0 +1,84 @@
+﻿@model IEnumerable<LearningManagementSystem.Models.DTO.TeacherAssignmentVM>
+
+@{
+    ViewData["Title"] = "Assignments";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold text-primary">
+            <i class="bi bi-journal-text"></i> Assignment List
+        </h2>
+       
+    </div>
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="table-responsive shadow rounded-3">
+        <table class="table table-hover align-middle text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.Title)</th>
+                    <th>@Html.DisplayNameFor(model => model.Subject)</th>
+                    <th>@Html.DisplayNameFor(model => model.DueTime)</th>
+                    <th class="text-center">Actions</th>
+                    <th>@Html.DisplayNameFor(model => model.IsSubmitted)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.Title)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Subject)</td>
+                            <td>
+                                <span class="badge bg-warning text-dark">
+                                    @(item.DueTime.ToString("dd MMM yyyy hh:mm tt") ?? "-")
+                                </span>
+                            </td>
+                            <td>
+                                @* <a asp-action="Edit" asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-outline-primary me-1">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a> *@
+                                <a asp-action="Download" asp-controller="Student" asp-route-FilePath="@item.Path"
+                                   class="btn btn-sm btn-outline-info me-1">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                <a asp-action="SubmitAssignment" asp-controller="StudentAssignment" asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i> Submit
+                                </a>
+                            </td>
+                            <td>
+                                @if(item.IsSubmitted)
+                                {
+                                    <span class="badge bg-success">Submitted</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Pending</span>
+                                }
+                            </td>
+
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="4" class="text-center text-muted fw-bold">
+                            No Assignments available
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

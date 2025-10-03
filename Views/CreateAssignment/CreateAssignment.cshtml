@@ -1,0 +1,81 @@
+﻿@model LearningManagementSystem.Models.DTO.TeacherAssignmentVM
+
+@{
+    ViewData["Title"] = "Create Assignment";
+    Layout = "~/Views/Shared/TeacherLayout.cshtml";
+}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold text-primary">
+            <i class="bi bi-journal-plus"></i> Create Assignment
+        </h2>
+        <a asp-action="GetFilesAsync" class="btn btn-outline-secondary shadow-sm">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-body p-4">
+                    <h4 class="text-secondary mb-4"><i class="bi bi-pencil-square"></i> Assignment Details</h4>
+
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <!-- Title -->
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label fw-semibold">
+                                <i class="bi bi-type"></i> Title
+                            </label>
+                            <input asp-for="Title" class="form-control" placeholder="Enter assignment title" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+
+                        <!-- File Upload -->
+                        <div class="mb-3">
+                            <label asp-for="File" class="form-label fw-semibold">
+                                <i class="bi bi-paperclip"></i> Upload File
+                            </label>
+                            <input asp-for="File" type="file" class="form-control" />
+                            <span asp-validation-for="File" class="text-danger"></span>
+                        </div>
+
+                        <!--Dropdown Batch -->
+                        <div class="form-group mb-3">
+                            <label asp-for="BatchDMId" class="form-label">Select Batch</label>
+                            <select asp-for="BatchDMId" asp-items="Model.BatchList" class="form-control">
+                                <option value=""> -- Select Batch --</option>
+                            </select>
+                        <span asp-validation-for="BatchDMId" class="text-danger"></span>
+                        </div>
+                        <!-- Subject -->
+                        <div class="mb-3">
+                            <label asp-for="Subject" class="form-label fw-semibold">
+                                <i class="bi bi-book"></i> Subject
+                            </label>
+                            <input asp-for="Subject" class="form-control" placeholder="Enter subject name" />
+                            <span asp-validation-for="Subject" class="text-danger"></span>
+                        </div>
+
+                        <!-- Due Time -->
+                        <div class="mb-3">
+                            <label asp-for="DueTime" class="form-label fw-semibold">
+                                <i class="bi bi-calendar-event"></i> Due Date & Time
+                            </label>
+                            <input asp-for="DueTime" type="datetime-local" class="form-control" />
+                            <span asp-validation-for="DueTime" class="text-danger"></span>
+                        </div>
+
+                        <!-- Submit -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary shadow-sm">
+                                <i class="bi bi-check-circle"></i> Create Assignment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

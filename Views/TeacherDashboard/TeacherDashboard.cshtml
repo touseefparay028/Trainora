@@ -1,0 +1,172 @@
+﻿@model LearningManagementSystem.Models.Domains.VideoConference
+@{
+    ViewData["Title"] = "Teacher Dashboard";
+}
+@{
+    Layout = null;
+}
+  
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"]</title>
+
+    <!-- Bootstrap CSS & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+
+        .sidebar {
+            height: 100vh;
+            background-color: #343a40;
+            color: #fff;
+            padding-top: 1rem;
+        }
+
+        .sidebar a {
+            color: #ddd;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #495057;
+            color: #fff;
+        }
+
+        .card {
+            border-radius: 1rem;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .dashboard-section {
+            padding: 2rem;
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            color: #0d6efd;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-2 sidebar d-none d-md-block">
+                <div class="text-center mb-4">
+                    <h4>Teacher Panel</h4>
+                </div>
+               
+
+
+                <a asp-action="Dashboard" asp-controller="Teacher">Dashboard</a>
+                <a asp-action="AddCourse" asp-controller="Teacher">Add Course</a>
+                <a asp-action="MyCourses" asp-controller="Teacher">View My Courses</a>
+                <a asp-action="StudentEnrollments" asp-controller="Teacher">Student Enrollments</a>
+                <a asp-action="GetFilesAsync" asp-controller="CreateAssignment">Assignments</a>
+                <a asp-action="SubmittedAssignments" asp-controller="Teacher">Submitted Assignments</a>
+                <a asp-action="AssignGrades" asp-controller="Teacher">Assign Grades</a>
+              
+                <div class="dropdown">
+                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Create Meet
+                    </button>
+                    <ul class="dropdown-menu">
+                        @foreach (var batch in Model.BatchList)
+                        {
+                            <li>
+                                <a class="dropdown-item"
+                                   asp-controller="Teacher"
+                                   asp-action="StartConference"
+                                   asp-route-batchId="@batch.id">
+                                    @batch.Name
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <a asp-action="GetConferences" asp-controller="Teacher">Meetings</a>
+                <a asp-action="Logout" asp-controller="Teacher">Logout</a>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
+                <nav class="navbar navbar-light bg-white shadow-sm p-3">
+                    <span class="navbar-brand">Welcome, @User.Identity.Name!</span>
+                </nav>
+
+                <div class="dashboard-section">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="card p-4 text-center">
+                                <i class="bi bi-journal-plus card-icon"></i>
+                                <h5 class="mt-2">Add Programmes</h5>
+                                <p>Create new courses for students.</p>
+                                <a asp-action="AddProgramme" asp-controller="Teacher" class="btn btn-primary">Add Programme</a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card p-4 text-center">
+                                <i class="bi bi-person-lines-fill card-icon"></i>
+                                <h5 class="mt-2">Student Enrollments</h5>
+                                <p>View students enrolled in your courses.</p>
+                                <a asp-action="StudentEnrollments" asp-controller="Teacher" class="btn btn-primary">View Enrollments</a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card p-4 text-center">
+                                <i class="bi bi-pencil-square card-icon"></i>
+                                <h5 class="mt-2">Give Assignment</h5>
+                                <p>Assign homework or tasks to students.</p>
+                                <a asp-action="CreateAssignment" asp-controller="CreateAssignment" class="btn btn-primary">Create Assignment</a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card p-4 text-center">
+                                <i class="bi bi-folder-symlink card-icon"></i>
+                                <h5 class="mt-2">Submitted Assignments</h5>
+                                <p>Check student submissions.</p>
+                                <a asp-action="SubmittedAssignments" asp-controller="Teacher" class="btn btn-primary">Review Submissions</a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card p-4 text-center">
+                                <i class="bi bi-stars card-icon"></i>
+                                <h5 class="mt-2">Assign Grades</h5>
+                                <p>Evaluate and assign grades.</p>
+                                <a asp-action="AssignGrades" asp-controller="Teacher" class="btn btn-primary">Assign Grades</a>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card p-4 text-center">
+                                <i class="bi bi-journals card-icon"></i>
+                                <h5 class="mt-2">My Courses</h5>
+                                <p>Check your active courses.</p>
+                                <a asp-action="MyCourses" asp-controller="Teacher" class="btn btn-primary">View Courses</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

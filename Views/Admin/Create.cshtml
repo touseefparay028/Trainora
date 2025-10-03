@@ -1,0 +1,108 @@
+﻿@model LearningManagementSystem.Models.DTO.RegisterDTO
+
+@{
+    ViewData["Title"] = "Create User";
+}
+
+<!-- Animate.css CDN for logo animation -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+<!-- Custom styling for hover and deep shadow -->
+<style>
+    .btn-success:hover {
+        background-color: #218838;
+        transform: scale(1.05);
+        transition: 0.3s ease-in-out;
+    }
+
+    .logo-bounce {
+        animation: bounce 2s infinite;
+    }
+
+    /* Extra smooth shadow */
+    .deep-shadow {
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        transition: box-shadow 0.3s ease;
+    }
+
+        .deep-shadow:hover {
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        }
+</style>
+
+<div class="container mt-5">
+    <div class="row shadow-lg rounded-3 overflow-hidden">
+        <!-- Left Side - Welcome Panel -->
+        <div class="col-md-6 bg-light d-flex flex-column justify-content-center align-items-center text-center p-5">
+            <h2 class="display-6 fw-bold text-primary">Welcome to</h2>
+            <h1 class="display-4 fw-bold text-dark mb-4">Learning Management System</h1>
+            <p class="lead text-muted">
+                Empowering educators and learners with a seamless digital experience.
+                <br />Manage your courses, assignments, and performance with ease.
+            </p>
+            <img src="https://cdn-icons-png.flaticon.com/512/2920/2920295.png"
+                 alt="LMS Illustration"
+                 class="img-fluid mt-4"
+                 style="max-height: 200px;" />
+        </div>
+
+        <!-- Right Side - Register Form with Deep Shadow -->
+        <div class="col-md-6 bg-white p-5 deep-shadow">
+            <div class="card border-0">
+                <div class="card-header bg-primary text-white text-center rounded-3">
+                    <h4>Create New User</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="CreateUser" method="post">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label"></label>
+                            <input asp-for="Name" class="form-control" placeholder="Enter full name" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label"></label>
+                            <input asp-for="Email" class="form-control" placeholder="example@domain.com" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Phone" class="form-label"></label>
+                            <input asp-for="Phone" class="form-control" placeholder="Enter phone number" />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label"></label>
+                            <input asp-for="Password" type="password" class="form-control" placeholder="Enter password" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="ConfirmPassword" class="form-label"></label>
+                            <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Re-enter password" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-success hover-scale">Create Account</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer text-center bg-white border-0">
+                    <a asp-controller="Admin" asp-action="Login" class="btn btn-link">Already have an account? Log In</a><br />
+                    <a asp-action="Index" class="btn btn-link">← Back to User List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

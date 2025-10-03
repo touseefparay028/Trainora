@@ -1,0 +1,60 @@
+# Build output
+bin/
+obj/
+out/
+
+# Visual Studio / Rider / VS Code files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+.idea/
+.vscode/
+
+# Rider project files
+*.iml
+*.ipr
+*.iws
+
+# NuGet packages
+*.nupkg
+packages/
+*.snupkg
+
+# ASP.NET Core secrets
+*.pfx
+*.key
+*.cer
+*.crt
+*.pem
+*.env
+secrets.json
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.cache
+
+# Entity Framework files
+*.db
+*.mdf
+*.ldf
+*.sqlite
+
+# Publish output
+publish/
+wwwroot/
+
+# Node/NPM files (if using front-end tools)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# MacOS / Linux specific
+.DS_Store
+Thumbs.db
+
+# JetBrains Rider
+.idea/
