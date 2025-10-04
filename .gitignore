@@ -58,3 +58,7 @@ Thumbs.db
 
 # JetBrains Rider
 .idea/
+ # Ignore appsettings files with sensitive info
+appsettings.json
+appsettings.*.json
+
