@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\Files\" />
+    <Folder Include="wwwroot\StudyMaterials\" />
     <Folder Include="wwwroot\StudentFiles\" />
   </ItemGroup>
 

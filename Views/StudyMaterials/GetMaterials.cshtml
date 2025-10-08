@@ -1,0 +1,49 @@
+﻿@model IEnumerable<LearningManagementSystem.Models.DTO.StudyMaterialsVM>
+
+@{
+    ViewData["Title"] = "Study Materials";
+}
+
+<h1 class="mb-4">Study Materials</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
+</p>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    @foreach (var item in Model)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">@item.Title</h5>
+                    <p class="card-text text-muted">@item.Description</p>
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item"><strong>Uploaded By:</strong> @item.UploadedBy</li>
+                    <li class="list-group-item"><strong>Uploaded On:</strong> @item.UploadedOn.ToString("dd MMM yyyy")</li>
+                </ul>
+                @* <div class="card-footer text-end">
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning me-1">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info me-1">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                </div> *@
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .card-text {
+        font-size: 0.95rem;
+    }
+
+    .card-footer .btn {
+        font-size: 0.85rem;
+    }
+</style>

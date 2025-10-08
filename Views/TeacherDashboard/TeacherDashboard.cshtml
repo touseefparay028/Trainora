@@ -57,6 +57,10 @@
             font-size: 2rem;
             color: #0d6efd;
         }
+
+        .btn {
+            color: #ddd;
+        }
     </style>
 </head>
 
@@ -79,8 +83,8 @@
                 <a asp-action="SubmittedAssignments" asp-controller="Teacher">Submitted Assignments</a>
                 <a asp-action="AssignGrades" asp-controller="Teacher">Assign Grades</a>
               
-                <div class="dropdown">
-                    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                
+                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Create Meet
                     </button>
                     <ul class="dropdown-menu">
@@ -96,7 +100,7 @@
                             </li>
                         }
                     </ul>
-                </div>
+                
                 <a asp-action="GetConferences" asp-controller="Teacher">Meetings</a>
                 <a asp-action="Logout" asp-controller="Teacher">Logout</a>
             </nav>

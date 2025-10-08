@@ -11,5 +11,7 @@ namespace LearningManagementSystem.Services
         Task<List<SelectListItem>> GetBatchSelectListAsync();
         Task SubmitAssignmentAsync(StudentAssignmentVM assignmentVM, Guid StudentID);
         Task<List<TeacherAssignmentVM>> GetFilteredFiles();
+        Task UploadStudyMaterialAsync(StudyMaterialsVM studyMaterialsVM);
+        Task<List<StudyMaterialsVM>> GetMaterialAsync();
     }
 }

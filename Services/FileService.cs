@@ -112,7 +112,7 @@ namespace LearningManagementSystem.Services
         }
         public async Task SubmitAssignmentAsync(StudentAssignmentVM assignmentVM, Guid StudentID)
         {
-           
+
             string folderPath = Path.Combine(webHostEnvironment.WebRootPath, "StudentFiles");
             if (!Directory.Exists(folderPath))
                 Directory.CreateDirectory(folderPath);
@@ -133,6 +133,42 @@ namespace LearningManagementSystem.Services
             };
             await lMSDbContext.StudentAssignmentDM.AddAsync(submission);
             await lMSDbContext.SaveChangesAsync();
+        }
+        public async Task UploadStudyMaterialAsync(StudyMaterialsVM studyMaterialsVM)
+        {
+            string FolderPath = Path.Combine(webHostEnvironment.WebRootPath, "StudyMaterials");
+            if (!Directory.Exists(FolderPath))
+            {
+                Directory.CreateDirectory(FolderPath);
+            }
+            string FileName = Guid.NewGuid().ToString() + "_" + studyMaterialsVM.File.FileName;
+            string FullPath = Path.Combine(FolderPath, FileName);
+            using (FileStream FileStream = new FileStream(FullPath, FileMode.Create))
+            {
+                await studyMaterialsVM.File.CopyToAsync(FileStream);
+            }
+
+            var UserId = httpContextAccessor.HttpContext?.User?
+                .FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(UserId))
+            {
+                throw new InvalidOperationException("No user is logged in right now");
+            }
+            StudyMaterialsDM StudyMaterial = mapper.Map<StudyMaterialsDM>(studyMaterialsVM);
+            StudyMaterial.FilePath = FileName;
+            //StudyMaterial.Title = studyMaterialsVM.Title;
+            //StudyMaterial.UploadedBy =studyMaterialsVM.UploadedBy;
+            //StudyMaterial.Description = studyMaterialsVM.Description;
+            //StudyMaterial.UploadedOn= studyMaterialsVM.UploadedOn;
+            StudyMaterial.ApplicationUserId = Guid.Parse(UserId);
+            await lMSDbContext.StudyMaterials.AddAsync(StudyMaterial);
+            await lMSDbContext.SaveChangesAsync();
+        }
+        public async Task<List<StudyMaterialsVM>> GetMaterialAsync()
+        {
+            var studyMaterials = await lMSDbContext.StudyMaterials.ToListAsync();
+            var studyMaterialsVM = mapper.Map<List<StudyMaterialsVM>>(studyMaterials);
+            return studyMaterialsVM;
         }
 
     }
