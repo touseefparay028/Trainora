@@ -73,16 +73,18 @@ app.UseRouting();// enable select endpoint
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseEndpoints(Endpoints =>
-{
-    ControllerActionEndpointConventionBuilder controllerActionEndpointConventionBuilder = Endpoints.MapControllers();
-});
+//app.UseEndpoints(Endpoints =>
+//{
+//    ControllerActionEndpointConventionBuilder controllerActionEndpointConventionBuilder = Endpoints.MapControllers();
+//});
 
-app.MapControllers(); //  execute endpoint
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllers(); //  execute endpoint
 app.MapHub<ChatHub>("/chatHub");
+
 
 
 app.Run();

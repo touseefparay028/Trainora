@@ -14,7 +14,7 @@ namespace LearningManagementSystem.Models.Domains
 
         public string FilePath { get; set; }
 
-        public string UploadedBy { get; set; }
+        public string? UploadedBy { get; set; }
 
         public DateTime UploadedOn { get; set; } = DateTime.Now;
         public Guid ApplicationUserId { get; set; }

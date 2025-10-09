@@ -9,8 +9,9 @@ namespace LearningManagementSystem.Models.Domains
         public string Title { get; set; }
         public string? Path { get; set; }
         public string? Subject { get; set; }
-        
-        [Required] 
+
+        [Required]
+       
         public DateTime? DueTime { get; set; }
         public Guid ApplicationUserId { get; set; }
         public ICollection<ApplicationUser>? ApplicationUser { get; set; }

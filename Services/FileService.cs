@@ -13,15 +13,15 @@ namespace LearningManagementSystem.Services
 {
     public class FileService : IFileService
     {
-
+        private readonly UserManager<ApplicationUser> userManager;
         private readonly LMSDbContext lMSDbContext;
         private readonly IWebHostEnvironment webHostEnvironment;
         private readonly IMapper mapper;
         private readonly IHttpContextAccessor httpContextAccessor;
 
-        public FileService(LMSDbContext lMSDbContext, IWebHostEnvironment webHostEnvironment, IMapper mapper, IHttpContextAccessor httpContextAccessor)
+        public FileService(UserManager<ApplicationUser> userManager,LMSDbContext lMSDbContext, IWebHostEnvironment webHostEnvironment, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
-
+            this.userManager = userManager;
             this.lMSDbContext = lMSDbContext;
             this.webHostEnvironment = webHostEnvironment;
             this.mapper = mapper;
@@ -74,41 +74,32 @@ namespace LearningManagementSystem.Services
         public async Task<List<TeacherAssignmentVM>> GetFilesAsync()
         {
             var studentId = httpContextAccessor.HttpContext?.User?
-                .FindFirstValue(ClaimTypes.NameIdentifier);
-            //var stid = Guid.Parse(studentId);
-            //var data = await lMSDbContext.AssignmentDMs.ToListAsync();
+    .FindFirstValue(ClaimTypes.NameIdentifier);
 
-            //// Map to VM
-            //var assignmentVM = mapper.Map<List<TeacherAssignmentVM>>(data);
+            var studentGuid = Guid.Parse(studentId);
 
-            //// Check submissions for the current student
-            //foreach (var assignment in assignmentVM)
-            //{
-            //    assignment.IsSubmitted = await lMSDbContext.StudentAssignmentDM
-            //        .AnyAsync(s => s.assignmentDMId == assignment.Id && s.StudentId == stid);
-            //}
-            // All assignments
+            // 1️⃣ Get the student’s batch
+            var studentBatchId = await userManager.Users
+                .Where(s => s.Id == studentGuid)
+                .Select(s => s.BatchDMId)
+                .FirstOrDefaultAsync();
 
-            //THIS ONE USED TO GET THE LIST OF THE PENDING ASSIGNMENTS ONLY.
-            var assignments = await lMSDbContext.AssignmentDMs.ToListAsync();
-
-            // Submissions by this student
+            // 2️⃣ Get IDs of assignments already submitted by this student
             var submittedIds = await lMSDbContext.StudentAssignmentDM
-                .Where(sa => sa.StudentId == Guid.Parse(studentId))
+                .Where(sa => sa.StudentId == studentGuid)
                 .Select(sa => sa.assignmentDMId)
                 .ToListAsync();
 
-            // Only pending assignments
-            var pendingAssignments = assignments
-                .Where(a => !submittedIds.Contains(a.Id))
-                .ToList();
+            // 3️⃣ Get pending assignments for this batch
+            var pendingAssignments = await lMSDbContext.AssignmentDMs
+                .Where(a => a.BatchDMId == studentBatchId && !submittedIds.Contains(a.Id))
+                .ToListAsync();
 
-            // Map to your VM
+            // 4️⃣ Map to ViewModel
             var assignmentVM = mapper.Map<List<TeacherAssignmentVM>>(pendingAssignments);
+
             return assignmentVM;
-            //List<TeacherAssignmentDM> data = await lMSDbContext.AssignmentDMs.ToListAsync();
-            //List<TeacherAssignmentVM> assignmentVM = mapper.Map<List<TeacherAssignmentVM>>(data);
-            //return assignmentVM;
+
         }
         public async Task SubmitAssignmentAsync(StudentAssignmentVM assignmentVM, Guid StudentID)
         {
@@ -154,10 +145,11 @@ namespace LearningManagementSystem.Services
             {
                 throw new InvalidOperationException("No user is logged in right now");
             }
+            var user = await userManager.FindByIdAsync(UserId);
             StudyMaterialsDM StudyMaterial = mapper.Map<StudyMaterialsDM>(studyMaterialsVM);
             StudyMaterial.FilePath = FileName;
             //StudyMaterial.Title = studyMaterialsVM.Title;
-            //StudyMaterial.UploadedBy =studyMaterialsVM.UploadedBy;
+            StudyMaterial.UploadedBy = user?.Name?? "Unknown";
             //StudyMaterial.Description = studyMaterialsVM.Description;
             //StudyMaterial.UploadedOn= studyMaterialsVM.UploadedOn;
             StudyMaterial.ApplicationUserId = Guid.Parse(UserId);

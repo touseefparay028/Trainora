@@ -29,6 +29,7 @@ namespace LearningManagementSystem.DatabaseDbContext
           .HasIndex(sa => new { sa.StudentId, sa.assignmentDMId })
           .IsUnique();
         }
+        public DbSet<LearningManagementSystem.Models.DTO.StudyMaterialsVM> StudyMaterialsVM { get; set; } = default!;
        
         //public DbSet<LearningManagementSystem.Models.DTO.StudentAssignmentVM> StudentAssignmentVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.TeacherAssignmentVM> TeacherAssignmentVM { get; set; } = default!;

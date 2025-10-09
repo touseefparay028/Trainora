@@ -1,5 +1,6 @@
 ﻿using LearningManagementSystem.Models.Domains;
 using LearningManagementSystem.Models.IdentityEntities;
+using LearningManagementSystem.Models.ValidationAttributes;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -19,7 +20,10 @@ namespace LearningManagementSystem.Models.DTO
         public string? Path { get; set; }
         [Required(ErrorMessage = "Subject can not be null")]
         public string? Subject { get; set; }
-        [Required(ErrorMessage = "Due Date and Time can not be null")]
+ 
+        [Required(ErrorMessage = "Due time is required.")]
+        [DataType(DataType.DateTime)]
+        [FutureDate(ErrorMessage ="Date must be in future")]
         public DateTime DueTime { get; set; }
         public Guid? ApplicationUserId { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }

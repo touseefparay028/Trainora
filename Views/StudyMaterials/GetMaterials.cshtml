@@ -2,13 +2,19 @@
 
 @{
     ViewData["Title"] = "Study Materials";
+    Layout = "~/Views/Shared/StudentLayout.cshtml";
 }
 
 <h1 class="mb-4">Study Materials</h1>
+<div class="d-flex justify-content-between mb-4">
+    <a asp-action="UploadStudyMaterial" asp-controller="StudyMaterials" class="btn btn-primary">
+        Add Material Here
+    </a>
+    <a asp-action="MyMaterials" asp-controller="StudyMaterials" class="btn btn-primary">
+        My Material
+    </a>
+</div>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Create New</a>
-</p>
 
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     @foreach (var item in Model)
@@ -26,8 +32,8 @@
                 @* <div class="card-footer text-end">
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning me-1">Edit</a>
                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info me-1">Details</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
                 </div> *@
+                <a asp-action="DownloadMaterial" asp-route-FilePath="@item.FilePath" class="btn btn-sm btn-danger">Download</a>
             </div>
         </div>
     }

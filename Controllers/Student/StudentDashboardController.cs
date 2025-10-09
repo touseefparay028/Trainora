@@ -12,10 +12,12 @@ namespace LearningManagementSystem.Controllers.Student
     public class StudentDashboardController : Controller
     {
         private readonly LMSDbContext lMSDbContext;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        public StudentDashboardController(LMSDbContext lMSDbContext)
+        public StudentDashboardController(LMSDbContext lMSDbContext,UserManager<ApplicationUser> userManager)
         {
             this.lMSDbContext = lMSDbContext;
+            this.userManager = userManager;
         }
 
         [Route("StudentDashboard")]
@@ -29,7 +31,9 @@ namespace LearningManagementSystem.Controllers.Student
             //    .CountAsync();
             //ViewBag.CountOfAssignments = pendingAssignments;
             var studentId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-
+            var userIdd = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await userManager.FindByIdAsync(userIdd);
+            ViewBag.Name = user?.Name ?? "Unknown";
             // get student's batch id
             var studentBatchId = await lMSDbContext.Users
                 .Where(s => s.Id == studentId)

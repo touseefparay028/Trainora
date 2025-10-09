@@ -1,0 +1,50 @@
+﻿@model IEnumerable<LearningManagementSystem.Models.DTO.StudyMaterialsVM>
+
+@{
+    ViewData["Title"] = "MyMaterials";
+    Layout = "~/Views/Shared/StudentLayout.cshtml";
+}
+
+<h1>MyMaterials</h1>
+<a asp-action="GetMaterials" asp-controller="StudyMaterials" class="btn btn-primary">
+    All Materials
+</a>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info mt-3">
+        You have uploaded no materials yet.
+    </div>
+}
+else
+{
+    <table class="table table-bordered mt-3">
+        <thead class="table-light">
+            <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Uploaded On</th>
+               
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var material in Model)
+            {
+                <tr>
+                    <td>@material.Title</td>
+                    <td>@material.Description</td>
+                   <td>@material.UploadedOn</td>
+               
+                    <td>
+                        <a href="@Url.Content(material.FilePath)" target="_blank">View</a>
+                    </td>
+                    <td>
+                        <a asp-action="DeleteMaterial" asp-route-id="@material.Id" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                      
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
