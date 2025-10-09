@@ -22,6 +22,7 @@ namespace LearningManagementSystem.MappingProfiles
             CreateMap<BatchVM, BatchDM>();
             CreateMap<BatchDM, BatchVM>();
             CreateMap<StudyMaterialsDM, StudyMaterialsVM>().ReverseMap();
+            CreateMap<StudentAssignmentVM, StudentAssignmentDM>().ReverseMap();
         }
     }
 }

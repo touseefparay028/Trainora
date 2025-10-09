@@ -44,16 +44,25 @@ namespace LearningManagementSystem.Controllers.Teacher
             {
                 
                 await fileService.CreateAssignmentAsync(assignmentVM);
-                return RedirectToAction("GetFilesAsync");
+                return RedirectToAction("GetCreatedAssignments");
             }
             assignmentVM.BatchList = await fileService.GetBatchSelectListAsync();
             return View("CreateAssignment", assignmentVM);
+        }
+        public async Task<IActionResult> GetCreatedAssignments()
+        {
+            return View(await fileService.GetCreatedAssignments());
         }
         [Route("CreateAssignment/GetFilesAsync")]
         public async Task<IActionResult> GetListAsync()
         {
 
             return View(await fileService.GetFilesAsync());
+        }
+        public async Task<IActionResult> SubmittedAssignments()
+        {
+            
+            return View(await fileService.SubmittedAssignments());
         }
         [Route("CreateAssignment/Download")]
         public IActionResult Download(string FilePath)
@@ -71,7 +80,7 @@ namespace LearningManagementSystem.Controllers.Teacher
             if (assignmentDM == null)
             {
                 ModelState.AddModelError(string.Empty, "not found");
-                return View("GetList", assignmentDM);
+                return View("GetCreatedAssignments", assignmentDM);
             }
 
             // 2. Delete file if exists
@@ -89,7 +98,34 @@ namespace LearningManagementSystem.Controllers.Teacher
             lMSDbContext.SaveChanges();
 
             // 4. Redirect back to List of the assignments.
-            return RedirectToAction("GetFilesAsync");
+            return RedirectToAction("GetCreatedAssignments");
+        }
+        public IActionResult DeleteSubmission(Guid id)
+        {
+           
+            var submission  = lMSDbContext.StudentAssignmentDM.FirstOrDefault(a => a.Id == id);
+            if (submission == null)
+            {
+                ModelState.AddModelError(string.Empty, "not found");
+                return View("SubmittedAssignments", submission);
+            }
+
+          
+            if (!string.IsNullOrEmpty(submission.Path))
+            {
+                var filePath = Path.Combine("wwwroot", "StudentFiles", submission.Path); 
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+
+        
+            lMSDbContext.StudentAssignmentDM.Remove(submission);
+            lMSDbContext.SaveChanges();
+
+            // 4. Redirect back to List of the assignments.
+            return RedirectToAction("SubmittedAssignments");
         }
         //[HttpPost("Edit/{id}")]
         //public IActionResult Edit(Guid id)
@@ -105,6 +141,14 @@ namespace LearningManagementSystem.Controllers.Teacher
 
         //    return View(teacherAssignmentVM);
         //}
+        public IActionResult ViewAssignment(string Path)
+        {
+
+            return new VirtualFileResult($"StudentFiles/{Path}", "application/pdf")
+            {
+                FileDownloadName = Path
+            };
+        }
 
     }
 }

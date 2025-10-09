@@ -30,6 +30,7 @@ namespace LearningManagementSystem.DatabaseDbContext
           .IsUnique();
         }
         public DbSet<LearningManagementSystem.Models.DTO.StudyMaterialsVM> StudyMaterialsVM { get; set; } = default!;
+        public DbSet<LearningManagementSystem.Models.DTO.StudentAssignmentVM> StudentAssignmentVM { get; set; } = default!;
        
         //public DbSet<LearningManagementSystem.Models.DTO.StudentAssignmentVM> StudentAssignmentVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.TeacherAssignmentVM> TeacherAssignmentVM { get; set; } = default!;

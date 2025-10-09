@@ -1,0 +1,38 @@
+﻿@model IEnumerable<LearningManagementSystem.Models.DTO.StudentAssignmentVM>
+
+@{
+    ViewData["Title"] = "SubmittedAssignments";
+}
+
+<h1>Submitted Assignments</h1>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info text-center mt-4">
+        No submissions available.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.StudentName)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.StudentName)</td>
+                    <td>
+                        <a asp-action="ViewAssignment" asp-route-Path="@item.Path">View</a> |
+                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        <a asp-action="DeleteSubmission" asp-route-id="@item.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

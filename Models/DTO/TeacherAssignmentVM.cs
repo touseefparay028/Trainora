@@ -16,6 +16,8 @@ namespace LearningManagementSystem.Models.DTO
         
         [NotMapped]
         [Required(ErrorMessage ="File can not be null")]
+        [AllowedExtensions(new string[] { ".pdf", ".docx", ".pptx" })]
+        [MaxFileSize(5 * 1024 * 1024)] // 5 MB
         public IFormFile File { get; set; }
         public string? Path { get; set; }
         [Required(ErrorMessage = "Subject can not be null")]

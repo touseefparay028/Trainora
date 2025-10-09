@@ -1,0 +1,36 @@
+﻿@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Teachers";
+}
+
+<h2>Teachers List</h2>
+
+@if (Model == null || !Model.Any())
+{
+    <div class="alert alert-info text-center mt-3">
+        No teachers found.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Username</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var teacher in Model)
+            {
+                <tr>
+                    <td>@teacher.Name</td>
+                    <td>@teacher.Email</td>
+                    <td>@teacher.UserName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

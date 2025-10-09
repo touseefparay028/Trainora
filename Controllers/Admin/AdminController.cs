@@ -40,8 +40,12 @@ namespace LearningManagementSystem.Controllers.Account
         [HttpPost("PostCreate")]
         public async  Task<IActionResult> CreateUser(RegisterDTO registerDTO)
         {
-           
-            if(!ModelState.IsValid)
+            ModelState.Remove("Address");
+            ModelState.Remove("DateOfBirth");
+            ModelState.Remove("EnrollmentNumber");
+            ModelState.Remove("Course");
+            ModelState.Remove("Gender");
+            if (!ModelState.IsValid)
             {
               ViewBag.Error=  ModelState.Values.SelectMany(x => x.Errors).Select(y=>y.ErrorMessage);
                 return View("Create",registerDTO);
@@ -162,6 +166,20 @@ namespace LearningManagementSystem.Controllers.Account
                 //return new JsonResult(true);
                 return Json(true);
             }
+        }
+        public async Task<IActionResult> GetTeachers()
+        {
+            var users = await _userManager.GetUsersInRoleAsync("Teacher");
+
+            var teacherList = users.Select(u => new
+            {
+                u.Id,
+                u.Name,
+                u.Email,
+                u.UserName
+            }).ToList();
+
+            return View(teacherList);
         }
 
 

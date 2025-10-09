@@ -37,8 +37,13 @@ namespace LearningManagementSystem.Controllers.Student
         public async Task<IActionResult> Submit(StudentAssignmentVM assignmentVM)
         {
             var studentID = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            await fileService.SubmitAssignmentAsync(assignmentVM,studentID);
-            return RedirectToAction("StudentDashboard","StudentDashboard");  
+            ModelState.Remove("Path");
+         if(ModelState.IsValid)
+            {
+                await fileService.SubmitAssignmentAsync(assignmentVM, studentID);
+                return RedirectToAction("StudentDashboard", "StudentDashboard");
+            }
+         return View("SubmitAssignment", assignmentVM);
         }
     }
 }

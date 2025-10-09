@@ -71,6 +71,12 @@ namespace LearningManagementSystem.Services
             .ToListAsync();
             return mapper.Map<List<TeacherAssignmentVM>>(data);
         }
+        public async Task<List<TeacherAssignmentVM>> GetCreatedAssignments()
+        {
+            var assignments =await lMSDbContext.AssignmentDMs.ToListAsync();
+            var assignment = mapper.Map<List<TeacherAssignmentVM>>(assignments);
+            return assignment;
+        }
         public async Task<List<TeacherAssignmentVM>> GetFilesAsync()
         {
             var studentId = httpContextAccessor.HttpContext?.User?
@@ -100,6 +106,12 @@ namespace LearningManagementSystem.Services
 
             return assignmentVM;
 
+        }
+        public async Task<List<StudentAssignmentVM>> SubmittedAssignments()
+        {
+            var assignments =await lMSDbContext.StudentAssignmentDM.ToListAsync();
+            var SubmittedAssignments = mapper.Map<List<StudentAssignmentVM>>(assignments);
+            return SubmittedAssignments;
         }
         public async Task SubmitAssignmentAsync(StudentAssignmentVM assignmentVM, Guid StudentID)
         {
