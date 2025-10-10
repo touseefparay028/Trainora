@@ -73,7 +73,18 @@ namespace LearningManagementSystem.Services
         }
         public async Task<List<TeacherAssignmentVM>> GetCreatedAssignments()
         {
-            var assignments =await lMSDbContext.AssignmentDMs.ToListAsync();
+            var userId = httpContextAccessor.HttpContext?.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+            var uid = Guid.Parse(userId);
+            if (string.IsNullOrEmpty(userId))
+            {
+               
+                return new List<TeacherAssignmentVM>();  // if not logged in.(Optional)
+            }
+
+            // Get only assignments created by this user
+            var assignments = await lMSDbContext.AssignmentDMs
+                .Where(a => a.ApplicationUserId == uid)
+                .ToListAsync();
             var assignment = mapper.Map<List<TeacherAssignmentVM>>(assignments);
             return assignment;
         }
@@ -107,9 +118,11 @@ namespace LearningManagementSystem.Services
             return assignmentVM;
 
         }
-        public async Task<List<StudentAssignmentVM>> SubmittedAssignments()
+        public async Task<List<StudentAssignmentVM>> SubmittedAssignments( Guid Id)
         {
-            var assignments =await lMSDbContext.StudentAssignmentDM.ToListAsync();
+            var assignments = await lMSDbContext.StudentAssignmentDM
+           .Where(sa => sa.assignmentDMId == Id)
+           .ToListAsync();
             var SubmittedAssignments = mapper.Map<List<StudentAssignmentVM>>(assignments);
             return SubmittedAssignments;
         }

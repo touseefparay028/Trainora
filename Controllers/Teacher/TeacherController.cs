@@ -4,10 +4,14 @@ using LearningManagementSystem.Models.Domains;
 using LearningManagementSystem.Models.DTO;
 using LearningManagementSystem.Models.IdentityEntities;
 using LearningManagementSystem.RoleEnums;
+using LearningManagementSystem.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using System;
+using System.Text.Encodings.Web;
 
 namespace LearningManagementSystem.Controllers.Account
 {
@@ -18,17 +22,19 @@ namespace LearningManagementSystem.Controllers.Account
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly LMSDbContext lMSDbContext;
         private readonly IMapper mapper;
+        private readonly IEmailService emailService;
 
         public TeacherController(UserManager<ApplicationUser> userManager, 
             SignInManager<ApplicationUser> signInManager, 
             RoleManager<ApplicationRole> roleManager, 
-            LMSDbContext lMSDbContext, IMapper mapper)
+            LMSDbContext lMSDbContext, IMapper mapper,IEmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             this.lMSDbContext = lMSDbContext;
             this.mapper = mapper;
+            this.emailService = emailService;
         }
 
         [Route("TeacherRegister")]
@@ -66,9 +72,21 @@ namespace LearningManagementSystem.Controllers.Account
             IdentityResult result = await _userManager.CreateAsync(user, registerDTO.Password);
             if (result.Succeeded)
             {
+                // Generate confirmation token
+                var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                // Build confirmation link
+                var confirmationLink = Url.Action(nameof(ConfirmEmail), "Teacher",
+                    new { userId = user.Id, token }, Request.Scheme);
+
+                // Send Email
+                await emailService.SendVerificationEmailAsync(registerDTO.Email, "Confirm your email",
+                    $"<h4>Welcome, {user.Name}!</h4><p>Please confirm your account by clicking this link:</p>" +
+                    $"<a href='{HtmlEncoder.Default.Encode(confirmationLink)}'>Confirm Email</a>");
+
                 if (await _roleManager.FindByNameAsync(UserTypeOptions.Teacher.ToString()) is null)
                 {
-
+                   
                     ApplicationRole applicationRole = new ApplicationRole()
                     {
                         Name = UserTypeOptions.Teacher.ToString()
@@ -76,16 +94,20 @@ namespace LearningManagementSystem.Controllers.Account
                     await _roleManager.CreateAsync(applicationRole);
                 }
                 await _userManager.AddToRoleAsync(user, UserTypeOptions.Teacher.ToString());
-               //create teacher entry at the same time
-                //var teacher = new TeacherDM
-                //{
-                //    ApplicationUserId = user.Id  // 👈 link ApplicationUser to TeacherDM
-                //};
 
-                //lMSDbContext.TeacherDMs.Add(teacher);
-                //await lMSDbContext.SaveChangesAsync();
+                string subject = "Teacher Account Verification Successful";
 
-                return RedirectToAction("LoginTeacher");
+                string body = $"Hello {registerDTO.Name},\n\n" +
+                              "Your account has been successfully verified as a teacher.\n\n" +
+                              "You can now access your teaching dashboard, create and manage courses, upload study materials, and interact with your students effectively. " +
+                              "As a verified teacher, you are an essential part of our academic network, contributing to the growth and learning of our students. " +
+                              "We encourage you to explore the available tools and resources to deliver engaging and impactful learning experiences.\n\n" +
+                              "If you encounter any issues or need assistance, please contact our support team at support@example.com.\n\n" +
+                              "Best regards,\n" +
+                              "Team Train𝓞ra";
+
+                await emailService.SendMail(registerDTO.Email,subject,body);
+                return RedirectToAction("RegistrationSuccessful");
 
             }
 
@@ -97,6 +119,31 @@ namespace LearningManagementSystem.Controllers.Account
 
             return View("Create",registerDTO);
 
+        }
+        public IActionResult RegistrationSuccessful()
+        {
+            return View();
+        }
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (userId == null || token == null)
+                return View("Error");
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return View("Error");
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+
+            if (result.Succeeded)
+                return View("ConfirmEmailSuccess");
+
+            return View("Error");
+        }
+        public IActionResult ConfirmEmailSuccess()
+        { 
+            return View();
         }
 
         [Route("LoginTeacher")]

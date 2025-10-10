@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "SubmittedAssignments";
+    Layout = "~/Views/Shared/TeacherLayout.cshtml";
 }
 
 <h1>Submitted Assignments</h1>
@@ -31,6 +32,7 @@ else
                         <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                         <a asp-action="DeleteSubmission" asp-route-id="@item.Id">Delete</a>
                     </td>
+                 
                 </tr>
             }
         </tbody>

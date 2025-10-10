@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using System.Text.Encodings.Web;
 
 namespace LearningManagementSystem.Controllers.Student
 {
@@ -69,6 +71,18 @@ namespace LearningManagementSystem.Controllers.Student
             IdentityResult result = await userManager.CreateAsync(user, registerDTO.Password);
             if (result.Succeeded)
             {
+                // Generate confirmation token
+                var token = await userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                // Build confirmation link
+                var confirmationLink = Url.Action(nameof(StudentConfirmEmail), "Student",
+                    new { userId = user.Id, token }, Request.Scheme);
+
+                // Send Email
+                await emailService.SendVerificationEmailAsync(registerDTO.Email, "Confirm your email",
+                    $"<h4>Welcome, {user.Name}!</h4><p>Please confirm your account by clicking this link:</p>" +
+                    $"<a href='{HtmlEncoder.Default.Encode(confirmationLink)}'>Confirm Email</a>");
+
                 if (await roleManager.FindByNameAsync(UserTypeOptions.Student.ToString()) is null)
                 {
 
@@ -80,8 +94,18 @@ namespace LearningManagementSystem.Controllers.Student
                 }
                 await userManager.AddToRoleAsync(user, UserTypeOptions.Student.ToString());
 
-                await emailService.SendMail(registerDTO.Email);
-                return RedirectToAction("LoginStudent");
+                string subject = "Student Registration Successful";
+
+                string body = $"Hello {registerDTO.Name},\n\n" +
+              "Your account has been successfully verified as a student.\n\n" +
+              "You can now access your student dashboard, explore available courses, and start engaging with learning materials, assignments, and announcements. " +
+              "As a verified student, you are now part of our academic community dedicated to growth, collaboration, and excellence. " +
+              "We encourage you to stay active, participate in discussions, and make the most of the opportunities available to you.\n\n" +
+              "If you have any questions or face any issues, feel free to reach out to our support team at support@example.com for assistance.\n\n" +
+              "Best regards,\n" +
+              "Team Train𝓞ra";
+                await emailService.SendMail(registerDTO.Email,subject,body);
+                return RedirectToAction("StudentRegistrationSuccessful");
 
             }
 
@@ -94,6 +118,34 @@ namespace LearningManagementSystem.Controllers.Student
             return View("Create", registerDTO);
 
         }
+
+        public IActionResult StudentRegistrationSuccessful()
+        {
+            return View();
+        }
+        [HttpGet]
+        public async Task<IActionResult> StudentConfirmEmail(string userId, string token)
+        {
+            if (userId == null || token == null)
+                return View("Error");
+
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+                return View("Error");
+
+            var result = await userManager.ConfirmEmailAsync(user, token);
+
+            if (result.Succeeded)
+                return View("StudentConfirmEmailSuccess");
+
+            return View("Error");
+        }
+        public IActionResult StudentConfirmEmailSuccess()
+        {
+            return View();
+        }
+
+
         [Route("StudentLogin")]
         public IActionResult LoginStudent()
         {

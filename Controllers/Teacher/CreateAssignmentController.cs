@@ -51,7 +51,7 @@ namespace LearningManagementSystem.Controllers.Teacher
         }
         public async Task<IActionResult> GetCreatedAssignments()
         {
-            return View(await fileService.GetCreatedAssignments());
+         return View(await fileService.GetCreatedAssignments());
         }
         [Route("CreateAssignment/GetFilesAsync")]
         public async Task<IActionResult> GetListAsync()
@@ -59,10 +59,10 @@ namespace LearningManagementSystem.Controllers.Teacher
 
             return View(await fileService.GetFilesAsync());
         }
-        public async Task<IActionResult> SubmittedAssignments()
+        public async Task<IActionResult> SubmittedAssignments(Guid Id)
         {
             
-            return View(await fileService.SubmittedAssignments());
+            return View(await fileService.SubmittedAssignments(Id));
         }
         [Route("CreateAssignment/Download")]
         public IActionResult Download(string FilePath)

@@ -26,7 +26,8 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
     options.Password.RequireLowercase = true;
     options.Password.RequireDigit = true;
     options.Password.RequireNonAlphanumeric = false;
-    
+    options.SignIn.RequireConfirmedEmail = true; // important!
+
 })
     .AddEntityFrameworkStores<LMSDbContext>().AddDefaultTokenProviders()
     .AddUserStore<UserStore<ApplicationUser, ApplicationRole, LMSDbContext, Guid>>()

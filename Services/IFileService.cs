@@ -13,7 +13,7 @@ namespace LearningManagementSystem.Services
         Task<List<TeacherAssignmentVM>> GetFilteredFiles();
         Task UploadStudyMaterialAsync(StudyMaterialsVM studyMaterialsVM);
         Task<List<StudyMaterialsVM>> GetMaterialAsync();
-        Task<List<StudentAssignmentVM>> SubmittedAssignments();
+        Task<List<StudentAssignmentVM>> SubmittedAssignments(Guid Id);
         Task<List<TeacherAssignmentVM>> GetCreatedAssignments();
     }
 }
