@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Admin Registration Successful";
+}
+
+<div class="d-flex justify-content-center align-items-center flex-column" style="min-height: 70vh;">
+    <div class="card shadow p-4 text-center" style="max-width: 500px; border-radius: 15px;">
+        <h2 class="text-success mb-3">🎉 Registration Successful!</h2>
+        <p class="mb-3">
+            We've sent a verification link to your email address.
+        </p>
+        <p class="text-muted mb-4">
+            Please check your inbox (and spam folder) and click on the link to verify your email before logging in.
+        </p>
+
+        <a asp-controller="Admin" asp-action="Login" class="btn btn-primary rounded-pill px-4 py-2">
+            Go to Login
+        </a>
+        @* <script>
+            setTimeout(() => {
+                window.location.href = '@Url.Action("LoginTeacher", "Teacher")';
+            }, 10000); // redirect after 5 seconds
+        </script>
+
+        <p class="text-muted mt-3">Redirecting you to login page...</p> *@
+
+    </div>
+</div>
