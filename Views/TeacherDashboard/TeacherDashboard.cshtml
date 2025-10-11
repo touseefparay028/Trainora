@@ -1,12 +1,11 @@
 ﻿@model LearningManagementSystem.Models.Domains.VideoConference
 @{
     ViewData["Title"] = "Teacher Dashboard";
+    Layout = "~/Views/Shared/TeacherLayout.cshtml";
 }
 @{
     Layout = null;
 }
-  
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -14,43 +13,36 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"]</title>
-
+    <link href="~/css/TeacherDashboard.css" rel="stylesheet" />
     <!-- Bootstrap CSS & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
     <style>
-        body {
-            background-color: #f4f6f9;
-        }
-
-        .sidebar {
-            height: 100vh;
+        .sidebar div {
             background-color: #343a40;
-            color: #fff;
-            padding-top: 1rem;
-        }
-
-        .sidebar a {
-            color: #ddd;
-            text-decoration: none;
-            display: block;
+            color: white;
+            border: none;
             padding: 10px;
-            transition: 0.3s;
+            text-align: left;
         }
-
-        .sidebar a:hover {
-            background-color: #495057;
-            color: #fff;
+        .sidebar ul:hover
+        {
+            background-color: #e9ecef;
         }
-
+        .sidebar ul
+        {
+            background-color: #343a40;
+            color: #343a40;
+        }
+        
         .card {
             border-radius: 1rem;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
         }
 
         .dashboard-section {
-            padding: 2rem;
+            padding: 2rem 1rem;
         }
 
         .card-icon {
@@ -58,36 +50,48 @@
             color: #0d6efd;
         }
 
-        .btn {
-            color: #ddd;
-        }
+       
     </style>
 </head>
 
 <body>
     <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-2 sidebar d-none d-md-block">
+        <div class="row flex-nowrap">
+            <!-- Sidebar for desktop -->
+            <nav class="col-md-2 sidebar d-none d-md-block" id="sidebarMenu">
                 <div class="text-center mb-4">
                     <h4>Teacher Panel</h4>
                 </div>
-               
 
-
-                <a asp-action="Dashboard" asp-controller="Teacher">Dashboard</a>
+                <a asp-action="TeacherDashboard" asp-controller="TeacherDashboard">Dashboard</a>
                 <a asp-action="AddCourse" asp-controller="Teacher">Add Course</a>
                 <a asp-action="MyCourses" asp-controller="Teacher">View My Courses</a>
                 <a asp-action="StudentEnrollments" asp-controller="Teacher">Student Enrollments</a>
                 <a asp-action="GetFilesAsync" asp-controller="CreateAssignment">Assignments</a>
-                <a asp-action="GetCreatedAssignments" asp-controller="Createassignment">Created Assignments</a>
+                <a asp-action="GetCreatedAssignments" asp-controller="CreateAssignment">Created Assignments</a>
                 <a asp-action="AssignGrades" asp-controller="Teacher">Assign Grades</a>
-              
-                
-                    <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <a class="dropdown-toggle" data-bs-toggle="dropdown">
+                    Create Meet
+                </a>
+                <ul class="dropdown-menu">
+                    @foreach (var batch in Model.BatchList)
+                    {
+                        <li>
+                            <a class="dropdown-item"
+                               asp-controller="Teacher"
+                               asp-action="StartConference"
+                               asp-route-batchId="@batch.id">
+                                @batch.Name
+                            </a>
+                        </li>
+                    }
+                </ul>
+
+                @* <div class="dropdown">
+                    <button class="btn btn-dark w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Create Meet
                     </button>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu w-100">
                         @foreach (var batch in Model.BatchList)
                         {
                             <li>
@@ -100,20 +104,63 @@
                             </li>
                         }
                     </ul>
-                
+                </div> *@
+
                 <a asp-action="GetConferences" asp-controller="Teacher">Meetings</a>
                 <a asp-action="Logout" asp-controller="Teacher">Logout</a>
             </nav>
 
             <!-- Main Content -->
             <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
-                <nav class="navbar navbar-light bg-white shadow-sm p-3">
-                    <span class="navbar-brand">Welcome, @ViewBag.Name</span>
+                <!-- Mobile navbar with hamburger -->
+                <nav class="navbar navbar-light bg-white shadow-sm p-3 d-md-none">
+                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <span class="navbar-brand ms-2">Welcome, @ViewBag.Name</span>
                 </nav>
 
+                <!-- Offcanvas mobile sidebar -->
+                <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+                    <div class="offcanvas-header bg-dark text-white">
+                        <h5 class="offcanvas-title" id="mobileSidebarLabel">Teacher Panel</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                    </div>
+                    <div class="offcanvas-body p-0">
+                        <a class="d-block p-2" asp-action="TeacherDashboard" asp-controller="TeacherDashboard">Dashboard</a>
+                        <a class="d-block p-2" asp-action="AddCourse" asp-controller="Teacher">Add Course</a>
+                        <a class="d-block p-2" asp-action="MyCourses" asp-controller="Teacher">View My Courses</a>
+                        <a class="d-block p-2" asp-action="StudentEnrollments" asp-controller="Teacher">Student Enrollments</a>
+                        <a class="d-block p-2" asp-action="GetFilesAsync" asp-controller="CreateAssignment">Assignments</a>
+                        <a class="d-block p-2" asp-action="GetCreatedAssignments" asp-controller="CreateAssignment">Created Assignments</a>
+                        <a class="d-block p-2" asp-action="AssignGrades" asp-controller="Teacher">Assign Grades</a>
+                        
+                            <button class="btn w-100 dropdown-toggle text-start " type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Create Meet
+                            </button>
+                            <ul class="dropdown-menu" createmeet>
+                                @foreach (var batch in Model.BatchList)
+                                {
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-controller="Teacher"
+                                           asp-action="StartConference"
+                                           asp-route-batchId="@batch.id">
+                                            @batch.Name
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        
+                        <a class="d-block p-2" asp-action="GetConferences" asp-controller="Teacher">Meetings</a>
+                        <a class="d-block p-2" asp-action="Logout" asp-controller="Teacher">Logout</a>
+                    </div>
+                </div>
+
+                <!-- Dashboard cards -->
                 <div class="dashboard-section">
                     <div class="row g-4">
-                        <div class="col-md-4">
+                        <div class="col-12 col-sm-6 col-lg-4">
                             <div class="card p-4 text-center">
                                 <i class="bi bi-journal-plus card-icon"></i>
                                 <h5 class="mt-2">Add Programmes</h5>
@@ -121,7 +168,7 @@
                                 <a asp-action="AddProgramme" asp-controller="Teacher" class="btn btn-primary">Add Programme</a>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-12 col-sm-6 col-lg-4">
                             <div class="card p-4 text-center">
                                 <i class="bi bi-person-lines-fill card-icon"></i>
                                 <h5 class="mt-2">Student Enrollments</h5>
@@ -129,7 +176,7 @@
                                 <a asp-action="StudentEnrollments" asp-controller="Teacher" class="btn btn-primary">View Enrollments</a>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-12 col-sm-6 col-lg-4">
                             <div class="card p-4 text-center">
                                 <i class="bi bi-pencil-square card-icon"></i>
                                 <h5 class="mt-2">Give Assignment</h5>
@@ -137,15 +184,15 @@
                                 <a asp-action="CreateAssignment" asp-controller="CreateAssignment" class="btn btn-primary">Create Assignment</a>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-12 col-sm-6 col-lg-4">
                             <div class="card p-4 text-center">
                                 <i class="bi bi-folder-symlink card-icon"></i>
                                 <h5 class="mt-2">Submitted Assignments</h5>
                                 <p>Check student submissions.</p>
-                                <a asp-action="SubmittedAssignments" asp-controller="createAssignment" class="btn btn-primary">Review Submissions</a>
+                                <a asp-action="SubmittedAssignments" asp-controller="CreateAssignment" class="btn btn-primary">Review Submissions</a>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-12 col-sm-6 col-lg-4">
                             <div class="card p-4 text-center">
                                 <i class="bi bi-stars card-icon"></i>
                                 <h5 class="mt-2">Assign Grades</h5>
@@ -153,7 +200,7 @@
                                 <a asp-action="AssignGrades" asp-controller="Teacher" class="btn btn-primary">Assign Grades</a>
                             </div>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-12 col-sm-6 col-lg-4">
                             <div class="card p-4 text-center">
                                 <i class="bi bi-journals card-icon"></i>
                                 <h5 class="mt-2">My Courses</h5>
@@ -166,9 +213,6 @@
             </main>
         </div>
     </div>
-
-
-
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -56,7 +56,7 @@ namespace LearningManagementSystem.Controllers.Account
             //{
             //    Name=registerDTO.Name,  
             //    Email=registerDTO.Email,    
-            //    PhoneNumber=registerDTO.Phone,
+            user.PhoneNumber = registerDTO.Phone;
             //    UserName=registerDTO.Email
             
             //};
