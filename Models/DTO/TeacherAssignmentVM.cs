@@ -22,11 +22,11 @@ namespace LearningManagementSystem.Models.DTO
         public string? Path { get; set; }
         [Required(ErrorMessage = "Subject can not be null")]
         public string? Subject { get; set; }
- 
+
         [Required(ErrorMessage = "Due time is required.")]
         [DataType(DataType.DateTime)]
-        [FutureDate(ErrorMessage ="Date must be in future")]
-        public DateTime DueTime { get; set; }
+        [FutureDate(ErrorMessage = "Date must be in future")]
+        public DateTime DueTime { get; set; } = DateTime.Now;
         public Guid? ApplicationUserId { get; set; }
         public ApplicationUser? ApplicationUser { get; set; }
         public bool IsSubmitted { get; set; }

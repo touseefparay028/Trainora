@@ -176,7 +176,7 @@ namespace LearningManagementSystem.Services
             //StudyMaterial.Title = studyMaterialsVM.Title;
             StudyMaterial.UploadedBy = user?.Name?? "Unknown";
             //StudyMaterial.Description = studyMaterialsVM.Description;
-            //StudyMaterial.UploadedOn= studyMaterialsVM.UploadedOn;
+            StudyMaterial.UploadedOn = DateTime.Now;
             StudyMaterial.ApplicationUserId = Guid.Parse(UserId);
             await lMSDbContext.StudyMaterials.AddAsync(StudyMaterial);
             await lMSDbContext.SaveChangesAsync();

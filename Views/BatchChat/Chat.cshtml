@@ -21,46 +21,44 @@
         .withUrl("/chatHub")
         .build();
 
-    const batchId = "@Model.BatchDMId";
+    const batchId = "@Model.BatchDMId"; // should be GUID string
     const userName = "@Model.UserName";
 
     connection.start().then(() => {
-        connection.invoke("JoinBatch", batchId);
-    });
+        if (batchId && batchId !== "00000000-0000-0000-0000-000000000000") {
+            connection.invoke("JoinBatch", batchId);
+        } else {
+            alert("Invalid batch. Chat not joined.");
+        }
+    }).catch(err => console.error(err.toString()));
 
     connection.on("ReceiveMessage", (user, message, time) => {
         const placeholder = document.getElementById("placeholder");
-        if (placeholder) {
-            placeholder.remove(); // remove default text when first message arrives
-        }
+        if (placeholder) placeholder.remove();
 
         const msg = document.createElement("div");
-
-        if (user === userName) {
-            msg.className = "message sent";
-        } else {
-            msg.className = "message received";
-        }
-
-        msg.innerHTML = `<span class="user">${user}</span>
-                         <p>${message}</p>
-                         <span class="time">${time}</span>`;
+        msg.className = user === userName ? "message sent" : "message received";
+        msg.innerHTML = `
+            <span class="user">${user}</span>
+            <p>${message}</p>
+            <span class="time">${time}</span>`;
 
         const messagesBox = document.getElementById("messages");
         messagesBox.appendChild(msg);
-
-        // ✅ Auto-scroll only inside the chatbox
         messagesBox.scrollTop = messagesBox.scrollHeight;
     });
 
     function sendMessage() {
-        const message = document.getElementById("messageInput").value;
-        if (message.trim() === "") return;
+        const input = document.getElementById("messageInput");
+        const message = input.value.trim();
+        if (message === "") return;
 
-        connection.invoke("SendMessage", batchId, userName, message);
-        document.getElementById("messageInput").value = "";
+        connection.invoke("SendMessage", batchId, userName, message)
+            .catch(err => console.error(err.toString()));
+        input.value = "";
     }
 </script>
+
 
 <style>
     .chat-container {

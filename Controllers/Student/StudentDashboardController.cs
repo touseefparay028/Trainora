@@ -33,6 +33,7 @@ namespace LearningManagementSystem.Controllers.Student
             var studentId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var userIdd = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await userManager.FindByIdAsync(userIdd);
+            ViewBag.batchid = user?.BatchDMId;
             ViewBag.Name = user?.Name ?? "Unknown";
             // get student's batch id
             var studentBatchId = await lMSDbContext.Users

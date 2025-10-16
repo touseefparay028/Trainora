@@ -28,7 +28,7 @@
         }
         .sidebar ul:hover
         {
-            background-color: #e9ecef;
+            background-color: #343a40;
         }
         .sidebar ul
         {
@@ -80,6 +80,22 @@
                             <a class="dropdown-item"
                                asp-controller="Teacher"
                                asp-action="StartConference"
+                               asp-route-batchId="@batch.id">
+                                @batch.Name
+                            </a>
+                        </li>
+                    }
+                </ul>
+                <a class="dropdown-toggle" data-bs-toggle="dropdown">
+                    Chat
+                </a>
+                <ul class="dropdown-menu">
+                    @foreach (var batch in Model.BatchList)
+                    {
+                        <li>
+                            <a class="dropdown-item"
+                               asp-controller="BatchChat"
+                               asp-action="Chat"
                                asp-route-batchId="@batch.id">
                                 @batch.Name
                             </a>
@@ -152,7 +168,25 @@
                                 }
                             </ul>
                         
+                       
+                        
                         <a class="d-block p-2" asp-action="GetConferences" asp-controller="Teacher">Meetings</a>
+                        <button class="btn w-100 dropdown-toggle text-start " type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Chat
+                        </button>
+                         <ul class="dropdown-menu" chat>
+                            @foreach (var batch in Model.BatchList)
+                            {
+                                <li>
+                                    <a class="dropdown-item"
+                                       asp-controller="BatchChat"
+                                       asp-action="Chat"
+                                       asp-route-id="@batch.id">
+                                        @batch.Name
+                                    </a>
+                                </li>
+                            }
+                        </ul>
                         <a class="d-block p-2" asp-action="Logout" asp-controller="Teacher">Logout</a>
                     </div>
                 </div>

@@ -13,11 +13,18 @@ namespace LearningManagementSystem.Controllers.BatchChats
         {
             _userManager = userManager;
         }
-        [Route("GoChat")]
-        // Chat view for a specific batch
+
+        [Route("GoChat/{id:guid}")]
         public async Task<IActionResult> Chat(Guid id) // id = BatchId
         {
             var user = await _userManager.GetUserAsync(User);
+
+            // If user or batch is invalid, redirect or show message
+            if (user == null)
+                return RedirectToAction("Login", "Account");
+
+            if (id == Guid.Empty)
+                return BadRequest("Invalid batch selected.");
 
             var model = new BatchChatViewModel
             {

@@ -384,6 +384,17 @@ namespace LearningManagementSystem.Controllers.Account
             return View(conferences);
 
         }
+        [HttpGet]
+        [Route("EndConference")]
+        public IActionResult DeleteConference(Guid Id)
+        {
+            var conference = lMSDbContext.VideoConference.FirstOrDefault(c => c.Id == Id);
+            if (conference == null) return
+                    NotFound();
+            lMSDbContext.VideoConference.Remove(conference);
+            lMSDbContext.SaveChanges();
+            return RedirectToAction("GetConferences");
+        }
 
 
     }

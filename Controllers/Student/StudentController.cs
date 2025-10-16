@@ -204,8 +204,9 @@ namespace LearningManagementSystem.Controllers.Student
             foreach (IdentityError error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
-
+              
             }
+            registerDTO.BatchList = await fileService.GetBatchSelectListAsync();
             return View("Create", registerDTO);
 
         }

@@ -33,6 +33,13 @@
             color: #555;
             margin-bottom: 20px;
         }
+        #navbarNav ul li{
+            transition:all 0.5s;
+        }
+        #navbarNav ul li:hover{
+            background-color: blueviolet;
+            border-radius:12px;
+        }
 
     .btn-primary {
         background-color: #1d4ed8;
@@ -68,7 +75,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <li class="nav-item"><a class="nav-link" asp-action="Features" asp-controller="Home" >Features</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Pricing</a></li>
+               
                 <li class="nav-item"><a class="nav-link"asp-action="About" asp-controller="Home">About</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
             </ul>
@@ -101,7 +108,7 @@
     </div>
 </section>
 
-<div class="container-fluid my-5 col-md-6 text-start">
+<div class="container-fluid my-5 col-md-9 text-start">
     <div class="row align-items-center rounded-4 p-5" style="background: linear-gradient(135deg, #007BFF, #3399FF); color: white;">
 
         @* <!-- Left Illustration -->
