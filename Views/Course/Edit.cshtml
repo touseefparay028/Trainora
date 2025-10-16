@@ -23,11 +23,14 @@
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="TeacherId" class="control-label"></label>
-                <select asp-for="TeacherId" class="form-control" asp-items="ViewBag.TeacherId"></select>
+            @* <!--Dropdown Teacher -->
+            <div class="form-group mb-3">
+                <label asp-for="TeacherId" class="form-label">Assign a teacher</label>
+                <select asp-for="TeacherId" asp-items="Model.TeacherList" class="form-control">
+                    <option value=""> -- Assign Teacher --</option>
+                </select>
                 <span asp-validation-for="TeacherId" class="text-danger"></span>
-            </div>
+            </div> *@
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

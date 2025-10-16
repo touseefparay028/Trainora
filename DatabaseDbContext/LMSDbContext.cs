@@ -48,7 +48,7 @@ namespace LearningManagementSystem.DatabaseDbContext
                 .WithMany(c => c.TimeTables)
                 .HasForeignKey(t => t.CourseId);
         }
-        public DbSet<LearningManagementSystem.Models.DTO.CourseVM> CourseVM { get; set; } = default!;
+        //public DbSet<LearningManagementSystem.Models.DTO.CourseVM> CourseVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.StudyMaterialsVM> StudyMaterialsVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.StudentAssignmentVM> StudentAssignmentVM { get; set; } = default!;
        
