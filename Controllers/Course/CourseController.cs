@@ -294,5 +294,15 @@ namespace LearningManagementSystem.Controllers
             }
             return RedirectToAction(nameof(GetCourses));
         }
+        [Route("ExploreCourses")]
+        public async Task<IActionResult> ExploreCourses()
+        {
+            var courses = await lMSDbContext.Courses
+                .Include(c => c.Teacher)
+                .Include(c => c.TimeTables)
+                .ToListAsync();
+            var courseVM = mapper.Map<List<CourseVM>>(courses);
+            return View(courseVM);
+        }
     }
 }
