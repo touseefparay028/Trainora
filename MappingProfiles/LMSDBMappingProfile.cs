@@ -19,11 +19,11 @@ namespace LearningManagementSystem.MappingProfiles
             CreateMap<TeacherAssignmentVM, TeacherAssignmentDM>()
             .ForMember(dest => dest.Path, opt => opt.Ignore());  //File is Saved seperately
             CreateMap<TeacherAssignmentDM, TeacherAssignmentVM>();
-            CreateMap<BatchVM, BatchDM>();
-            CreateMap<BatchDM, BatchVM>();
+            CreateMap<BatchVM, BatchDM>().ReverseMap();
             CreateMap<StudyMaterialsDM, StudyMaterialsVM>().ReverseMap();
             CreateMap<StudentAssignmentVM, StudentAssignmentDM>().ReverseMap();
             CreateMap<CourseDM, CourseVM>().ReverseMap();
+            CreateMap<TimeTableDM, TimeTableVM>().ReverseMap();
         }
     }
 }

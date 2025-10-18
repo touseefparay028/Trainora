@@ -1,0 +1,46 @@
+﻿@model LearningManagementSystem.Models.DTO.TimeTableVM
+
+<h3 class="mb-4">Add Class Slot</h3>
+
+<form asp-action="CreateTimeTable" asp-controller="TimeTable" method="post" class="p-4 bg-light rounded-4 shadow-sm">
+    <input type="hidden" asp-for="CourseId" value="@ViewBag.CourseId" />
+
+    <div class="mb-3">
+        <label asp-for="Day" class="form-label">Day</label>
+        <select asp-for="Day" class="form-select" required>
+            <option value="">Select Day</option>
+            <option>Monday</option>
+            <option>Tuesday</option>
+            <option>Wednesday</option>
+            <option>Thursday</option>
+            <option>Friday</option>
+            <option>Saturday</option>
+        </select>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label asp-for="StartTime" class="form-label">Start Time</label>
+            <input asp-for="StartTime" type="time" class="form-control" required />
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="EndTime" class="form-label">End Time</label>
+            <input asp-for="EndTime" type="time" class="form-control" required />
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="LabLocation" class="form-label">Lab Location</label>
+        <input asp-for="LabLocation" class="form-control" placeholder="e.g. Lab A" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save Slot</button>
+    <a asp-controller="Course" asp-action="Index" class="btn btn-secondary">Cancel</a>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="text-danger mt-3">
+            @Html.ValidationSummary()
+        </div>
+    }
+</form>

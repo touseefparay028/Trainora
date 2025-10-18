@@ -35,10 +35,12 @@ namespace LearningManagementSystem.Controllers
             return View(CourseVM);
         }
         [Authorize(Roles = "Admin")]
+        [Route("AminCourses")]
         public async Task<IActionResult> AdminGetCourses()
         {
             var courses = await lMSDbContext.Courses
                 .Include(c => c.Teacher)
+                .Include(c => c.TimeTables)
                 .ToListAsync();
             var CourseVM = mapper.Map<List<CourseVM>>(courses);
             return View(CourseVM);
@@ -300,8 +302,15 @@ namespace LearningManagementSystem.Controllers
             var courses = await lMSDbContext.Courses
                 .Include(c => c.Teacher)
                 .Include(c => c.TimeTables)
+                .Include(c => c.Enrollments)
                 .ToListAsync();
             var courseVM = mapper.Map<List<CourseVM>>(courses);
+            {  foreach (var course in courseVM)
+                {
+                    course.EnrolledStudentsCount = course.Enrollments?.Count ?? 0;
+                }
+            }
+            
             return View(courseVM);
         }
     }

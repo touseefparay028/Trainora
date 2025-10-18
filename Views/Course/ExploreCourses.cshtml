@@ -24,9 +24,12 @@
                             <li>@slot.Day — @slot.StartTime.ToString(@"hh\:mm") - @slot.EndTime.ToString(@"hh\:mm") (@slot.LabLocation)</li>
                         }
                     </ul>
+                    <span class="badge bg-primary rounded-pill px-3 py-2">Enrolled Students:
+                        @course.EnrolledStudentsCount
+                    </span>
                     <form asp-action="Enroll" method="post">
                         <input type="hidden" name="courseId" value="@course.Id" />
-                        <button type="submit" class="btn btn-primary w-100">Enroll</button>
+                        <button type="submit" class="btn btn-primary w-100">Enroll Now</button>
                     </form>
                 </div>
             </div>
