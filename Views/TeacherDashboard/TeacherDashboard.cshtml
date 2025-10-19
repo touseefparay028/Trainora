@@ -64,8 +64,8 @@
                 </div>
 
                 <a asp-action="TeacherDashboard" asp-controller="TeacherDashboard">Dashboard</a>
-                <a asp-action="AddCourse" asp-controller="Teacher">Add Course</a>
-                <a asp-action="MyCourses" asp-controller="Teacher">View My Courses</a>
+                <a asp-action="Create" asp-controller="Course">Add Course</a>
+                <a asp-action="GetCourses" asp-controller="Course">View My Courses</a>
                 <a asp-action="StudentEnrollments" asp-controller="Teacher">Student Enrollments</a>
                 <a asp-action="GetFilesAsync" asp-controller="CreateAssignment">Assignments</a>
                 <a asp-action="GetCreatedAssignments" asp-controller="CreateAssignment">Created Assignments</a>
@@ -197,9 +197,9 @@
                         <div class="col-12 col-sm-6 col-lg-4">
                             <div class="card p-4 text-center">
                                 <i class="bi bi-journal-plus card-icon"></i>
-                                <h5 class="mt-2">Add Programmes</h5>
+                                <h5 class="mt-2">Add Course</h5>
                                 <p>Create new courses for students.</p>
-                                <a asp-action="AddProgramme" asp-controller="Teacher" class="btn btn-primary">Add Programme</a>
+                                <a asp-action="Create" asp-controller="Course" class="btn btn-primary">Add Course</a>
                             </div>
                         </div>
                         <div class="col-12 col-sm-6 col-lg-4">
@@ -239,7 +239,7 @@
                                 <i class="bi bi-journals card-icon"></i>
                                 <h5 class="mt-2">My Courses</h5>
                                 <p>Check your active courses.</p>
-                                <a asp-action="MyCourses" asp-controller="Teacher" class="btn btn-primary">View Courses</a>
+                                <a asp-action="GetCourses" asp-controller="Course" class="btn btn-primary">View Courses</a>
                             </div>
                         </div>
                     </div>

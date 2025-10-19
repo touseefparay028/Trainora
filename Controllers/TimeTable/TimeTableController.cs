@@ -45,6 +45,10 @@ namespace LearningManagementSystem.Controllers.TimeTable
                 var TimeTables = mapper.Map<TimeTableDM>(TimeTable);
                 lMSDbContext.TimeTables.Add(TimeTables);
                 lMSDbContext.SaveChanges();
+                if(User.IsInRole("Admin"))
+                {
+                    return RedirectToAction("AdminGetDetails","Course", new {id = TimeTable.CourseId });
+                }
                 return RedirectToAction("Details", "Course", new { id = TimeTable.CourseId });
             }
 
@@ -63,6 +67,16 @@ namespace LearningManagementSystem.Controllers.TimeTable
 
             var courseVM = mapper.Map<CourseVM>(course);
             return View(courseVM);
+        }
+        [Route("DeletSlot")]
+        public IActionResult DeleteSlot(Guid id)
+        {
+            var timeTable = lMSDbContext.TimeTables.Find(id);
+            if (timeTable == null)
+                return NotFound();
+            lMSDbContext.TimeTables.Remove(timeTable);
+            lMSDbContext.SaveChanges();
+            return RedirectToAction("ManageTimeTable", new { courseId = timeTable.CourseId });
         }
     }
 }

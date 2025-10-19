@@ -318,6 +318,40 @@ namespace LearningManagementSystem.Controllers.Account
             await _signInManager.SignOutAsync();
             return RedirectToAction("LoginTeacher");
         }
+        [HttpGet]
+        [Route("ChangePassword")]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePasswordNow(ChangePasswordVM changePassword)
+        {
+            if (!ModelState.IsValid)
+                return View(changePassword);
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("LoginTeacher", "Teacher");
+            }
+
+            var result = await _userManager.ChangePasswordAsync(user, changePassword.CurrentPassword, changePassword.NewPassword);
+            if (result.Succeeded)
+            {
+                await _signInManager.RefreshSignInAsync(user);
+                TempData["SuccessMessage"] = "Password changed successfully!";
+                return RedirectToAction("TeacherDashboard", "TeacherDashboard"); // or wherever you want
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View("ChangePassword",changePassword);
+        }
 
         public async Task<IActionResult> IsEmailRegisteredAlready(String Email)
         {
@@ -370,16 +404,19 @@ namespace LearningManagementSystem.Controllers.Account
             // Fetch conferences created by this teacher
             var conferences = lMSDbContext.VideoConference
                 .Where(c => c.TeacherId == userId)
+                .Include(c=> c.batch)
                 .OrderByDescending(c => c.StartTime)
                 .Select(c => new VideoConferenceVM
                 {
                     Id = c.Id,
                     BatchId = c.BatchId,
+                    BatchName = c.batch.Name,
                     StartTime = c.StartTime,
                     EndTime = c.EndTime,
                     MeetingLink = c.MeetingLink
                 })
                 .ToList();
+            
 
             return View(conferences);
 

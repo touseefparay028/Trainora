@@ -34,8 +34,8 @@ namespace LearningManagementSystem.Controllers
             var CourseVM = mapper.Map<List<CourseVM>>(courses);
             return View(CourseVM);
         }
+       
         [Authorize(Roles = "Admin")]
-        [Route("AminCourses")]
         public async Task<IActionResult> AdminGetCourses()
         {
             var courses = await lMSDbContext.Courses
@@ -66,6 +66,26 @@ namespace LearningManagementSystem.Controllers
             var courseVM = mapper.Map<CourseVM>(course);
             return View(courseVM);
         }
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> AdminGetDetails(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return NotFound();
+            }
+
+            var course = await lMSDbContext.Courses
+                .Include(c => c.Teacher)
+                .Include(c => c.TimeTables)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (course == null)
+            {
+                return NotFound();
+            }
+            var courseVM = mapper.Map<CourseVM>(course);
+            return View(courseVM);
+        }
 
         // GET: Courses/Create
         [Authorize(Roles = "Teacher")]
@@ -73,7 +93,7 @@ namespace LearningManagementSystem.Controllers
         {
             return View();
         }
-        [Route("Admin/CreateCourse")]
+       
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AdminCreateCourse()
         {
@@ -125,7 +145,7 @@ namespace LearningManagementSystem.Controllers
                 }
                 await lMSDbContext.Courses.AddAsync(CourseDM);
                 await lMSDbContext.SaveChangesAsync();
-                return RedirectToAction("GetCourses");
+                return RedirectToAction("AdminGetCourses");
             }
             course.TeacherList = await userManager.GetUsersInRoleAsync("Teacher")
                 .ContinueWith(t => t.Result.Select(u => new SelectListItem
@@ -282,6 +302,24 @@ namespace LearningManagementSystem.Controllers
             var courseVM = mapper.Map<CourseVM>(course);
             return View(courseVM);
         }
+        public async Task<IActionResult> AdminDelete(Guid id)
+        {
+            if (id == Guid.Empty)
+            {
+                return NotFound();
+            }
+
+            var course = await lMSDbContext.Courses
+                .Include(c => c.Teacher)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (course == null)
+            {
+                return NotFound();
+            }
+            var courseVM = mapper.Map<CourseVM>(course);
+            return View(courseVM);
+        }
 
         // POST: Courses/Delete/5
         [HttpPost, ActionName("Delete")]
@@ -295,6 +333,18 @@ namespace LearningManagementSystem.Controllers
                 await lMSDbContext.SaveChangesAsync();
             }
             return RedirectToAction(nameof(GetCourses));
+        }
+        [HttpPost, ActionName("AdminDeleteConfirmed")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AdminDeleteConfirmed(Guid id)
+        {
+            var course = await lMSDbContext.Courses.FindAsync(id);
+            if (course != null)
+            {
+                lMSDbContext.Courses.Remove(course);
+                await lMSDbContext.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(AdminGetCourses));
         }
         [Route("ExploreCourses")]
         public async Task<IActionResult> ExploreCourses()

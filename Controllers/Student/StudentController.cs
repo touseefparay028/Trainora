@@ -322,6 +322,41 @@ namespace LearningManagementSystem.Controllers.Student
             await signInManager.SignOutAsync();
             return RedirectToAction("LoginStudent");
         }
+        [Route("Student/ChangePassword")]
+        [HttpGet]
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePasswordNow(ChangePasswordVM changePassword)
+        {
+            if (!ModelState.IsValid)
+                return View(changePassword);
+
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("LoginStudent", "Student");
+            }
+
+            var result = await userManager.ChangePasswordAsync(user, changePassword.CurrentPassword, changePassword.NewPassword);
+            if (result.Succeeded)
+            {
+                await signInManager.RefreshSignInAsync(user);
+                TempData["SuccessMessage"] = "Password changed successfully!";
+                return RedirectToAction("StudentDashboard", "StudentDashboard"); 
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return View("ChangePassword", changePassword);
+        }
+
         [Route("/Student/GetListAAsync")]
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> GetListAAsync()

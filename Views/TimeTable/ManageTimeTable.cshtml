@@ -37,7 +37,7 @@
                                 <td>@slot.EndTime</td>
                                 <td>@slot.LabLocation</td>
                                 <td>
-                                    <form asp-action="DeleteSlot" method="post" style="display:inline;">
+                                    <form asp-action="DeleteSlot" asp-controller="TimeTable" method="post" style="display:inline;">
                                         <input type="hidden" name="id" value="@slot.Id" />
                                         <input type="hidden" name="courseId" value="@Model.Id" />
                                         <button type="submit" class="btn btn-outline-danger btn-sm"
