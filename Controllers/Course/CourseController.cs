@@ -31,8 +31,14 @@ namespace LearningManagementSystem.Controllers
             var courses = await lMSDbContext.Courses
                 .Include(c => c.Teacher)
                 .Include(c => c.TimeTables)
+                .Include(c => c.Enrollments)
                 .ToListAsync();
             var CourseVM = mapper.Map<List<CourseVM>>(courses);
+            CourseVM.ForEach(c =>
+     c.EnrolledStudentsCount = c.Enrollments != null
+         ? c.Enrollments.Count(e => e.IsApproved)
+         : 0
+ );
             return View(CourseVM);
         }
        
@@ -42,9 +48,17 @@ namespace LearningManagementSystem.Controllers
             var courses = await lMSDbContext.Courses
                 .Include(c => c.Teacher)
                 .Include(c => c.TimeTables)
+                .Include(c=> c.Enrollments)
                 .ToListAsync();
             var CourseVM = mapper.Map<List<CourseVM>>(courses);
+            CourseVM.ForEach(c =>
+      c.EnrolledStudentsCount = c.Enrollments != null
+          ? c.Enrollments.Count(e => e.IsApproved)
+          : 0
+  );
+
             return View(CourseVM);
+
         }
 
         // GET: Courses/Details/5
@@ -350,11 +364,13 @@ namespace LearningManagementSystem.Controllers
         [Route("ExploreCourses")]
         public async Task<IActionResult> ExploreCourses()
         {
+           
             var courses = await lMSDbContext.Courses
                 .Include(c => c.Teacher)
                 .Include(c => c.TimeTables)
                 .Include(c => c.Enrollments)
                 .ToListAsync();
+
             var courseVM = mapper.Map<List<CourseVM>>(courses);
             {  foreach (var course in courseVM)
                 {
@@ -364,5 +380,85 @@ namespace LearningManagementSystem.Controllers
             
             return View(courseVM);
         }
+        [HttpPost]
+        public async Task<IActionResult> Enroll(Guid courseId)
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return RedirectToAction("LoginStudent", "Student");
+            // Check existing enrollment request
+            var existingEnrollment = await lMSDbContext.StudentCourses
+                .FirstOrDefaultAsync(e => e.StudentId == user.Id && e.CourseId == courseId);
+
+            if (existingEnrollment != null)
+            {
+                if (existingEnrollment.IsApproved)
+                {
+                    TempData["Message"] = "You are already enrolled in this course.";
+                    return RedirectToAction("ExploreCourses");
+                }
+                else
+                {
+                    TempData["Message"] = "Your enrollment request is still pending approval.";
+                    return RedirectToAction("ExploreCourses");
+                }
+            }
+            var enrollment = new StudentCourseDM
+            {
+                StudentId = user.Id,
+                CourseId = courseId,
+                IsApproved = false
+            };
+
+            lMSDbContext.StudentCourses.Add(enrollment);
+            await lMSDbContext.SaveChangesAsync();
+
+            TempData["Message"] = "Enrollment request submitted successfully. Waiting for admin approval.";
+            return RedirectToAction("ExploreCourses");
+        }
+        public async Task<IActionResult> MyCourses()
+        {
+            var user = await userManager.GetUserAsync(User);
+
+            var courses = await lMSDbContext.StudentCourses
+                .Where(e => e.StudentId == user.Id && e.IsApproved)
+                .Include(e => e.Course)
+                .Select(e => new
+                {
+                    e.Course.Title,
+                    e.Course.Description
+                })
+                .ToListAsync();
+
+            return View(courses);
+        }
+        public async Task<IActionResult> EnrollmentRequests()
+        {
+            var pending = await lMSDbContext.StudentCourses
+                .Where(e => !e.IsApproved)
+                .Include(e => e.Student)
+                .Include(e => e.Course)
+                .ToListAsync();
+
+            return View(pending);
+        }
+        [HttpPost]
+        public async Task<IActionResult> ApproveEnrollment(Guid id)
+        {
+            var enrollment = await lMSDbContext.StudentCourses.FindAsync(id);
+            if (enrollment == null)
+                return NotFound();
+
+            enrollment.IsApproved = true;
+            lMSDbContext.StudentCourses.Update(enrollment);
+            await lMSDbContext.SaveChangesAsync();
+
+            TempData["Message"] = "Student enrollment approved successfully.";
+            return RedirectToAction("EnrollmentRequests");
+        }
+
+
+
+
     }
 }

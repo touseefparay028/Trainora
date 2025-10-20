@@ -24,6 +24,7 @@ namespace LearningManagementSystem.MappingProfiles
             CreateMap<StudentAssignmentVM, StudentAssignmentDM>().ReverseMap();
             CreateMap<CourseDM, CourseVM>().ReverseMap();
             CreateMap<TimeTableDM, TimeTableVM>().ReverseMap();
+            CreateMap<AccountDeletionReason, AccountDeletionReasonDM>().ReverseMap();
         }
     }
 }

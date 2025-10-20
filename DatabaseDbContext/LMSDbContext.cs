@@ -20,7 +20,7 @@ namespace LearningManagementSystem.DatabaseDbContext
         public virtual DbSet<TeacherAssignmentDM> AssignmentDMs { get; set; }
         public virtual DbSet<BatchDM> BatchDMs { get; set; }
         public virtual DbSet<StudentAssignmentDM> StudentAssignmentDM { get; set; }
-
+        public virtual DbSet<AccountDeletionReason> AccountDeletionReasons { get; set; }
         public virtual DbSet<VideoConference> VideoConference { get; set; }
         public virtual DbSet<StudyMaterialsDM> StudyMaterials { get; set; }
         public virtual DbSet<CourseDM> Courses { get; set; }

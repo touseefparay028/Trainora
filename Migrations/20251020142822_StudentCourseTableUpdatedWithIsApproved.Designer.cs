@@ -4,6 +4,7 @@ using LearningManagementSystem.DatabaseDbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearningManagementSystem.Migrations
 {
     [DbContext(typeof(LMSDbContext))]
-    partial class LMSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251020142822_StudentCourseTableUpdatedWithIsApproved")]
+    partial class StudentCourseTableUpdatedWithIsApproved
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,21 +68,6 @@ namespace LearningManagementSystem.Migrations
                     b.HasIndex("TeacherAssignmentsId");
 
                     b.ToTable("BatchDMTeacherAssignmentDM");
-                });
-
-            modelBuilder.Entity("LearningManagementSystem.Models.DTO.AccountDeletionReason", b =>
-                {
-                    b.Property<Guid>("id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("id");
-
-                    b.ToTable("AccountDeletionReasons");
                 });
 
             modelBuilder.Entity("LearningManagementSystem.Models.Domains.BatchDM", b =>

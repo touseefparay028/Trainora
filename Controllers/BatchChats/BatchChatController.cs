@@ -1,4 +1,5 @@
-﻿using LearningManagementSystem.Models.DTO;
+﻿using LearningManagementSystem.DatabaseDbContext;
+using LearningManagementSystem.Models.DTO;
 using LearningManagementSystem.Models.IdentityEntities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,10 +9,12 @@ namespace LearningManagementSystem.Controllers.BatchChats
     public class BatchChatController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly LMSDbContext lMSDbContext;
 
-        public BatchChatController(UserManager<ApplicationUser> userManager)
+        public BatchChatController(UserManager<ApplicationUser> userManager, LMSDbContext lMSDbContext)
         {
             _userManager = userManager;
+            this.lMSDbContext = lMSDbContext;
         }
 
         [Route("GoChat/{id:guid}")]
@@ -31,6 +34,9 @@ namespace LearningManagementSystem.Controllers.BatchChats
                 BatchDMId = id,
                 UserName = user.Name ?? user.UserName
             };
+
+            var batch = lMSDbContext.BatchDMs.Find(model.BatchDMId);
+            ViewBag.batchname = batch.Name;
 
             return View(model);
         }

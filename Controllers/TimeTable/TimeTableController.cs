@@ -2,6 +2,8 @@
 using LearningManagementSystem.DatabaseDbContext;
 using LearningManagementSystem.Models.Domains;
 using LearningManagementSystem.Models.DTO;
+using LearningManagementSystem.Models.IdentityEntities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,11 +11,13 @@ namespace LearningManagementSystem.Controllers.TimeTable
 {
     public class TimeTableController : Controller
     {
+        private readonly UserManager<ApplicationUser> userManager;
         private readonly LMSDbContext lMSDbContext;
         private readonly IMapper mapper;
 
-        public TimeTableController(LMSDbContext lMSDbContext, IMapper mapper)
+        public TimeTableController(UserManager<ApplicationUser> userManager, LMSDbContext lMSDbContext, IMapper mapper)
         {
+            this.userManager = userManager;
             this.lMSDbContext = lMSDbContext;
             this.mapper = mapper;
         }
@@ -79,5 +83,38 @@ namespace LearningManagementSystem.Controllers.TimeTable
             lMSDbContext.SaveChanges();
             return RedirectToAction("ManageTimeTable", new { courseId = timeTable.CourseId });
         }
+        public async Task<IActionResult> ViewTimeTable()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return RedirectToAction("Login", "Account");
+
+            // Get all approved enrollments of the student
+            var enrollments = await lMSDbContext.StudentCourses
+                .Where(e => e.StudentId == user.Id && e.IsApproved)
+                .Include(e => e.Course)
+                    .ThenInclude(c => c.Teacher) // Include teacher details
+                .Include(e => e.Course)
+                    .ThenInclude(c => c.TimeTables) // Include timetable
+                .ToListAsync();
+
+            // Prepare dynamic model for the view
+            var model = enrollments.Select(e => new
+            {
+                e.Course.Title,
+                e.Course.Description,
+                TeacherName = e.Course.Teacher.Name,
+                TimeTables = e.Course.TimeTables.Select(t => new
+                {
+                    t.Day,
+                    t.StartTime,
+                    t.EndTime,
+                    t.LabLocation
+                }).ToList()
+            }).ToList();
+
+            return View(model);
+        }
+
     }
 }

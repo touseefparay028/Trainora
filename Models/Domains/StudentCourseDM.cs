@@ -23,6 +23,7 @@ namespace LearningManagementSystem.Models.Domains
 
             [ForeignKey(nameof(CourseId))]
             public CourseDM Course { get; set; }
-        
+        public bool IsApproved { get; set; } = false;
+
     }
 }

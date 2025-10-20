@@ -1,0 +1,44 @@
+﻿@model IEnumerable<dynamic>
+@{
+    Layout = "~/Views/Shared/StudentLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <h3 class="text-primary fw-bold mb-4">My Course Time Table</h3>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">
+            No approved enrollments yet.
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var course in Model)
+            {
+                <div class="col">
+                    <div class="card shadow-sm border-0 rounded-4 h-100">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title text-truncate fw-bold text-primary">@course.Title</h5>
+                            <p class="text-muted small mb-2">@course.Description</p>
+                            <p class="mb-2"><strong>Teacher:</strong> @course.TeacherName</p>
+
+                            <h6 class="text-secondary mt-3 mb-1">Time Table:</h6>
+                            <ul class="list-unstyled small">
+                                @foreach (var slot in course.TimeTables)
+                                {
+                                    <li>
+                                        <strong>@slot.Day:</strong>
+                                        @slot.StartTime.ToString(@"hh\:mm") - @slot.EndTime.ToString(@"hh\:mm")
+                                        <span class="text-muted">(@slot.LabLocation)</span>
+                                    </li>
+                                }
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

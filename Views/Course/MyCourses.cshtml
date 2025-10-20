@@ -1,0 +1,38 @@
+﻿@model IEnumerable<dynamic>
+@{
+    Layout = "~/Views/Shared/StudentLayout.cshtml";
+}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="text-primary fw-bold">My Enrolled Courses</h3>
+        <a asp-action="ViewTimeTable" asp-controller="TimeTable" class="btn btn-primary rounded-pill fw-semibold">
+            <i class="bi bi-calendar3"></i> View Time Table
+        </a>
+    </div>
+
+
+
+@if (!Model.Any())
+{
+    <p>No approved enrollments yet.</p>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Course Name</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var course in Model)
+            {
+                <tr>
+                    <td>@course.Title</td>
+                    <td>@course.Description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

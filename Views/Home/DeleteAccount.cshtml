@@ -1,0 +1,23 @@
+﻿@model LearningManagementSystem.Models.DTO.AccountDeletionReason
+@{
+    ViewData["Title"] = "Delete Account";
+}
+
+<h2>Delete Account</h2>
+
+<p>Please tell us why you want to delete your account. This will help us improve.</p>
+
+<form asp-action="DeleteAccount" asp-controller="Home" method="post">
+    <div class="form-group">
+        <textarea asp-for="Reason" class="form-control" placeholder="Reason for deleting..." rows="4"></textarea>
+        <span asp-validation-for="Reason" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-danger mt-2">Delete My Account</button>
+    <a asp-action="Index" asp-controller="Home" class="btn btn-secondary mt-2">Cancel</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

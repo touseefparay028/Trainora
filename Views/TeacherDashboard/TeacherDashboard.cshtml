@@ -66,7 +66,7 @@
                 <a asp-action="TeacherDashboard" asp-controller="TeacherDashboard">Dashboard</a>
                 <a asp-action="Create" asp-controller="Course">Add Course</a>
                 <a asp-action="GetCourses" asp-controller="Course">View My Courses</a>
-                <a asp-action="StudentEnrollments" asp-controller="Teacher">Student Enrollments</a>
+                <a asp-action="EnrollmentRequests" asp-controller="Course">Enrollment Requests</a>
                 @* <a asp-action="GetFilesAsync" asp-controller="CreateAssignment">Assignments</a> *@
                 <a asp-action="GetCreatedAssignments" asp-controller="CreateAssignment">Created Assignments</a>
                 <a asp-action="AssignGrades" asp-controller="Teacher">Assign Grades</a>
@@ -96,7 +96,7 @@
                             <a class="dropdown-item"
                                asp-controller="BatchChat"
                                asp-action="Chat"
-                               asp-route-batchId="@batch.id">
+                               asp-route-id="@batch.id">
                                 @batch.Name
                             </a>
                         </li>

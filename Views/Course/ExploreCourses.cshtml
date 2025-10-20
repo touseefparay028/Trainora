@@ -1,12 +1,24 @@
 ﻿@model IEnumerable<LearningManagementSystem.Models.DTO.CourseVM>
+@{
+    Layout = "~/Views/Shared/StudentLayout.cshtml";
+}
 
 <h2 class="mt-4 mb-4 text-center text-primary fw-bold">Available Courses</h2>
 
+<!-- Message Alert -->
 @if (TempData["Message"] != null)
 {
     <div class="alert alert-info text-center">@TempData["Message"]</div>
 }
 
+<!-- Top Bar: View My Courses Button -->
+<div class="d-flex justify-content-end mb-3">
+    <a asp-action="MyCourses" class="btn btn-outline-primary fw-semibold rounded-pill">
+        <i class="bi bi-journal-check me-1"></i> View My Courses
+    </a>
+</div>
+
+<!-- Courses Grid -->
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     @foreach (var course in Model)
     {
@@ -32,13 +44,20 @@
                     </ul>
 
                     <!-- Enrolled Students -->
-                    <span class="badge bg-primary rounded-pill px-3 py-2 mb-3">Enrolled Students: @course.EnrolledStudentsCount</span>
-
-                    <!-- Enroll Button -->
-                    <form asp-action="Enroll" method="post" class="mt-auto">
-                        <input type="hidden" name="courseId" value="@course.Id" />
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-semibold">Enroll Now</button>
-                    </form>
+                    <span class="badge bg-primary rounded-pill px-3 py-2 mb-3">
+                        Enrolled Students: @course.EnrolledStudentsCount
+                    </span>
+                  
+                   
+                        <!-- Enroll Button -->
+                        <form asp-action="Enroll" method="post" class="mt-auto">
+                            <input type="hidden" name="courseId" value="@course.Id" />
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill fw-semibold">
+                                Enroll Now
+                            </button>
+                        </form>
+                    
+                   
                 </div>
             </div>
         </div>

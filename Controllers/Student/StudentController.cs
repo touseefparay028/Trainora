@@ -7,8 +7,10 @@ using LearningManagementSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using Org.BouncyCastle.Pqc.Crypto.Lms;
 using System.Text.Encodings.Web;
 
 namespace LearningManagementSystem.Controllers.Student
@@ -333,7 +335,7 @@ namespace LearningManagementSystem.Controllers.Student
         public async Task<IActionResult> ChangePasswordNow(ChangePasswordVM changePassword)
         {
             if (!ModelState.IsValid)
-                return View(changePassword);
+                return View("ChangePassword",changePassword);
 
             var user = await userManager.GetUserAsync(User);
             if (user == null)
@@ -346,7 +348,7 @@ namespace LearningManagementSystem.Controllers.Student
             {
                 await signInManager.RefreshSignInAsync(user);
                 TempData["SuccessMessage"] = "Password changed successfully!";
-                return RedirectToAction("StudentDashboard", "StudentDashboard"); 
+                return RedirectToAction("ChangePassword", "Student"); 
             }
 
             foreach (var error in result.Errors)
@@ -498,7 +500,31 @@ namespace LearningManagementSystem.Controllers.Student
             // ✅ Return the list to the view
             return View(conferences);
         }
+        public async Task<IActionResult> Profile()
+        {
+            var user = await userManager.GetUserAsync(User);
+            if (user == null)
+                return RedirectToAction("LoginStudent", "Student");
 
+            
+            var profile = new RegisterDTO
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Phone = user.PhoneNumber,
+                Address = user.Address,
+                gender = user.gender,
+                DateOfBirth = user.DateOfBirth,
+                EnrollmentNumber = user.EnrollmentNumber,
+                Course = user.Course,
+                   
+            };
+            var batchid = user.BatchDMId;
+            var batch = await LMSDbContext.BatchDMs.FirstOrDefaultAsync(b => b.id == batchid);
+            ViewBag.BatchName = batch != null ? batch.Name : "No Batch Assigned";
+            return View(profile);
+        }
 
     }
 }

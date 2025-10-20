@@ -1,0 +1,37 @@
+﻿@model IEnumerable<LearningManagementSystem.Models.Domains.StudentCourseDM>
+
+<h3>Pending Enrollments</h3>
+
+@if (!Model.Any())
+{
+    <p>No pending enrollments.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Student Name</th>
+                <th>Email</th>
+                <th>Course</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Student.Name</td>
+                    <td>@item.Student.Email</td>
+                    <td>@item.Course.Title</td>
+                    <td>
+                        <form asp-action="ApproveEnrollment" method="post">
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

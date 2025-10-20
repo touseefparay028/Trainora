@@ -84,6 +84,10 @@
     </div>
 </nav>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
 <!-- Hero Section -->
 <section class="hero-section">
     <div class="container-fluid">
