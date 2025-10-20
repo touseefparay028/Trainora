@@ -26,6 +26,7 @@ namespace LearningManagementSystem.DatabaseDbContext
         public virtual DbSet<CourseDM> Courses { get; set; }
         public virtual DbSet<StudentCourseDM> StudentCourses { get; set; }
         public virtual DbSet<TimeTableDM> TimeTables { get; set; }
+        public virtual DbSet<ContactDM> Contact { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

@@ -144,36 +144,39 @@
 
                 <div class="col-md-6">
                     <div class="card shadow rounded-4 border-0">
-                        <div class="card-header bg-primary text-white rounded-top-4">
-                            <h5 class="mb-0">Upcoming Exams</h5>
+                        <div class="card-header bg-success text-white rounded-top-4">
+                            <h5 class="mb-0">Available Courses</h5>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body position-relative">
+                            <!-- position-relative for absolute link -->
                             <table class="table table-sm">
                                 <thead>
                                     <tr>
                                         <th>Course</th>
-                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Teacher</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>Data Structures</td>
-                                        <td>12 Sept</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Operating Systems</td>
-                                        <td>15 Sept</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Database Systems</td>
-                                        <td>20 Sept</td>
-                                    </tr>
+                                    @foreach (var course in ViewBag.FewCourses)
+                                    {
+                                        <tr>
+                                            <td>@course.Title</td>
+                                            <td>@course.Description</td>
+                                            <td>@course.Teacher.Name</td>
+                                        </tr>
+                                    }
                                 </tbody>
                             </table>
+
+                            <!-- View All button at bottom right -->
+                            <a href="@Url.Action("ExploreCourses", "Course")"
+                               class="btn btn-link position-absolute bottom-0 end-0 m-2">
+                                View All
+                            </a>
                         </div>
                     </div>
                 </div>
-            </div>
 
         </main>
     </div>

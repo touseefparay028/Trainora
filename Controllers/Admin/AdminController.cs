@@ -11,6 +11,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace LearningManagementSystem.Controllers.Account
 {
     //[AllowAnonymous]
+    
     public class AdminController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -244,7 +245,7 @@ namespace LearningManagementSystem.Controllers.Account
         }
 
 
-        [Route("Account/Login")]
+        
         //[Authorize(Roles ="Admin", Policy = "NotAuthenticated")]
         public IActionResult Login()
         {

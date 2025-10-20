@@ -55,6 +55,7 @@ namespace LearningManagementSystem.Controllers.TimeTable
             ViewBag.CourseId = TimeTable.CourseId;
             return View("Create",TimeTable);
         }
+        
         public IActionResult ManageTimeTable(Guid courseId)
         {
             var course = lMSDbContext.Courses

@@ -30,6 +30,7 @@ namespace LearningManagementSystem.Controllers
         {
             var courses = await lMSDbContext.Courses
                 .Include(c => c.Teacher)
+                .Include(c => c.TimeTables)
                 .ToListAsync();
             var CourseVM = mapper.Map<List<CourseVM>>(courses);
             return View(CourseVM);

@@ -103,9 +103,18 @@
     </div>
 
     <div class="mt-4 text-center">
-        <a asp-action="GetCourses" asp-controller="Course" class="btn btn-outline-secondary rounded-pill px-4">
-            <i class="bi bi-arrow-left me-2"></i>Back to Courses
-        </a>
+       @if(User.IsInRole("Teacher"))
+       {
+            <a asp-action="GetCourses" asp-controller="Course" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-2"></i>Back to Courses
+            </a>
+       }
+       else
+       {
+            <a asp-action="AdminGetCourses" asp-controller="Course" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-2"></i>Back to Courses
+            </a>
+        }
     </div>
 </div>
 

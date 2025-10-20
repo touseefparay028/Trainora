@@ -48,6 +48,12 @@ namespace LearningManagementSystem.Controllers.Student
                 .CountAsync();
 
             ViewBag.CountOfAssignments = pendingAssignments;
+            var fewCourses = lMSDbContext.Courses
+         .Include(c => c.Teacher) // make sure you have "using Microsoft.EntityFrameworkCore;"
+         .Take(3) // send only few courses
+         .ToList();
+
+            ViewBag.FewCourses = fewCourses;
 
             var userId = Guid.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value);
 

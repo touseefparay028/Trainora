@@ -65,7 +65,7 @@
                     <h4>Admin Panel</h4>
                 </div>
                 <a asp-action="Dashboard" asp-controller="Dashboard">Dashboard</a>
-                <a asp-action="ManageTeachers" asp-controller="Admin">Manage Teachers</a>
+                <a asp-action="GetTeachers" asp-controller="Admin">Manage Teachers</a>
                 <a asp-action="ManageStudents" asp-controller="Admin">Manage Students</a>
                 <a asp-action="ReviewRegistrations" asp-controller="Admin">Review Registrations</a>
                 <a asp-action="AdminGetCourses" asp-controller="Course">View Courses</a>
@@ -76,7 +76,7 @@
             <!-- Main Content -->
             <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
                 <nav class="navbar navbar-light bg-white shadow-sm p-3">
-                    <span class="navbar-brand">Welcome, @User.Identity.Name!</span>
+                    <span class="navbar-brand">Welcome, @ViewBag.Name!</span>
                 </nav>
 
                 <div class="dashboard-section">

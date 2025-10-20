@@ -1,35 +1,43 @@
 ﻿@model IEnumerable<LearningManagementSystem.Models.DTO.CourseVM>
 
-<h2 class="mt-3 mb-4 text-center">Available Courses</h2>
+<h2 class="mt-4 mb-4 text-center text-primary fw-bold">Available Courses</h2>
 
 @if (TempData["Message"] != null)
 {
     <div class="alert alert-info text-center">@TempData["Message"]</div>
 }
 
-<div class="row">
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     @foreach (var course in Model)
     {
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm border-0">
-                <div class="card-body">
-                    <h5 class="card-title">@course.Title</h5>
-                    <p class="text-muted">@course.Description</p>
-                    <p><strong>Teacher:</strong> @course.Teacher?.Name</p>
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 rounded-4">
+                <div class="card-body d-flex flex-column">
+                    <!-- Course Title -->
+                    <h5 class="card-title text-truncate fw-bold">@course.Title</h5>
 
-                    <h6 class="text-secondary">Time Table:</h6>
-                    <ul class="list-unstyled">
+                    <!-- Description -->
+                    <p class="text-muted small flex-grow-1">@course.Description</p>
+
+                    <!-- Teacher -->
+                    <p class="mb-2"><strong>Teacher:</strong> @course.Teacher?.Name</p>
+
+                    <!-- Time Table -->
+                    <h6 class="text-secondary mt-2 mb-1">Time Table:</h6>
+                    <ul class="list-unstyled small mb-2">
                         @foreach (var slot in course.TimeTables)
                         {
                             <li>@slot.Day — @slot.StartTime.ToString(@"hh\:mm") - @slot.EndTime.ToString(@"hh\:mm") (@slot.LabLocation)</li>
                         }
                     </ul>
-                    <span class="badge bg-primary rounded-pill px-3 py-2">Enrolled Students:
-                        @course.EnrolledStudentsCount
-                    </span>
-                    <form asp-action="Enroll" method="post">
+
+                    <!-- Enrolled Students -->
+                    <span class="badge bg-primary rounded-pill px-3 py-2 mb-3">Enrolled Students: @course.EnrolledStudentsCount</span>
+
+                    <!-- Enroll Button -->
+                    <form asp-action="Enroll" method="post" class="mt-auto">
                         <input type="hidden" name="courseId" value="@course.Id" />
-                        <button type="submit" class="btn btn-primary w-100">Enroll Now</button>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill fw-semibold">Enroll Now</button>
                     </form>
                 </div>
             </div>
