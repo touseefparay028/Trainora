@@ -39,10 +39,21 @@ namespace LearningManagementSystem.Controllers.TimeTable
                     t.EndTime == TimeTable.EndTime &&
                     t.LabLocation == TimeTable.LabLocation &&
                     t.CourseId != TimeTable.CourseId); // ensure it belongs to another course
-
+                bool SlotAlreadyAssigned = lMSDbContext.TimeTables.Any(t =>
+                    t.Day == TimeTable.Day &&
+                    t.StartTime == TimeTable.StartTime &&
+                    t.EndTime == TimeTable.EndTime &&
+                    t.LabLocation == TimeTable.LabLocation &&
+                    t.CourseId == TimeTable.CourseId);
                 if (slotExists)
                 {
                     ModelState.AddModelError("", "This time slot and location are already assigned to another course.");
+                    ViewBag.CourseId = TimeTable.CourseId;
+                    return View("Create",TimeTable);
+                }
+                else if(SlotAlreadyAssigned)
+                {
+                    ModelState.AddModelError("", "This time slot and location are already assigned to this course.");
                     ViewBag.CourseId = TimeTable.CourseId;
                     return View("Create",TimeTable);
                 }

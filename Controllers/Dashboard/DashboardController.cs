@@ -1,4 +1,5 @@
 ﻿using LearningManagementSystem.Controllers.Account;
+using LearningManagementSystem.DatabaseDbContext;
 using LearningManagementSystem.Models.IdentityEntities;
 using LearningManagementSystem.RoleEnums;
 using Microsoft.AspNetCore.Authorization;
@@ -11,16 +12,24 @@ namespace LearningManagementSystem.Controllers.Dashboard
     public class DashboardController : Controller
     {
         private readonly UserManager<ApplicationUser> userManager;
+        private readonly LMSDbContext lMSDbContext;
 
-        public DashboardController(UserManager<ApplicationUser> userManager)
+        public DashboardController(UserManager<ApplicationUser> userManager,LMSDbContext lMSDbContext)
         {
             this.userManager = userManager;
+            this.lMSDbContext = lMSDbContext;
         }
         [Route("Dashboard")]
         
        
         public IActionResult Dashboard()
         {
+            var pendingCount = lMSDbContext.StudentCourses
+      .Where(e => e.IsApproved == false)
+      .Count();
+
+          
+            ViewBag.PendingCount = pendingCount;
             var user = userManager.GetUserAsync(User).Result;
             ViewBag.Name = user.Name;
             return View();

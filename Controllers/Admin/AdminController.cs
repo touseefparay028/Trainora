@@ -290,6 +290,7 @@ namespace LearningManagementSystem.Controllers.Account
                         {
                             return Redirect(ReturnUrl);
                         }
+                        
                         return RedirectToAction("Dashboard", "Dashboard");
                     }
                    
@@ -329,6 +330,7 @@ namespace LearningManagementSystem.Controllers.Account
                 return Json(true);
             }
         }
+        [Authorize(Roles ="Admin")]
         public async Task<IActionResult> GetTeachers()
         {
             var users = await _userManager.GetUsersInRoleAsync("Teacher");

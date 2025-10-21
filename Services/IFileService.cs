@@ -15,5 +15,7 @@ namespace LearningManagementSystem.Services
         Task<List<StudyMaterialsVM>> GetMaterialAsync();
         Task<List<StudentAssignmentVM>> SubmittedAssignments(Guid Id);
         Task<List<TeacherAssignmentVM>> GetCreatedAssignments();
+        Task CreateAnnouncements(AnnouncementsVM announcements);
+        Task<List<AnnouncementsVM>> GetAllAnnouncements();
     }
 }

@@ -31,16 +31,30 @@ namespace LearningManagementSystem.Controllers.Student
             //    .CountAsync();
             //ViewBag.CountOfAssignments = pendingAssignments;
             var studentId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
             var userIdd = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var user = await userManager.FindByIdAsync(userIdd);
+
+
             ViewBag.batchid = user?.BatchDMId;
             ViewBag.Name = user?.Name ?? "Unknown";
+
             // get student's batch id
             var studentBatchId = await lMSDbContext.Users
                 .Where(s => s.Id == studentId)
                 .Select(s => s.BatchDMId)
                 .FirstOrDefaultAsync();
-           ViewBag.enrolledCount = await lMSDbContext.StudentCourses
+
+            var announcements = await lMSDbContext.Announcements
+        .OrderByDescending(a => a.CreatedAt)
+        .Take(5)
+        .ToListAsync();
+
+            ViewBag.Announcements = announcements;
+
+
+            ViewBag.enrolledCount = await lMSDbContext.StudentCourses
     .Where(e => e.StudentId == user.Id && e.IsApproved)
     .CountAsync();
 

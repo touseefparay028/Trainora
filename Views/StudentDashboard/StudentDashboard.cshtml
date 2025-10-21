@@ -37,11 +37,11 @@
                             <i class="bi bi-clipboard-check me-2"></i> Quiz
                         </a>
                     </li>
-                    <li class="nav-item mb-2">
+                    @* <li class="nav-item mb-2">
                         <a class="nav-link text-white" asp-action="Results">
                             <i class="bi bi-bar-chart-line me-2"></i> Results
                         </a>
-                    </li>
+                    </li> *@
                     <li class="nav-item mb-2">
                         <a class="nav-link text-white" asp-action="Chat" asp-controller="BatchChat" asp-route-id="@ViewBag.batchid">
                             <i class="bi bi-person-check me-2"></i> Chat
@@ -61,7 +61,7 @@
                     </li>
 
                     <li class="nav-item mb-2">
-                        <a class="nav-link text-white" asp-action="Notices">
+                        <a class="nav-link text-white" asp-action="GetAnnouncements" asp-controller="Announcements">
                             <i class="bi bi-megaphone me-2"></i> College Notices
                         </a>
                     </li>
@@ -116,11 +116,10 @@
                         <div class="card-body text-center">
                             <i class="bi bi-clipboard-check text-warning fs-2"></i>
                             <h5 class="mt-2">Quiz</h5>
-                            <p class="fw-bold">1 Upcoming</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                @* <div class="col-md-3">
                     <div class="card shadow rounded-4 border-0">
                         <div class="card-body text-center">
                             <i class="bi bi-bar-chart-line text-danger fs-2"></i>
@@ -128,11 +127,12 @@
                             <p class="fw-bold">View</p>
                         </div>
                     </div>
-                </div>
+                </div> *@
             </div>
 
-            <!-- Notices and Upcoming Exams -->
+            <!-- Notices and Available Courses Row -->
             <div class="row">
+                <!-- Latest College Notices -->
                 <div class="col-md-6">
                     <div class="card shadow rounded-4 border-0">
                         <div class="card-header bg-success text-white rounded-top-4">
@@ -140,21 +140,50 @@
                         </div>
                         <div class="card-body">
                             <ul class="list-group list-group-flush">
-                                <li class="list-group-item">Holiday on Friday</li>
-                                <li class="list-group-item">Seminar on AI - Monday</li>
-                                <li class="list-group-item">Exam forms submission till 20th Sept</li>
+                                @if (ViewBag.Announcements != null && ViewBag.Announcements.Count > 0)
+                                {
+                                    foreach (var ann in ViewBag.Announcements)
+                                    {
+                                        bool isNew = (DateTime.Now - ann.CreatedAt).TotalHours <= 24;
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                @if (!string.IsNullOrEmpty(ann.FilePath))
+                                                {
+                                                    <a asp-action="ViewAnnouncement" asp-controller="Announcements" asp-route-FilePath="@ann.FilePath" class="fw-semibold text-dark text-decoration-none">
+                                                        @ann.Description
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="fw-semibold">@ann.Description</span>
+                                                }
+                                                <br />
+                                                <small class="text-muted">@ann.CreatedAt.ToString("dd MMM yyyy, hh:mm tt")</small>
+                                            </div>
+
+                                            @if (isNew)
+                                            {
+                                                <span class="badge bg-danger rounded-pill">NEW</span>
+                                            }
+                                        </li>
+                                    }
+                                }
+                                else
+                                {
+                                    <li class="list-group-item text-muted">No announcements yet.</li>
+                                }
                             </ul>
                         </div>
                     </div>
                 </div>
 
+                <!-- Available Courses -->
                 <div class="col-md-6">
-                    <div class="card shadow rounded-4 border-0">
+                    <div class="card shadow rounded-4 border-0 h-100">
                         <div class="card-header bg-success text-white rounded-top-4">
                             <h5 class="mb-0">Available Courses</h5>
                         </div>
                         <div class="card-body position-relative">
-                            <!-- position-relative for absolute link -->
                             <table class="table table-sm">
                                 <thead>
                                     <tr>
@@ -164,18 +193,27 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var course in ViewBag.FewCourses)
+                                    @if (ViewBag.FewCourses != null)
+                                    {
+                                        foreach (var course in ViewBag.FewCourses)
+                                        {
+                                            <tr>
+                                                <td>@course.Title</td>
+                                                <td>@course.Description</td>
+                                                <td>@course.Teacher.Name</td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
                                     {
                                         <tr>
-                                            <td>@course.Title</td>
-                                            <td>@course.Description</td>
-                                            <td>@course.Teacher.Name</td>
+                                            <td colspan="3" class="text-muted">No courses available.</td>
                                         </tr>
                                     }
                                 </tbody>
                             </table>
 
-                            <!-- View All button at bottom right -->
+                            <!-- View All button -->
                             <a href="@Url.Action("ExploreCourses", "Course")"
                                class="btn btn-link position-absolute bottom-0 end-0 m-2">
                                 View All
@@ -183,9 +221,4 @@
                         </div>
                     </div>
                 </div>
-
-        </main>
-    </div>
-
-
-</div>
+            </div>

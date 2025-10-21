@@ -187,6 +187,38 @@ namespace LearningManagementSystem.Services
             var studyMaterialsVM = mapper.Map<List<StudyMaterialsVM>>(studyMaterials);
             return studyMaterialsVM;
         }
+        public async Task CreateAnnouncements(AnnouncementsVM announcements)
+        {
+            string FolderPath = Path.Combine(webHostEnvironment.WebRootPath, "Announcements");
+            if (!Directory.Exists(FolderPath))
+            {
+                Directory.CreateDirectory(FolderPath);
+            }
+            string FileName = Guid.NewGuid().ToString() + "_" + announcements.File.FileName;
+            string FullPath = Path.Combine(FolderPath, FileName);
+            using (FileStream FileStream = new FileStream(FullPath, FileMode.Create))
+            {
+                await announcements.File.CopyToAsync(FileStream);
+            }
+            var UserId = httpContextAccessor.HttpContext?.User?
+                .FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(UserId))
+            {
+                throw new InvalidOperationException("No user is logged in right now");
+            }
+            Announcements data = mapper.Map<Announcements>(announcements);
+            data.FilePath = FileName;
+            
+            data.CreatedBy = Guid.Parse(UserId);
+            await lMSDbContext.Announcements.AddAsync(data);
+            await lMSDbContext.SaveChangesAsync();
+        }
+        public async Task<List<AnnouncementsVM>> GetAllAnnouncements()
+        {
+            var announcements = await lMSDbContext.Announcements.ToListAsync();
+            var announcementsVM = mapper.Map<List<AnnouncementsVM>>(announcements);
+            return announcementsVM;
+        }
 
     }
 }

@@ -2,6 +2,7 @@
 using LearningManagementSystem.DatabaseDbContext;
 using LearningManagementSystem.Models.Domains;
 using LearningManagementSystem.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +19,7 @@ namespace LearningManagementSystem.Controllers.Admin
             this.mapper = mapper;
         }
         [Route("CreateBatch")]
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
@@ -31,6 +33,7 @@ namespace LearningManagementSystem.Controllers.Admin
             return RedirectToAction("Read");
         }
         [Route("GetBatch")]
+        [Authorize(Roles ="Admin")]
         public async Task<IActionResult> Read()
         {
             List<BatchDM> batchDMs = await lMSDbContext.BatchDMs.ToListAsync();

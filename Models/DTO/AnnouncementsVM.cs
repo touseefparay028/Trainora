@@ -5,7 +5,7 @@ namespace LearningManagementSystem.Models.DTO
 {
     public class AnnouncementsVM
     {
-        public Guid? Id { get; set; }
+        public Guid? Id { get; set; }= Guid.NewGuid();
 
         [Required]
         public string? Description { get; set; }

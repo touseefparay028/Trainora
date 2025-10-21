@@ -33,6 +33,12 @@ namespace LearningManagementSystem.Controllers.Teacher
             {
                 BatchList = batches
             };
+            var pendingCount = lMSDbContext.StudentCourses
+    .Where(e => e.IsApproved == false)
+    .Count();
+
+
+            ViewBag.PendingCount = pendingCount;
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await userManager.FindByIdAsync(userId);
             ViewBag.Name = user?.Name ?? "Unknown";

@@ -9,7 +9,6 @@ namespace LearningManagementSystem.Models.Domains
 
         [Required]
         public string? Description { get; set; }
-
         public string? FilePath { get; set; }  // optional uploaded file
 
         public  Guid CreatedBy { get; set; }  // store the user ID

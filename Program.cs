@@ -21,7 +21,7 @@ builder.Services.AddDbContext<LMSDbContext>(options =>
 });
 builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
 {
-    options.Password.RequiredLength = 10;
+    options.Password.RequiredLength = 8;
     options.Password.RequireUppercase = false;
     options.Password.RequireLowercase = true;
     options.Password.RequireDigit = true;
