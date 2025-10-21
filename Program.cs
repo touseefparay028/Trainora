@@ -33,6 +33,35 @@ builder.Services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
     .AddUserStore<UserStore<ApplicationUser, ApplicationRole, LMSDbContext, Guid>>()
     .AddRoleStore<RoleStore<ApplicationRole, LMSDbContext,Guid>>();
 builder.Services.AddSignalR();
+//builder.Services.AddAuthentication("StudentAuth")
+//    .AddCookie("AdminAuth", options =>
+//    {
+      
+//        options.LoginPath = "/Admin/Login";
+//        options.AccessDeniedPath = "/Home/AccessDenied";
+//    })
+//    .AddCookie("TeacherAuth", options =>
+//    {
+//        options.LoginPath = "/Teacher/LoginTeacher";
+//        options.AccessDeniedPath = "/Home/AccessDenied";
+//    })
+//    .AddCookie("StudentAuth", options =>
+//    {
+//        options.LoginPath = "/Student/LoginStudent";
+//        options.AccessDeniedPath = "/Home/AccessDenied";
+//    });
+builder.Services.AddAuthorization(options =>
+{
+    // Optional: define role-based policies (not required if just using roles)
+    options.AddPolicy("TeacherOnly", policy =>
+        policy.RequireRole("Teacher"));
+
+    options.AddPolicy("AdminOnly", policy =>
+        policy.RequireRole("Admin"));
+
+    options.AddPolicy("StudentOnly", policy =>
+        policy.RequireRole("Student"));
+});
 
 //builder.Services.AddAuthorization(options =>
 
@@ -70,7 +99,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
-app.UseRouting();// enable select endpoint
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 

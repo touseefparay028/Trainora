@@ -40,6 +40,10 @@ namespace LearningManagementSystem.Controllers.Student
                 .Where(s => s.Id == studentId)
                 .Select(s => s.BatchDMId)
                 .FirstOrDefaultAsync();
+           ViewBag.enrolledCount = await lMSDbContext.StudentCourses
+    .Where(e => e.StudentId == user.Id && e.IsApproved)
+    .CountAsync();
+
 
             var pendingAssignments = await lMSDbContext.AssignmentDMs
                 .Where(a => a.BatchDMId == studentBatchId) // filter by batch

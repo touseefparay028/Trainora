@@ -27,6 +27,7 @@ namespace LearningManagementSystem.DatabaseDbContext
         public virtual DbSet<StudentCourseDM> StudentCourses { get; set; }
         public virtual DbSet<TimeTableDM> TimeTables { get; set; }
         public virtual DbSet<ContactDM> Contact { get; set; }
+        public virtual DbSet<Announcements> Announcements { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -49,10 +50,10 @@ namespace LearningManagementSystem.DatabaseDbContext
                 .WithMany(c => c.TimeTables)
                 .HasForeignKey(t => t.CourseId);
         }
+        public DbSet<LearningManagementSystem.Models.DTO.AnnouncementsVM> AnnouncementsVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.CourseVM> CourseVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.StudyMaterialsVM> StudyMaterialsVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.StudentAssignmentVM> StudentAssignmentVM { get; set; } = default!;
-       
         //public DbSet<LearningManagementSystem.Models.DTO.StudentAssignmentVM> StudentAssignmentVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.TeacherAssignmentVM> TeacherAssignmentVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.RegisterDTO> RegisterDTO { get; set; } = default!;

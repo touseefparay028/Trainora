@@ -5,12 +5,15 @@ using LearningManagementSystem.Models.DTO;
 using LearningManagementSystem.Models.IdentityEntities;
 using LearningManagementSystem.RoleEnums;
 using LearningManagementSystem.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using System;
+using System.Security.Claims;
 using System.Text.Encodings.Web;
 
 namespace LearningManagementSystem.Controllers.Account
@@ -260,7 +263,7 @@ namespace LearningManagementSystem.Controllers.Account
             {
                 return RedirectToAction("TeacherDashboard", "TeacherDashboard");
             }
-
+            
             return View();
         }
 
@@ -292,6 +295,7 @@ namespace LearningManagementSystem.Controllers.Account
 
                     if (result.Succeeded)
                     {
+                      
                         if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
                         {
                             return Redirect(ReturnUrl);

@@ -190,9 +190,12 @@
                         <a class="d-block p-2" asp-action="Logout" asp-controller="Teacher">Logout</a>
                     </div>
                 </div>
-
+                
                 <!-- Dashboard cards -->
                 <div class="dashboard-section">
+                    <h2 class="fw-bold text-success mb-4">
+                        <i class="bi"></i> Welcome, @ViewBag.Name
+                    </h2>
                     <div class="row g-4">
                         <div class="col-12 col-sm-6 col-lg-4">
                             <div class="card p-4 text-center">
@@ -226,14 +229,14 @@
                                 <a asp-action="SubmittedAssignments" asp-controller="CreateAssignment" class="btn btn-primary">Review Submissions</a>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-6 col-lg-4">
+                        @* <div class="col-12 col-sm-6 col-lg-4">
                             <div class="card p-4 text-center">
                                 <i class="bi bi-stars card-icon"></i>
                                 <h5 class="mt-2">Assign Grades</h5>
                                 <p>Evaluate and assign grades.</p>
                                 <a asp-action="AssignGrades" asp-controller="Teacher" class="btn btn-primary">Assign Grades</a>
                             </div>
-                        </div>
+                        </div> *@
                         <div class="col-12 col-sm-6 col-lg-4">
                             <div class="card p-4 text-center">
                                 <i class="bi bi-journals card-icon"></i>
