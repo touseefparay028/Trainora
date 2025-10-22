@@ -29,7 +29,7 @@ else
                     <td>@Html.DisplayFor(modelItem => item.StudentName)</td>
                     <td>
                         <a asp-action="ViewAssignment" asp-route-Path="@item.Path">View</a> |
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                        @* <a asp-action="Details" asp-route-id="@item.Id">Details</a> | *@
                         <a asp-action="DeleteSubmission" asp-route-id="@item.Id">Delete</a>
                     </td>
                  

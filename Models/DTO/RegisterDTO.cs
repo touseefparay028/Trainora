@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using LearningManagementSystem.Models.ValidationAttributes;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
@@ -25,7 +26,7 @@ namespace LearningManagementSystem.Models.DTO
         [Required(ErrorMessage = "Phone Can't be blank")]
         [RegularExpression("^[0-9]*$" ,ErrorMessage ="Number Only")]
         [DataType(DataType.PhoneNumber)]
-        [StringLength(10,ErrorMessage ="Minimum Length should be Ten")]
+        [StringLength(10,ErrorMessage ="Minimum Length should be 10")]
         public string? Phone { get; set; }
 
 
@@ -43,15 +44,17 @@ namespace LearningManagementSystem.Models.DTO
 
         [DataType(DataType.Text)]
         public string? Address { get; set; }
-        [Required(ErrorMessage = "Gender is required")]
-
+        [Required(ErrorMessage = "Required")]
         public string? gender { get; set; }
         [Required(ErrorMessage = "Please enter Date Of Birth")]
         [DataType(DataType.Date)]
+        [CustomValidation(typeof(StudentDateOfBirth), nameof(StudentDateOfBirth.ValidateDateOfBirth))]
         public DateTime? DateOfBirth { get; set; }
 
-        [Required(ErrorMessage = "Enrollment Number Can't be blank")]
-
+        
+        [Required(ErrorMessage = "Enrollment number is required.")]
+        [StringLength(10, ErrorMessage = "Enrollment number should not exceed 10 digits")]
+        [RegularExpression("^[0-9]*$", ErrorMessage = "Number Only")]
         public int? EnrollmentNumber { get; set; }
         [Required(ErrorMessage = "Please enter your course")]
         public string? Course { get; set; }

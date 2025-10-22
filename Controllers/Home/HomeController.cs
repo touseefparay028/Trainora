@@ -73,9 +73,9 @@ namespace LearningManagementSystem.Controllers.Home
             });
             lMSDbContext.SaveChanges();
             // TODO: save to database or send email
-            TempData["Message"] = "Thank you! We have received your message.";
+            TempData["SuccessMessage"] = "Thank you! We have received your message.";
 
-            return RedirectToAction("Index");
+            return RedirectToAction("Index", TempData["SuccessMessage"]);
         }
         [HttpGet]
         public IActionResult DeleteAccount()

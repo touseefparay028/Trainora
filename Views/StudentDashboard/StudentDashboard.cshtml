@@ -12,9 +12,9 @@
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
-        <nav class="col-md-3 col-lg-2 d-md-block bg-dark text-white sidebar vh-100 shadow">
+        <nav class="col-md-3 col-lg-2 collapse d-md-block bg-dark text-white sidebar vh-100 shadow" id="sidebarMenu">
             <div class="position-sticky pt-3">
-                <h4 class="text-center mb-4 fw-bold text-success">Trainora</h4>
+                <h4 class="text-center mb-4 fw-bold text-success">Student Panel</h4>
 
                 <ul class="nav flex-column">
                     <li class="nav-item mb-2">
@@ -84,7 +84,7 @@
                 </div> *@
             </div>
         </nav>
-
+      
         <!-- Main Content -->
         <main class="col-md-9  col-lg-10 px-md-4 py-4">
             <h2 class="fw-bold text-success mb-4">
@@ -111,14 +111,14 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
+                @* <div class="col-md-3">
                     <div class="card shadow rounded-4 border-0">
                         <div class="card-body text-center">
                             <i class="bi bi-clipboard-check text-warning fs-2"></i>
                             <h5 class="mt-2">Quiz</h5>
                         </div>
                     </div>
-                </div>
+                </div> *@
                 @* <div class="col-md-3">
                     <div class="card shadow rounded-4 border-0">
                         <div class="card-body text-center">
@@ -129,16 +129,15 @@
                     </div>
                 </div> *@
             </div>
-
-            <!-- Notices and Available Courses Row -->
-            <div class="row">
+            <div class="row g-3">
+                <!-- Single row container with some gap -->
                 <!-- Latest College Notices -->
                 <div class="col-md-6">
-                    <div class="card shadow rounded-4 border-0">
+                    <div class="card shadow rounded-4 border-0 h-100">
                         <div class="card-header bg-success text-white rounded-top-4">
                             <h5 class="mb-0">Latest College Notices</h5>
                         </div>
-                        <div class="card-body">
+                        <div class="card-body" style="max-height: 300px; overflow-y: auto;">
                             <ul class="list-group list-group-flush">
                                 @if (ViewBag.Announcements != null && ViewBag.Announcements.Count > 0)
                                 {
@@ -183,8 +182,8 @@
                         <div class="card-header bg-success text-white rounded-top-4">
                             <h5 class="mb-0">Available Courses</h5>
                         </div>
-                        <div class="card-body position-relative">
-                            <table class="table table-sm">
+                        <div class="card-body" style="max-height: 300px; overflow-y: auto; position: relative;">
+                            <table class="table table-sm mb-0">
                                 <thead>
                                     <tr>
                                         <th>Course</th>

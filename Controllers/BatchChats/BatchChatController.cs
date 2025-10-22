@@ -24,7 +24,7 @@ namespace LearningManagementSystem.Controllers.BatchChats
 
             // If user or batch is invalid, redirect or show message
             if (user == null)
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("LoginStudent", "Student");
 
             if (id == Guid.Empty)
                 return BadRequest("Invalid batch selected.");

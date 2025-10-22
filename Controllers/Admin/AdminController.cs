@@ -261,8 +261,6 @@ namespace LearningManagementSystem.Controllers.Account
         [Route("AdminLogin")]
         public async Task<IActionResult> LoginUser(LoginDTO loginDTO,string? ReturnUrl=null)
         {
-
-
             if (!ModelState.IsValid)
             {
                 ViewBag.Error = ModelState.Values.SelectMany(x => x.Errors).Select(y => y.ErrorMessage);
@@ -344,6 +342,19 @@ namespace LearningManagementSystem.Controllers.Account
             }).ToList();
 
             return View(teacherList);
+        }
+        public async Task<IActionResult> GetStudents()
+        {
+            var users = await _userManager.GetUsersInRoleAsync("Student");
+
+            var StudentList = users.Select(u => new
+            {
+                u.Id,
+                u.Name,
+                u.Email,
+                u.UserName
+            }).ToList();
+            return View(StudentList);
         }
 
 

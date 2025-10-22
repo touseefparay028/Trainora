@@ -11,9 +11,11 @@ namespace LearningManagementSystem.Models.DTO
         [Key]
         public Guid Id { get; set; }= Guid.NewGuid();
 
-        [Required]
+        [Required(ErrorMessage ="Title is required")]
+        [StringLength(50, MinimumLength =5, ErrorMessage ="Title must be between 5 and 50 characters")]
         public string Title { get; set; }
-
+        [Required(ErrorMessage = "Description is required")]
+        [StringLength(200, MinimumLength = 5, ErrorMessage = "Title must be between 5 and 200 characters")]
         public string Description { get; set; }
 
         
