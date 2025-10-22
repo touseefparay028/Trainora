@@ -1,0 +1,42 @@
+﻿@model IEnumerable<LearningManagementSystem.Models.DTO.TimeTableVM>
+
+@{
+    ViewData["Title"] = "General Time Table";
+    var groupedByDay = Model.GroupBy(t => t.Day);
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4 text-primary fw-bold">📅 General Time Table</h2>
+
+    @foreach (var dayGroup in groupedByDay)
+    {
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white fw-bold">
+                @dayGroup.Key
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered text-center">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Course</th>
+                            <th>Teacher</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in dayGroup)
+                        {
+                            <tr>
+                                <td>@item.Course?.Title</td>
+                                <td>@item.Course?.Teacher?.Name</td>  <!-- dynamic teacher -->
+                                <td>@item.StartTime.ToString(@"hh\:mm")</td>
+                                <td>@item.EndTime.ToString(@"hh\:mm")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>

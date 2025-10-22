@@ -3,6 +3,7 @@ using LearningManagementSystem.DatabaseDbContext;
 using LearningManagementSystem.Models.Domains;
 using LearningManagementSystem.Models.DTO;
 using LearningManagementSystem.Models.IdentityEntities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +46,16 @@ namespace LearningManagementSystem.Controllers.TimeTable
                     t.EndTime == TimeTable.EndTime &&
                     t.LabLocation == TimeTable.LabLocation &&
                     t.CourseId == TimeTable.CourseId);
+                bool isOverlapping = lMSDbContext.TimeTables.Any(t =>
+                    t.Day == TimeTable.Day &&       // same day
+                    (
+                     (TimeTable.StartTime >= t.StartTime && TimeTable.StartTime < t.EndTime) || // starts inside another slot
+                     (TimeTable.EndTime > t.StartTime && TimeTable.EndTime <= t.EndTime) ||     // ends inside another slot
+                     (TimeTable.StartTime <= t.StartTime && TimeTable.EndTime >= t.EndTime)     // completely covers another slot
+                    )
+                );
+                var duration = TimeTable.EndTime - TimeTable.StartTime;
+
                 if (slotExists)
                 {
                     ModelState.AddModelError("", "This time slot and location are already assigned to another course.");
@@ -55,6 +66,17 @@ namespace LearningManagementSystem.Controllers.TimeTable
                 {
                     ModelState.AddModelError("", "This time slot and location are already assigned to this course.");
                     ViewBag.CourseId = TimeTable.CourseId;
+                    return View("Create",TimeTable);
+                }
+                else if (isOverlapping)
+                {
+                    ModelState.AddModelError("", "This time slot overlaps with an existing slot for this course.");
+                    ViewBag.CourseId = TimeTable.CourseId;
+                    return View("Create",TimeTable);
+                }
+                else if (duration != TimeSpan.FromHours(1))
+                {
+                    ModelState.AddModelError("", "Slot must be exactly 1 hour long.");
                     return View("Create",TimeTable);
                 }
                 var TimeTables = mapper.Map<TimeTableDM>(TimeTable);
@@ -126,6 +148,20 @@ namespace LearningManagementSystem.Controllers.TimeTable
 
             return View(model);
         }
+        [Authorize(Roles = "Admin,Teacher")]
+        public async Task<IActionResult> GeneralTimeTable()
+        {
+            var timeTables = await lMSDbContext.TimeTables
+                .Include(t => t.Course)
+                    .ThenInclude(c => c.Teacher)
+                .OrderBy(t => t.Day)
+                .ThenBy(t => t.StartTime)
+                .ToListAsync();
+            var timeTableVMs = mapper.Map<List<TimeTableVM>>(timeTables);
+
+            return View(timeTableVMs);
+        }
+
 
     }
 }
