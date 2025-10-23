@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using LearningManagementSystem.Models.ValidationAttributes;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LearningManagementSystem.Models.DTO
@@ -14,7 +15,7 @@ namespace LearningManagementSystem.Models.DTO
         [NotMapped]
         [Required]
         [DataType(DataType.Upload)]
-        [FileExtensions(Extensions = "jpg,jpeg,png,pdf", ErrorMessage = "Only image or document files are allowed.")]
+        [AllowedExtensions(new string[] { ".pdf", ".docx", ".pptx" })]
         public IFormFile? File { get; set; }
     }
 }

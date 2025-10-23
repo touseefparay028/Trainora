@@ -118,7 +118,7 @@ namespace LearningManagementSystem.Services
             return assignmentVM;
 
         }
-        public async Task<List<StudentAssignmentVM>> SubmittedAssignments( Guid Id)
+        public async Task<List<StudentAssignmentVM>> SubmittedAssignments(Guid Id)
         {
             var assignments = await lMSDbContext.StudentAssignmentDM
            .Where(sa => sa.assignmentDMId == Id)
@@ -138,10 +138,13 @@ namespace LearningManagementSystem.Services
             {
                 await assignmentVM.File.CopyToAsync(stream);
             }
+            var UserId = httpContextAccessor.HttpContext?.User?
+                .FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = await userManager.FindByIdAsync(UserId);
             var submission = new StudentAssignmentDM
             {
                 Id = assignmentVM.Id,
-                StudentName = assignmentVM.StudentName,
+                StudentName = user.Name,
                 StudentId = StudentID,
                 assignmentDMId = (Guid)assignmentVM.assignmentDMId,
                 Path = FileName,

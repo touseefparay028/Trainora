@@ -38,7 +38,8 @@ namespace LearningManagementSystem.Controllers.Student
         {
             var studentID = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
             ModelState.Remove("Path");
-         if(ModelState.IsValid)
+            ModelState.Remove("StudentName");
+            if (ModelState.IsValid)
             {
                 await fileService.SubmitAssignmentAsync(assignmentVM, studentID);
                 return RedirectToAction("StudentDashboard", "StudentDashboard");

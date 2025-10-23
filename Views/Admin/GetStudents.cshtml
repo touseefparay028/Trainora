@@ -44,7 +44,11 @@ else
                                             <td>@student.Name</td>
                                             <td>@student.Email</td>
                                             <td>@student.EnrollmentNumber</td>
-                                            
+                                            <td>
+                                                <a class="nav-link text-white bg-danger" asp-route-id="@student.Id" asp-action="GetStudentProfile" asp-controller="Admin">
+                                                    <i class="bi bi-person-circle me-2"></i>View Profile
+                                                </a>
+                                            </td>
                                         </tr>
                                     }
                                 </tbody>
