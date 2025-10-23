@@ -452,10 +452,20 @@ namespace LearningManagementSystem.Controllers
             enrollment.IsApproved = true;
             lMSDbContext.StudentCourses.Update(enrollment);
             await lMSDbContext.SaveChangesAsync();
-
-            TempData["Message"] = "Student enrollment approved successfully.";
             return RedirectToAction("EnrollmentRequests");
         }
+        public async Task<IActionResult> RejectEnrollment(Guid id)
+        {
+            var enrollment = await lMSDbContext.StudentCourses.FindAsync(id);
+            if (enrollment == null)
+                return NotFound();
+
+           lMSDbContext.StudentCourses.Remove(enrollment);
+            lMSDbContext.SaveChanges();
+            return RedirectToAction("EnrollmentRequests");
+
+        }
+            
 
 
 

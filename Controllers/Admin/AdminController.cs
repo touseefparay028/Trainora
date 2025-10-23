@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using LearningManagementSystem.DatabaseDbContext;
 using LearningManagementSystem.Models.DTO;
 using LearningManagementSystem.Models.IdentityEntities;
 using LearningManagementSystem.RoleEnums;
@@ -6,6 +7,7 @@ using LearningManagementSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LearningManagementSystem.Controllers.Account
@@ -14,14 +16,16 @@ namespace LearningManagementSystem.Controllers.Account
     
     public class AdminController : Controller
     {
+        private readonly LMSDbContext lMSDbContext;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IMapper mapper;
         private readonly IEmailService emailService;
 
-        public AdminController(UserManager<ApplicationUser> userManager,SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, IMapper Mapper, IEmailService emailService )
+        public AdminController(LMSDbContext lMSDbContext,UserManager<ApplicationUser> userManager,SignInManager<ApplicationUser> signInManager, RoleManager<ApplicationRole> roleManager, IMapper Mapper, IEmailService emailService )
         {
+            this.lMSDbContext = lMSDbContext;
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
@@ -345,16 +349,53 @@ namespace LearningManagementSystem.Controllers.Account
         }
         public async Task<IActionResult> GetStudents()
         {
+            // Get all students
             var users = await _userManager.GetUsersInRoleAsync("Student");
 
-            var StudentList = users.Select(u => new
+            // Get all batches
+            var batches = await lMSDbContext.BatchDMs.ToListAsync();
+
+            // Group students by batch
+            var batchStudents = batches.Select(batch => new BatchVM
             {
-                u.Id,
-                u.Name,
-                u.Email,
-                u.UserName
+                Name = batch.Name,
+                ApplicationUser = users
+                            .Where(u => u.BatchDMId == batch.id) // link students to batch
+                            .Select(u => new ApplicationUser
+                            {
+                                Id = u.Id,
+                                Name = u.Name,
+                                Email = u.Email,
+                               EnrollmentNumber=u.EnrollmentNumber,
+                                BatchDMId = batch.id
+                            })
+                            .ToList()
             }).ToList();
-            return View(StudentList);
+
+            return View(batchStudents);
+        }
+
+        public async Task<IActionResult> GetStudentProfile(Guid id)
+        {
+            var userid = id.ToString();
+            var user = await _userManager.FindByIdAsync(userid);
+            var profile = new RegisterDTO
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Phone = user.PhoneNumber,
+                Address = user.Address,
+                gender = user.gender,
+                DateOfBirth = user.DateOfBirth,
+                EnrollmentNumber = user.EnrollmentNumber,
+                Course = user.Course,
+
+            };
+            var batchid = user.BatchDMId;
+            var batch = await lMSDbContext.BatchDMs.FirstOrDefaultAsync(b => b.id == batchid);
+            ViewBag.BatchName = batch != null ? batch.Name : "No Batch Assigned";
+            return View(profile);
         }
 
 
