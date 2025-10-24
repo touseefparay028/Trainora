@@ -23,6 +23,8 @@ namespace LearningManagementSystem.Models.DTO
 
         [ForeignKey(nameof(TeacherId))]
         public ApplicationUser? Teacher { get; set; }  // your Identity user model
+        public string? TeacherName { get; set; }
+        public List<RegisterDTO>? Students { get; set; }
         public int EnrolledStudentsCount { get; set; }
         // Navigation
         public ICollection<StudentCourseDM>? Enrollments { get; set; }

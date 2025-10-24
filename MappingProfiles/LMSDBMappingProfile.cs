@@ -13,7 +13,7 @@ namespace LearningManagementSystem.MappingProfiles
             CreateMap<RegisterDTO, ApplicationUser>()
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email))
                 .ForSourceMember(drc => drc.ConfirmPassword, opt => opt.DoNotValidate());
-
+            CreateMap<ApplicationUser, RegisterDTO>();
 
 
             CreateMap<TeacherAssignmentVM, TeacherAssignmentDM>()

@@ -21,10 +21,19 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarTeacher">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" asp-action="Dashboard" asp-controller="Dashboard">Dashboard</a></li>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-action="Dashboard" asp-controller="Dashboard">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-action="Logout" asp-controller="Admin">Logout</a></li>
+                    }
+                    else
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-action="TeacherDashboard" asp-controller="TeacherDashboard">Dashboard</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-action="Logout" asp-controller="Teacher">Logout</a></li>
+                    }
                     @* <li class="nav-item"><a class="nav-link" href="/Teacher/Assignments">Assignments</a></li>
                     <li class="nav-item"><a class="nav-link" href="/Teacher/Students">Students</a></li> *@
-                    <li class="nav-item"><a class="nav-link" asp-action="Logout" asp-controller="Admin">Logout</a></li>
+                   
                 </ul>
             </div>
         </div>
