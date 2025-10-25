@@ -31,6 +31,7 @@ namespace LearningManagementSystem.Controllers
         // GET: Courses (List of courses)
         public async Task<IActionResult> GetCourses()
         {
+           
             var courses = await lMSDbContext.Courses
                 .Include(c => c.Teacher)
                 .Include(c=>c.Batch)
@@ -49,7 +50,7 @@ namespace LearningManagementSystem.Controllers
             
             
             CourseVM.ForEach(c =>
-     c.EnrolledStudentsCount = c.Enrollments != null
+             c.EnrolledStudentsCount = c.Enrollments != null
          ? c.Enrollments.Count(e => e.IsApproved)
          : 0
  );
@@ -345,7 +346,18 @@ namespace LearningManagementSystem.Controllers
             var course = await lMSDbContext.Courses
                 .Include(c => c.Teacher)
                 .FirstOrDefaultAsync(m => m.Id == id);
+            //  Check if any students are enrolled in this course
+            bool hasEnrolledStudents = await lMSDbContext.StudentCourses
+                .AnyAsync(e => e.CourseId == id);
 
+            if (hasEnrolledStudents)
+            {
+                TempData["Message"]= "Cannot delete course. There are students enrolled in this course.";
+                var courseVMM = mapper.Map<CourseVM>(course);
+                return RedirectToAction("GetCourses");
+
+
+            }
             if (course == null)
             {
                 return NotFound();
@@ -353,6 +365,8 @@ namespace LearningManagementSystem.Controllers
             var courseVM = mapper.Map<CourseVM>(course);
             return View(courseVM);
         }
+
+
         public async Task<IActionResult> AdminDelete(Guid id)
         {
             if (id == Guid.Empty)

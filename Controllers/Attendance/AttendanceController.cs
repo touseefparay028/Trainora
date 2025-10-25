@@ -24,40 +24,61 @@ namespace LearningManagementSystem.Controllers.Attendance
             this.mapper = mapper;
         }
         //  MARK ATTENDANCE (Auto or Manual)
-        [HttpPost]
-        public async Task<IActionResult> MarkAttendance(Guid courseId)
+        [HttpGet]
+        public async Task<IActionResult> MarkAttendance(Guid ConferenceId)
         {
             var user = await userManager.GetUserAsync(User);
             if (user == null)
                 return Unauthorized();
-
-            var timetable = await lMSDbContext.TimeTables
-                .FirstOrDefaultAsync(t => t.CourseId == courseId);
-
-            if (timetable == null)
-                return NotFound("No timetable found for this course.");
+            // Find the conference
+            var conference = await lMSDbContext.VideoConference.FindAsync(ConferenceId);
+            if (conference == null)
+                return NotFound();
 
             var now = DateTime.Now;
             var currentTime = now.TimeOfDay;
+            var currentDay = now.DayOfWeek.ToString();
+            // Get all timetables for this course (and optionally this batch)
+            var timetables = await lMSDbContext.TimeTables
+                .Where(t => t.CourseId == conference.CourseId && t.Day == currentDay)
+                .ToListAsync();
+            if (timetables == null || !timetables.Any())
+                return NotFound("No timetable found for this course today.");
 
-            // Check if time slot matches
-            if (currentTime < timetable.StartTime || currentTime > timetable.EndTime)
-                return BadRequest("Not within the course time slot.");
+            // Check if any timetable matches the current time
+            var validSlot = timetables.Any(t => currentTime >= t.StartTime && currentTime <= t.EndTime);
+            if (!validSlot)
+                return Redirect(conference.MeetingLink); // Allow joining even if not in time slot
 
-            var attendance = new AttendanceDM
+            // ✅ Check if already marked to prevent duplicates
+            var alreadyMarked = await lMSDbContext.Attendances
+                .AnyAsync(a => a.StudentId == user.Id &&
+                               a.CourseId == conference.CourseId &&
+                               a.Date == DateTime.Today);
+            if (!alreadyMarked)
             {
-                Id = Guid.NewGuid(),
-                StudentId = user.Id,
-                BatchDMId = user.BatchDMId ?? Guid.Empty,
-                CourseId = courseId,
-                Date = DateTime.Today,
-                JoinTime = currentTime,
-                IsPresent = true
-            };
+                var attendance = new AttendanceDM
+                {
+                    Id = Guid.NewGuid(),
+                    StudentId = user.Id,
+                    BatchDMId = user.BatchDMId ?? Guid.Empty,
+                    CourseId = conference.CourseId,
+                    Date = DateTime.Today,
+                    JoinTime = currentTime,
+                    IsPresent = true
+                };
 
-            lMSDbContext.Attendances.Add(attendance);
-            await lMSDbContext.SaveChangesAsync();
-            return Ok("Attendance marked successfully!");
+                lMSDbContext.Attendances.Add(attendance);
+                await lMSDbContext.SaveChangesAsync();
+                return Redirect(conference.MeetingLink);
+            }
+                return Redirect(conference.MeetingLink);
+          
+            //// Check if time slot matches
+            //if (currentTime < timetable.StartTime || currentTime > timetables.EndTime)
+            //    return BadRequest("Not within the course time slot.");
+
+           
         }
         // 🧩 TEACHER — SELECT STUDENT
         //[Authorize(Roles = "Teacher")]

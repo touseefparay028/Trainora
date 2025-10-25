@@ -12,9 +12,10 @@
             <div class="list-group">
                 @foreach (var conf in Model)
                 {
-                    <a href="@conf.MeetingLink" target="_blank" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <a asp-controller="Attendance" asp-action="MarkAttendance" asp-route-ConferenceId="@conf.Id" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+
                         <div>
-                            <i class="bi bi-calendar-event me-2 text-success">@conf.CourseName/i>
+                            <i class="bi bi-calendar-event me-2 text-success">@conf.CourseName</i>
                             
                             <div class="small text-muted">
                                 @conf.StartTime.ToString("dd MMM yyyy, hh:mm tt")
