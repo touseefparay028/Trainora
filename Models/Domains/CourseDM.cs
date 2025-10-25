@@ -14,8 +14,9 @@ namespace LearningManagementSystem.Models.Domains
             public Guid TeacherId { get; set; }
             [ForeignKey(nameof(TeacherId))]
             public ApplicationUser? Teacher { get; set; }  
-            public Guid StudentId { get; set; }
-            public ApplicationUser? Students { get; set; }
+            public Guid? BatchId { get; set; }  // For course associated with a batch
+            public BatchDM? Batch { get; set; }
+          
             // Navigation
             public ICollection<StudentCourseDM> Enrollments { get; set; }
             public ICollection<TimeTableDM> TimeTables { get; set; }

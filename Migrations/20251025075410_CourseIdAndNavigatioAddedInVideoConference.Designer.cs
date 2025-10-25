@@ -4,6 +4,7 @@ using LearningManagementSystem.DatabaseDbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearningManagementSystem.Migrations
 {
     [DbContext(typeof(LMSDbContext))]
-    partial class LMSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251025075410_CourseIdAndNavigatioAddedInVideoConference")]
+    partial class CourseIdAndNavigatioAddedInVideoConference
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,6 +86,25 @@ namespace LearningManagementSystem.Migrations
                     b.ToTable("AccountDeletionReasons");
                 });
 
+            modelBuilder.Entity("LearningManagementSystem.Models.DTO.AnnouncementsVM", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("FilePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AnnouncementsVM");
+                });
+
             modelBuilder.Entity("LearningManagementSystem.Models.Domains.Announcements", b =>
                 {
                     b.Property<Guid>("Id")
@@ -131,7 +153,10 @@ namespace LearningManagementSystem.Migrations
                     b.Property<string>("Remark")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("StudentId")
+                    b.Property<string>("StudentId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("StudentId1")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -140,7 +165,7 @@ namespace LearningManagementSystem.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.HasIndex("StudentId");
+                    b.HasIndex("StudentId1");
 
                     b.ToTable("Attendances");
                 });
@@ -686,9 +711,7 @@ namespace LearningManagementSystem.Migrations
 
                     b.HasOne("LearningManagementSystem.Models.IdentityEntities.ApplicationUser", "Student")
                         .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("StudentId1");
 
                     b.Navigation("Batch");
 

@@ -20,16 +20,17 @@ namespace LearningManagementSystem.Models.DTO
 
         
         public Guid TeacherId { get; set; }  // From Identity user
-
+        public ApplicationUser? Teacher { get; set; }
         [ForeignKey(nameof(TeacherId))]
-        public ApplicationUser? Teacher { get; set; }  // your Identity user model
         public string? TeacherName { get; set; }
         public List<RegisterDTO>? Students { get; set; }
         public int EnrolledStudentsCount { get; set; }
+        public Guid? BatchId { get; set; }  // For course associated with a batch
+        public BatchDM? Batch { get; set; }
         // Navigation
         public ICollection<StudentCourseDM>? Enrollments { get; set; }
         public ICollection<TimeTableDM>? TimeTables { get; set; }
         public IEnumerable<SelectListItem>? TeacherList { get; set; }
-
+        public IEnumerable<SelectListItem>? BatchList { get; set; } // for course creation with batch
     }
 }

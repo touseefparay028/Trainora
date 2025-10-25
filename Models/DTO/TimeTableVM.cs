@@ -1,4 +1,5 @@
 ﻿using LearningManagementSystem.Models.Domains;
+using LearningManagementSystem.Models.IdentityEntities;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -25,5 +26,6 @@ namespace LearningManagementSystem.Models.DTO
 
         [ForeignKey(nameof(CourseId))]
         public CourseDM? Course { get; set; }
+        
     }
 }

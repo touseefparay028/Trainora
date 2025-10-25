@@ -1,4 +1,5 @@
 ﻿using LearningManagementSystem.Models.IdentityEntities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LearningManagementSystem.Models.Domains
 {
@@ -9,8 +10,9 @@ namespace LearningManagementSystem.Models.Domains
             public Guid Id { get; set; }
 
             // Foreign key to student
-            public string? StudentId { get; set; }
-            public ApplicationUser? Student { get; set; }
+            public Guid StudentId { get; set; }
+       
+        public ApplicationUser? Student { get; set; }
 
             // Foreign key to batch
             public Guid BatchDMId { get; set; }

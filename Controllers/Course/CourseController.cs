@@ -3,6 +3,7 @@ using LearningManagementSystem.DatabaseDbContext;
 using LearningManagementSystem.Models.Domains;
 using LearningManagementSystem.Models.DTO;
 using LearningManagementSystem.Models.IdentityEntities;
+using LearningManagementSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +17,14 @@ namespace LearningManagementSystem.Controllers
         private readonly LMSDbContext lMSDbContext;
         private readonly UserManager<ApplicationUser> userManager;
         private readonly IMapper mapper;
+        private readonly IFileService fileService;
 
-        public CourseController(LMSDbContext lMSDbContext, UserManager<ApplicationUser> userManager, IMapper mapper)
+        public CourseController(LMSDbContext lMSDbContext, UserManager<ApplicationUser> userManager, IMapper mapper,IFileService fileService)
         {
             this.lMSDbContext = lMSDbContext;
             this.userManager = userManager;
             this.mapper = mapper;
+            this.fileService = fileService;
         }
         [Route("GetCourses")]
         [Authorize(Roles = "Teacher")]
@@ -30,10 +33,21 @@ namespace LearningManagementSystem.Controllers
         {
             var courses = await lMSDbContext.Courses
                 .Include(c => c.Teacher)
+                .Include(c=>c.Batch)
                 .Include(c => c.TimeTables)
                 .Include(c => c.Enrollments)
                 .ToListAsync();
+            //var batches = lMSDbContext.Courses.ToListAsync();
+            var batches = await lMSDbContext.BatchDMs.ToListAsync();
+
+            var model = new VideoConference
+            {
+                BatchList = batches
+            };
             var CourseVM = mapper.Map<List<CourseVM>>(courses);
+           
+            
+            
             CourseVM.ForEach(c =>
      c.EnrolledStudentsCount = c.Enrollments != null
          ? c.Enrollments.Count(e => e.IsApproved)
@@ -71,6 +85,7 @@ namespace LearningManagementSystem.Controllers
 
             var course = await lMSDbContext.Courses
                 .Include(c => c.Teacher)
+                .Include(c=>c.Batch)
                 .Include(c => c.TimeTables)
                 .FirstOrDefaultAsync(m => m.Id == id);
 
@@ -104,9 +119,13 @@ namespace LearningManagementSystem.Controllers
 
         // GET: Courses/Create
         [Authorize(Roles = "Teacher")]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var model = new CourseVM
+            {
+                BatchList = await fileService.GetBatchSelectListAsync()
+            };
+            return View(model);
         }
        
         [Authorize(Roles = "Admin")]
@@ -116,9 +135,10 @@ namespace LearningManagementSystem.Controllers
             var teachers = await userManager.GetUsersInRoleAsync("Teacher");
             var courseVM = new CourseVM
             {
+                BatchList = await fileService.GetBatchSelectListAsync(),
                 TeacherList = teachers.Select(t => new SelectListItem
                 {
-                    Value = t.Id.ToString(),               // This will be the selected value (Teacher Id)
+                    Value = t.Id.ToString(),      // This will be the selected value (Teacher Id)
                     Text = t.Name ?? t.UserName  // Display name in dropdown
                 }).ToList()
             };
@@ -135,14 +155,22 @@ namespace LearningManagementSystem.Controllers
             {
                 var user = await userManager.GetUserAsync(User);
 
-                var CourseDM = mapper.Map<CourseDM>(course);
+                var courseDM = new CourseDM
                 {
-                    CourseDM.TeacherId = user.Id;
-                }
-                await lMSDbContext.Courses.AddAsync(CourseDM);
+                    Id = course.Id != Guid.Empty ? course.Id : Guid.NewGuid(),
+                    Title = course.Title,
+                    Description = course.Description,
+                    TeacherId = user.Id,    // ✅ only assign TeacherId
+                    BatchId = course.BatchId,        // optional
+                    Enrollments = new List<StudentCourseDM>(),  // initialize empty collections
+                    TimeTables = new List<TimeTableDM>()
+                };
+
+                await lMSDbContext.Courses.AddAsync(courseDM);
                 await lMSDbContext.SaveChangesAsync();
                 return RedirectToAction("GetCourses");
             }
+            course.BatchList = await fileService.GetBatchSelectListAsync();
             return View("Create", course);
         }
         [HttpPost]
@@ -154,14 +182,22 @@ namespace LearningManagementSystem.Controllers
             {
 
 
-                var CourseDM = mapper.Map<CourseDM>(course);
+                var courseDM = new CourseDM
                 {
-                    CourseDM.TeacherId = course.TeacherId;
-                }
-                await lMSDbContext.Courses.AddAsync(CourseDM);
+                    Id = course.Id != Guid.Empty ? course.Id : Guid.NewGuid(),
+                    Title = course.Title,
+                    Description = course.Description,
+                    TeacherId = course.TeacherId,    // ✅ only assign TeacherId
+                    BatchId = course.BatchId,        // optional
+                    Enrollments = new List<StudentCourseDM>(),  // initialize empty collections
+                    TimeTables = new List<TimeTableDM>()
+                };
+
+                await lMSDbContext.Courses.AddAsync(courseDM);
                 await lMSDbContext.SaveChangesAsync();
                 return RedirectToAction("AdminGetCourses");
             }
+            course.BatchList = await fileService.GetBatchSelectListAsync();
             course.TeacherList = await userManager.GetUsersInRoleAsync("Teacher")
                 .ContinueWith(t => t.Result.Select(u => new SelectListItem
                 {

@@ -23,7 +23,7 @@ namespace LearningManagementSystem.Controllers.Attendance
             this.lMSDbContext = lMSDbContext;
             this.mapper = mapper;
         }
-        // 🧩 MARK ATTENDANCE (Auto or Manual)
+        //  MARK ATTENDANCE (Auto or Manual)
         [HttpPost]
         public async Task<IActionResult> MarkAttendance(Guid courseId)
         {
@@ -47,7 +47,7 @@ namespace LearningManagementSystem.Controllers.Attendance
             var attendance = new AttendanceDM
             {
                 Id = Guid.NewGuid(),
-                StudentId = user.Id.ToString(),
+                StudentId = user.Id,
                 BatchDMId = user.BatchDMId ?? Guid.Empty,
                 CourseId = courseId,
                 Date = DateTime.Today,
@@ -57,7 +57,6 @@ namespace LearningManagementSystem.Controllers.Attendance
 
             lMSDbContext.Attendances.Add(attendance);
             await lMSDbContext.SaveChangesAsync();
-
             return Ok("Attendance marked successfully!");
         }
         // 🧩 TEACHER — SELECT STUDENT
@@ -74,7 +73,13 @@ namespace LearningManagementSystem.Controllers.Attendance
                 return NotFound("Course not found.");
 
             // Map enrolled students
-            var Students = mapper.Map<List<RegisterDTO>>(course.Enrollments.Select(e => e.Student).ToList());
+            var Students = mapper.Map<List<RegisterDTO>>(
+            course.Enrollments
+            .Where(e => e.IsApproved)   // only approved enrollments
+            .Select(e => e.Student)
+            .ToList()
+);
+
             //var students = course.Enrollments
             //    .Where(e => e.Student != null)
             //    .Select(e => new RegisterDTO
@@ -137,9 +142,10 @@ namespace LearningManagementSystem.Controllers.Attendance
 
         //  TEACHER — VIEW COURSE ATTENDANCE
         [Authorize(Roles = "Teacher")]
-        public async Task<IActionResult> ViewCourseAttendance(string studentId, Guid courseId)
+        public async Task<IActionResult> ViewCourseAttendance(Guid studentId, Guid courseId)
         {
-            var student = await userManager.FindByIdAsync(studentId);
+            
+            var student = await userManager.FindByIdAsync(studentId.ToString());
             if (student == null) return NotFound();
 
             var course = await lMSDbContext.Courses.FindAsync(courseId);
@@ -168,7 +174,7 @@ namespace LearningManagementSystem.Controllers.Attendance
             return View(summary);
         }
 
-        // 🧩 STUDENT — VIEW OWN ATTENDANCE SUMMARY
+        //  STUDENT — VIEW OWN ATTENDANCE SUMMARY
         [Authorize(Roles = "Student")]
         public async Task<IActionResult> StudentAttendanceSummary()
         {
@@ -176,7 +182,7 @@ namespace LearningManagementSystem.Controllers.Attendance
 
             var attendances = await lMSDbContext.Attendances
                 .Include(a => a.Course)
-                .Where(a => a.StudentId == user.Id.ToString())
+                .Where(a => a.StudentId == user.Id)
                 .ToListAsync();
 
             var grouped = attendances

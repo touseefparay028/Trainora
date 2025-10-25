@@ -1,5 +1,6 @@
 ﻿using LearningManagementSystem.Models.Domains;
 using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LearningManagementSystem.Models.IdentityEntities
 {
@@ -18,5 +19,6 @@ namespace LearningManagementSystem.Models.IdentityEntities
         public Guid? BatchDMId { get; set; }
 
         public ICollection<BatchDM>? BatchDM { get; set; }
+       
     }
 }

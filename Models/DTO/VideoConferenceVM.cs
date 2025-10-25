@@ -9,6 +9,9 @@ namespace LearningManagementSystem.Models.DTO
         public Guid TeacherId { get; set; }
         public Guid BatchId { get; set; }
         public BatchDM batch {  get; set; }
+        public Guid CourseId { get; set; }
+        public CourseDM course { get; set; }
+        public string CourseName { get; set; }
         public string BatchName { get; set; }
         public DateTime StartTime { get; set; }
         public DateTime? EndTime { get; set; }

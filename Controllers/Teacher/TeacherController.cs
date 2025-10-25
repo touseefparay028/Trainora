@@ -372,13 +372,14 @@ namespace LearningManagementSystem.Controllers.Account
             }
         }
         [Route("StartConference")]
-        public IActionResult StartConference(Guid batchId)
+        public IActionResult StartConference(Guid batchId,Guid CourseId)
         {
             var meetingLink = $"https://meet.jit.si/{Guid.NewGuid()}"; // Unique meeting link
             var conference = new VideoConference
             {
                 Id = Guid.NewGuid(),
                 BatchId = batchId,
+                CourseId=CourseId,
                 TeacherId = new Guid(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value),
                 StartTime = DateTime.Now,
                 MeetingLink = meetingLink

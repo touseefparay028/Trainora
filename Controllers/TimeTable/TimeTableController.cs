@@ -118,46 +118,59 @@ namespace LearningManagementSystem.Controllers.TimeTable
         }
         public async Task<IActionResult> ViewTimeTable()
         {
+            // Get currently logged-in student
             var user = await userManager.GetUserAsync(User);
             if (user == null)
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Student");
 
-            // Get all approved enrollments of the student
+            // Get all approved enrollments of this student
             var enrollments = await lMSDbContext.StudentCourses
                 .Where(e => e.StudentId == user.Id && e.IsApproved)
                 .Include(e => e.Course)
-                    .ThenInclude(c => c.Teacher) // Include teacher details
-                .Include(e => e.Course)
-                    .ThenInclude(c => c.TimeTables) // Include timetable
+                    .ThenInclude(c=>c.Teacher)
+                .Include(e=>e.Course)
+                    .ThenInclude(t => t.TimeTables) // include timetable
                 .ToListAsync();
 
-            // Prepare dynamic model for the view
-            var model = enrollments.Select(e => new
+            // Prepare model for the view
+            var model = new List<CourseVM>();
+
+            foreach (var enrollment in enrollments)
             {
-                e.Course.Title,
-                e.Course.Description,
-                TeacherName = e.Course.Teacher.Name,
-                TimeTables = e.Course.TimeTables.Select(t => new
+                var course = enrollment.Course;
+
+                // Get teacher name manually because TeacherId (Guid) != IdentityUser.Id (string)
+                string teacherName = await lMSDbContext.Users
+                    .Where(u => u.Id == course.TeacherId)
+                    .Select(u => u.Name)
+                    .FirstOrDefaultAsync() ?? "N/A";
+
+                model.Add(new CourseVM
                 {
-                    t.Day,
-                    t.StartTime,
-                    t.EndTime,
-                    t.LabLocation
-                }).ToList()
-            }).ToList();
+                    Id = course.Id,
+                    Title = course.Title,
+                    Description = course.Description,
+                    TeacherId = course.TeacherId,
+                    TeacherName = teacherName,
+                    TimeTables = course.TimeTables.ToList()
+                });
+            }
 
             return View(model);
         }
+
         [Authorize(Roles = "Admin,Teacher")]
         public async Task<IActionResult> GeneralTimeTable()
         {
             var timeTables = await lMSDbContext.TimeTables
                 .Include(t => t.Course)
-                    .ThenInclude(c => c.Teacher)
+                    .Include(c=>c.Course.Teacher)    
+                //.ThenInclude(c => c.Teacher)
                 .OrderBy(t => t.Day)
                 .ThenBy(t => t.StartTime)
                 .ToListAsync();
             var timeTableVMs = mapper.Map<List<TimeTableVM>>(timeTables);
+            
 
             return View(timeTableVMs);
         }

@@ -12,6 +12,7 @@
         <tr>
             <th scope="col">Course Title</th>
             <th scope="col">Description</th>
+            <th scope="col">Batch</th>
             <th scope="col">Teacher</th>
             <th scope="col">Actions</th>
             <th scope="col">Time Table</th>
@@ -23,12 +24,14 @@
             <tr>
                 <td class="fw-semibold">@course.Title</td>
                 <td>@course.Description</td>
+                <td>@course.Batch.Name</td>
                 <td>@course.Teacher?.Name</td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-sm btn-outline-primary me-1">Edit</a>
                     <a asp-action="Details" asp-route-id="@course.Id" class="btn btn-sm btn-outline-info me-1">Details</a>
                     <a asp-action="Delete" asp-route-id="@course.Id" class="btn btn-sm btn-outline-danger">Delete</a>
                     <a asp-action="GetStudentsByCourse" asp-controller="Attendance" asp-route-courseId="@course.Id">Students Enrolled</a>
+                    <a asp-action="StartConference" asp-controller="Teacher" asp-route-batchId="@course.BatchId" asp-route-CourseId="@course.Id">Start Session</a>
                 </td>
                 <td>
                     @if (course.TimeTables != null && course.TimeTables.Any())

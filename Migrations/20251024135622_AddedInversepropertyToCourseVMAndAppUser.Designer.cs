@@ -4,6 +4,7 @@ using LearningManagementSystem.DatabaseDbContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearningManagementSystem.Migrations
 {
     [DbContext(typeof(LMSDbContext))]
-    partial class LMSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251024135622_AddedInversepropertyToCourseVMAndAppUser")]
+    partial class AddedInversepropertyToCourseVMAndAppUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,6 +86,25 @@ namespace LearningManagementSystem.Migrations
                     b.ToTable("AccountDeletionReasons");
                 });
 
+            modelBuilder.Entity("LearningManagementSystem.Models.DTO.AnnouncementsVM", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("FilePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AnnouncementsVM");
+                });
+
             modelBuilder.Entity("LearningManagementSystem.Models.Domains.Announcements", b =>
                 {
                     b.Property<Guid>("Id")
@@ -131,7 +153,10 @@ namespace LearningManagementSystem.Migrations
                     b.Property<string>("Remark")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("StudentId")
+                    b.Property<string>("StudentId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("StudentId1")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -140,7 +165,7 @@ namespace LearningManagementSystem.Migrations
 
                     b.HasIndex("CourseId");
 
-                    b.HasIndex("StudentId");
+                    b.HasIndex("StudentId1");
 
                     b.ToTable("Attendances");
                 });
@@ -200,6 +225,12 @@ namespace LearningManagementSystem.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("StudentsId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("TeacherId")
                         .HasColumnType("uniqueidentifier");
 
@@ -209,6 +240,8 @@ namespace LearningManagementSystem.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BatchId");
+
+                    b.HasIndex("StudentsId");
 
                     b.HasIndex("TeacherId");
 
@@ -377,9 +410,6 @@ namespace LearningManagementSystem.Migrations
                     b.Property<Guid>("BatchId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CourseId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("EndTime")
                         .HasColumnType("datetime2");
 
@@ -396,8 +426,6 @@ namespace LearningManagementSystem.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BatchId");
-
-                    b.HasIndex("CourseId");
 
                     b.ToTable("VideoConference");
                 });
@@ -686,9 +714,7 @@ namespace LearningManagementSystem.Migrations
 
                     b.HasOne("LearningManagementSystem.Models.IdentityEntities.ApplicationUser", "Student")
                         .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("StudentId1");
 
                     b.Navigation("Batch");
 
@@ -710,13 +736,19 @@ namespace LearningManagementSystem.Migrations
                         .WithMany()
                         .HasForeignKey("BatchId");
 
+                    b.HasOne("LearningManagementSystem.Models.IdentityEntities.ApplicationUser", "Students")
+                        .WithMany("CoursesEnrolledDirectly")
+                        .HasForeignKey("StudentsId");
+
                     b.HasOne("LearningManagementSystem.Models.IdentityEntities.ApplicationUser", "Teacher")
-                        .WithMany()
+                        .WithMany("CoursesTaught")
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Batch");
+
+                    b.Navigation("Students");
 
                     b.Navigation("Teacher");
                 });
@@ -778,15 +810,7 @@ namespace LearningManagementSystem.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("LearningManagementSystem.Models.Domains.CourseDM", "course")
-                        .WithMany()
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("batch");
-
-                    b.Navigation("course");
                 });
 
             modelBuilder.Entity("LearningManagementSystem.Models.IdentityEntities.ApplicationUser", b =>
@@ -862,6 +886,13 @@ namespace LearningManagementSystem.Migrations
             modelBuilder.Entity("LearningManagementSystem.Models.Domains.VideoConference", b =>
                 {
                     b.Navigation("BatchList");
+                });
+
+            modelBuilder.Entity("LearningManagementSystem.Models.IdentityEntities.ApplicationUser", b =>
+                {
+                    b.Navigation("CoursesEnrolledDirectly");
+
+                    b.Navigation("CoursesTaught");
                 });
 #pragma warning restore 612, 618
         }

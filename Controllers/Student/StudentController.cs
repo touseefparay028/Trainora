@@ -484,6 +484,7 @@ namespace LearningManagementSystem.Controllers.Student
 
             // ✅ Fetch all active or upcoming conferences for this batch
             var conferences = LMSDbContext.VideoConference
+                .Include(c=>c.course)
                 .Where(c => c.BatchId == batchId && (c.EndTime == null || c.EndTime >= DateTime.Now))
                 .OrderByDescending(c => c.StartTime)
                 .Select(c => new VideoConferenceVM
@@ -492,6 +493,8 @@ namespace LearningManagementSystem.Controllers.Student
                   TeacherId = c.TeacherId,
                     MeetingLink = c.MeetingLink,
                     BatchId = c.BatchId,
+                    CourseId=c.CourseId,
+                    CourseName=c.course.Title??"N/A",
                     StartTime = c.StartTime,
                     EndTime = c.EndTime
                 })

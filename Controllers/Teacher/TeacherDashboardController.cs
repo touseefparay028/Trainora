@@ -34,8 +34,8 @@ namespace LearningManagementSystem.Controllers.Teacher
                 BatchList = batches
             };
             var pendingCount = lMSDbContext.StudentCourses
-    .Where(e => e.IsApproved == false)
-    .Count();
+            .Where(e => e.IsApproved == false)
+              .Count();
 
 
             ViewBag.PendingCount = pendingCount;

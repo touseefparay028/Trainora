@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using LearningManagementSystem.Models.IdentityEntities;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LearningManagementSystem.Models.Domains
@@ -24,7 +25,7 @@ namespace LearningManagementSystem.Models.Domains
 
             [ForeignKey(nameof(CourseId))]
             public CourseDM Course { get; set; }
-
+        
             
     }
 }

@@ -50,8 +50,13 @@ namespace LearningManagementSystem.DatabaseDbContext
                 .HasOne(t => t.Course)
                 .WithMany(c => c.TimeTables)
                 .HasForeignKey(t => t.CourseId);
+            builder.Entity<AttendanceDM>()
+            .HasOne(a => a.Student) // navigation property
+            .WithMany()             // or .WithMany(s => s.Attendances)
+            .HasForeignKey(a => a.StudentId)
+            .OnDelete(DeleteBehavior.Restrict); // NO ACTION
         }
-        public DbSet<LearningManagementSystem.Models.DTO.AnnouncementsVM> AnnouncementsVM { get; set; } = default!;
+        //public DbSet<LearningManagementSystem.Models.DTO.AnnouncementsVM> AnnouncementsVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.CourseVM> CourseVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.StudyMaterialsVM> StudyMaterialsVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.StudentAssignmentVM> StudentAssignmentVM { get; set; } = default!;
@@ -60,11 +65,11 @@ namespace LearningManagementSystem.DatabaseDbContext
         //public DbSet<LearningManagementSystem.Models.DTO.RegisterDTO> RegisterDTO { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.LoginDTO> LoginDTO { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.BatchVM> BatchVM { get; set; } = default!;
-        
 
 
 
 
 
-}
+
+    }
 }

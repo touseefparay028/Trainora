@@ -7,8 +7,10 @@
             public Guid TeacherId { get; set; }
             public Guid BatchId { get; set; }
             public BatchDM batch {  get; set; }
+            public Guid CourseId { get; set; }
+            public CourseDM course { get; set; }
             public DateTime StartTime { get; set; }
             public DateTime? EndTime { get; set; }
-        public List<BatchDM> BatchList { get; set; }
+            public List<BatchDM> BatchList { get; set; }
     }
 }

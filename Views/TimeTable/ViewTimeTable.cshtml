@@ -1,7 +1,4 @@
-﻿@model IEnumerable<dynamic>
-@{
-    Layout = "~/Views/Shared/StudentLayout.cshtml";
-}
+﻿@model IEnumerable<LearningManagementSystem.Models.DTO.CourseVM>
 
 <div class="container mt-4">
     <h3 class="text-primary fw-bold mb-4">My Course Time Table</h3>
@@ -24,7 +21,7 @@
                             <p class="text-muted small mb-2">@course.Description</p>
                             <p class="mb-2"><strong>Teacher:</strong> @course.TeacherName</p>
 
-                            <h6 class="text-secondary mt-3 mb-1">Time Table:</h6>
+                            <h6 class="text-secondary mt-3 mb-1">Schedule:</h6>
                             <ul class="list-unstyled small">
                                 @foreach (var slot in course.TimeTables)
                                 {

@@ -23,6 +23,16 @@
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
+            <div class="col-6">
+                <label asp-for="BatchId" class="form-label">Select Batch</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light"><i class="bi bi-collection-fill"></i></span>
+                    <select asp-for="BatchId" asp-items="Model.BatchList" class="form-control">
+                        <option value=""> -- Select Batch --</option>
+                    </select>
+                </div>
+                <span asp-validation-for="BatchId" class="text-danger"></span>
+            </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
