@@ -50,12 +50,12 @@ namespace LearningManagementSystem.Controllers.Attendance
             if (!validSlot)
                 return Redirect(conference.MeetingLink); // Allow joining even if not in time slot
 
-            // ✅ Check if already marked to prevent duplicates
+            // Check if already marked to prevent duplicates
             var alreadyMarked = await lMSDbContext.Attendances
-                .AnyAsync(a => a.StudentId == user.Id &&
+                .FirstOrDefaultAsync(a => a.StudentId == user.Id &&
                                a.CourseId == conference.CourseId &&
                                a.Date == DateTime.Today);
-            if (!alreadyMarked)
+            if (alreadyMarked ==null)
             {
                 var attendance = new AttendanceDM
                 {
@@ -71,8 +71,20 @@ namespace LearningManagementSystem.Controllers.Attendance
                 lMSDbContext.Attendances.Add(attendance);
                 await lMSDbContext.SaveChangesAsync();
                 return Redirect(conference.MeetingLink);
+            }// If already present, optionally update join time only if null or earlier than existing
+
+            else
+            {
+               if (!alreadyMarked.IsPresent || alreadyMarked.JoinTime == null)
+            {
+                    alreadyMarked.IsPresent = true;
+                    alreadyMarked.JoinTime = now.TimeOfDay;
+                    lMSDbContext.Attendances.Update(alreadyMarked);
+                    await lMSDbContext.SaveChangesAsync();
+                }
             }
-                return Redirect(conference.MeetingLink);
+
+            return Redirect(conference.MeetingLink);
           
             //// Check if time slot matches
             //if (currentTime < timetable.StartTime || currentTime > timetables.EndTime)
@@ -179,9 +191,9 @@ namespace LearningManagementSystem.Controllers.Attendance
             var summary = new StudentAttendanceSummaryVM
             {
                 StudentId = student.Id.ToString(),
-                StudentName = student.Name,
+                StudentName = student.Name?? "N/A",
                 CourseId = course.Id,
-                CourseName = course.Title,
+                CourseName = course.Title ?? "N/A",
                 TotalClasses = attendanceRecords.Count,
                 ClassesAttended = attendanceRecords.Count(a => a.IsPresent),
                 AttendanceRecords = attendanceRecords.Select(a => new AttendanceDetailVM

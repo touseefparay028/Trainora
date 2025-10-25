@@ -15,6 +15,7 @@ using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pag
 using System;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
+using System.Threading.Tasks;
 
 namespace LearningManagementSystem.Controllers.Account
 {
@@ -372,7 +373,7 @@ namespace LearningManagementSystem.Controllers.Account
             }
         }
         [Route("StartConference")]
-        public IActionResult StartConference(Guid batchId,Guid CourseId)
+        public async Task<IActionResult> StartConference(Guid batchId,Guid CourseId)
         {
             var meetingLink = $"https://meet.jit.si/{Guid.NewGuid()}"; // Unique meeting link
             var conference = new VideoConference
@@ -384,10 +385,53 @@ namespace LearningManagementSystem.Controllers.Account
                 StartTime = DateTime.Now,
                 MeetingLink = meetingLink
             };
-
             lMSDbContext.VideoConference.Add(conference);
             lMSDbContext.SaveChanges();
+            var today = DateTime.UtcNow;
+            var existingsession = await lMSDbContext.ClassSessions
+                .FirstOrDefaultAsync(s=>s.CourseId == CourseId && s.SessionDate.Date == today.Date);
+            if (existingsession == null) {
+                {
+                    existingsession = new ClassSessions
+                    {
+                        Id = Guid.NewGuid(),
+                        CourseId = CourseId,
+                        SessionDate = today.Date,
+                        SessionTime = today.TimeOfDay
+                    };
+                    lMSDbContext.ClassSessions.Add(existingsession);
+                }
 
+                var enrolledstudents = await lMSDbContext.StudentCourses
+                    .Where(sc => sc.CourseId == CourseId && sc.IsApproved)
+                    .Include(sc => sc.Student)
+                    .ToListAsync();
+                foreach(var sc in enrolledstudents)
+                {
+                    var studentid = sc.StudentId;
+                    var exists = await lMSDbContext.Attendances.AnyAsync(a =>
+                    a.CourseId == CourseId &&
+                    a.StudentId == studentid &&
+                    a.Date.Date == today.Date);
+                    if (!exists)
+                    {
+                        lMSDbContext.Attendances.Add(new AttendanceDM
+                        {
+                            Id = Guid.NewGuid(),
+                            CourseId = CourseId,
+                            StudentId = studentid,
+                            BatchDMId=batchId,
+                            Date = today.Date,
+                            IsPresent = false,
+                            JoinTime = null,
+                            Remark = null,
+                        });
+                    }
+                }
+                await lMSDbContext.SaveChangesAsync();   
+                    
+
+            }
             // Redirect teacher to the conference page
             return RedirectToAction("ConferenceRoom", new { id = conference.Id });
         }
