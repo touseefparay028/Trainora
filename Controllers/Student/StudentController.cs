@@ -256,12 +256,19 @@ namespace LearningManagementSystem.Controllers.Student
         }
 
 
-        [Route("StudentLogin")]
         public IActionResult LoginStudent()
         {
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("StudentDashboard", "StudentDashboard");
+                if(User.IsInRole("Student"))
+                {
+                    return RedirectToAction("StudentDashboard", "StudentDashboard");
+                }
+                else
+                {
+                    return RedirectToAction("AccessDenied", "Home");
+                }
+                
             }
 
             return View();

@@ -262,7 +262,15 @@ namespace LearningManagementSystem.Controllers.Account
         {
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("TeacherDashboard", "TeacherDashboard");
+                if(User.IsInRole("Teacher"))
+                {
+                    return RedirectToAction("TeacherDashboard", "TeacherDashboard");
+                }
+                else
+                {
+                    return RedirectToAction("AccessDenied", "Home");
+                }
+               
             }
             
             return View();
@@ -376,7 +384,7 @@ namespace LearningManagementSystem.Controllers.Account
         public async Task<IActionResult> StartConference(Guid batchId,Guid CourseId)
         {
             var meetingLink = $"https://meet.jit.si/{Guid.NewGuid()}"; // Unique meeting link
-            var conference = new VideoConference
+            var conference = new VideoConference     //Conference will be created every time because needs to reflect to student side.
             {
                 Id = Guid.NewGuid(),
                 BatchId = batchId,

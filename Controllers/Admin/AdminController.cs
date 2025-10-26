@@ -253,11 +253,17 @@ namespace LearningManagementSystem.Controllers.Account
         //[Authorize(Roles ="Admin", Policy = "NotAuthenticated")]
         public IActionResult Login()
         {
-            if(User.Identity!=null && User.Identity.IsAuthenticated)
+            if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Dashboard", "Dashboard");
+                if (User.IsInRole(UserTypeOptions.Admin.ToString()))
+                {
+                    return RedirectToAction("Dashboard", "Dashboard");
+                }
+                else
+                {
+                    return RedirectToAction("AccessDenied", "Home");
+                }
             }
-
             return View();
         }
 

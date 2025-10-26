@@ -132,7 +132,22 @@
                 <li class="nav-item"><a class="nav-link text-white" asp-action="About" asp-controller="Home">About</a></li>
                 <li class="nav-item"><a class="nav-link text-white" asp-action="Contact" asp-controller="Home">Contact</a></li>
             </ul>
-            <a class="btn btn-primary ms-3" asp-action="Join" asp-controller="Home">Log In/Sign Up</a>
+           @if(User.IsInRole("Admin"))
+            {
+                <a class="btn btn-primary ms-3" asp-action="Dashboard" asp-controller="Dashboard">@User.Identity.Name</a>
+            }
+            else if(User.IsInRole("Teacher"))
+            {
+                <a class="btn btn-primary ms-3" asp-action="TeacherDashboard" asp-controller="TeacherDashboard">@User.Identity.Name</a>
+            }
+            else if(User.IsInRole("Student"))
+            {
+                <a class="btn btn-primary ms-3" asp-action="StudentDashboard" asp-controller="StudentDashboard">@User.Identity.Name</a>
+            }
+           else
+           {
+               <a class="btn btn-primary ms-3" asp-action="Join" asp-controller="Home">Log In/Sign Up</a>
+           }
         </div>
     </div>
 </nav>
