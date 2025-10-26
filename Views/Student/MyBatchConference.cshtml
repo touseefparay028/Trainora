@@ -2,6 +2,12 @@
 @{
     Layout = "~/Views/Shared/StudentLayout.cshtml";
 }
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">
+        @TempData["Message"]
+    </div>
+}
 <div class="card shadow-lg border-0 rounded-4 mb-4">
     <div class="card-header bg-success text-white fw-bold">
         <i class="bi bi-camera-video-fill me-2"></i> My Batch Conferences

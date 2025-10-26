@@ -1,0 +1,85 @@
+﻿@model IEnumerable<LearningManagementSystem.Models.DTO.StudentAttendanceSummaryVM>
+
+@{
+    ViewData["Title"] = "Attendance Summary";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg rounded-4 border-0">
+        <div class="card-header bg-primary text-white text-center rounded-top-4">
+            <h3 class="mb-0">🎓 Attendance Summary</h3>
+        </div>
+
+        <div class="card-body">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle text-center">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>#</th>
+                                <th>Course Name</th>
+                                <th>Total Classes</th>
+                                <th>Classes Attended</th>
+                                <th>Attendance %</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Select((m, index) => new { Data = m, Index = index + 1 }))
+                            {
+                                var percentage = item.Data.TotalClasses > 0
+                                ? Math.Round((decimal)item.Data.ClassesAttended / item.Data.TotalClasses * 100, 2)
+                                : 0;
+
+                                string rowClass = percentage < 75 ? "table-danger" : "table-success";
+
+                                <tr class="@rowClass">
+                                    <td>@item.Index</td>
+                                    <td>@item.Data.CourseName</td>
+                                    <td>@item.Data.TotalClasses</td>
+                                    <td>@item.Data.ClassesAttended</td>
+                                    <td>@percentage%</td>
+                                    <td>
+                                        @if (percentage >= 75)
+                                        {
+                                            <span class="badge bg-success px-3 py-2">Good</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger px-3 py-2">Low</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a class="nav-link text-white bg-danger" asp-route-courseid="@item.Data.CourseId" asp-action="ViewStudentCourseAttendance" asp-controller="Attendance">
+                                            <i class="bi bi-person-circle me-2"></i>View Attendance
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info text-center p-4 rounded-3" role="alert">
+                    No attendance records found.
+                </div>
+            }
+        </div>
+
+        <div class="card-footer text-center bg-light">
+            <a href="@Url.Action("StudentDashboard", "StudentDashboard")" class="btn btn-outline-primary rounded-pill px-4">
+                ⬅ Back to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table th, .table td {
+        vertical-align: middle;
+    }
+</style>

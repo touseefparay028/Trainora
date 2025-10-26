@@ -1,7 +1,9 @@
 ﻿namespace LearningManagementSystem.Models.DTO
 {
     public class StudentAttendanceSummaryVM
-    { // Student details
+    { 
+        public Guid id { get; set; }
+        // Student details
         public string StudentId { get; set; }
         public string StudentName { get; set; }
 

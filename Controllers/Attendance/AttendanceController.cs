@@ -43,7 +43,10 @@ namespace LearningManagementSystem.Controllers.Attendance
                 .Where(t => t.CourseId == conference.CourseId && t.Day == currentDay)
                 .ToListAsync();
             if (timetables == null || !timetables.Any())
-                return NotFound("No timetable found for this course today.");
+            {
+                TempData["Message"] = "No timetable found for this course today.";
+                return RedirectToAction("MyBatchConference", "Student");
+            }
 
             // Check if any timetable matches the current time
             var validSlot = timetables.Any(t => currentTime >= t.StartTime && currentTime <= t.EndTime);
@@ -93,7 +96,7 @@ namespace LearningManagementSystem.Controllers.Attendance
            
         }
         // 🧩 TEACHER — SELECT STUDENT
-        //[Authorize(Roles = "Teacher")]
+        [Authorize(Roles = "Teacher")]
         public async Task<IActionResult> GetStudentsByCourse(Guid courseId)
         {
             // Fetch course with enrolled students
@@ -222,6 +225,7 @@ namespace LearningManagementSystem.Controllers.Attendance
                 .GroupBy(a => a.Course)
                 .Select(g => new StudentAttendanceSummaryVM
                 {
+                    id=Guid.NewGuid(),
                     StudentId = user.Id.ToString(),
                     StudentName = user.Name,
                     CourseId = g.Key.Id,
@@ -229,9 +233,45 @@ namespace LearningManagementSystem.Controllers.Attendance
                     TotalClasses = g.Count(),
                     ClassesAttended = g.Count(x => x.IsPresent)
                 }).ToList();
+           
 
             return View(grouped);
         }
+        [Authorize(Roles ="Student")]
+        public async Task<IActionResult> ViewStudentCourseAttendance(Guid courseid)
+        {
+            var user =await userManager.GetUserAsync(User);
+            if(user == null)
+                return NotFound("User not found");
+            var studentId=user.Id;
+            
+
+            var course = await lMSDbContext.Courses.FindAsync(courseid);
+            if (course == null) return NotFound();
+
+            var attendanceRecords = await lMSDbContext.Attendances
+                .Where(a => a.StudentId ==studentId && a.CourseId == courseid)
+                .ToListAsync();
+
+            var summary = new StudentAttendanceSummaryVM
+            {
+                StudentId = studentId.ToString(),
+                StudentName = user.Name ?? "N/A",
+                CourseId = course.Id,
+                CourseName = course.Title ?? "N/A",
+                TotalClasses = attendanceRecords.Count,
+                ClassesAttended = attendanceRecords.Count(a => a.IsPresent),
+                AttendanceRecords = attendanceRecords.Select(a => new AttendanceDetailVM
+                {
+                    Date = a.Date,
+                    IsPresent = a.IsPresent,
+                    Remark = a.Remark
+                }).ToList()
+            };
+
+            return View(summary);
+        }
+
 
         // 🧩 EDIT ATTENDANCE (Optional)
         [Authorize(Roles = "Teacher")]

@@ -30,7 +30,22 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
+            @if (User.IsInRole("Admin"))
+            {
+                <a class="btn btn-primary ms-3" asp-action="Dashboard" asp-controller="Dashboard">@User.Identity.Name</a>
+            }
+            else if (User.IsInRole("Teacher"))
+            {
+                <a class="btn btn-primary ms-3" asp-action="TeacherDashboard" asp-controller="TeacherDashboard">@User.Identity.Name</a>
+            }
+            else if (User.IsInRole("Student"))
+            {
+                <a class="btn btn-primary ms-3" asp-action="StudentDashboard" asp-controller="StudentDashboard">@User.Identity.Name</a>
+            }
+            else
+            {
+
+                <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="registerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -38,8 +53,8 @@
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="registerDropdown">
                             <li><a class="dropdown-item" asp-action="Login" asp-controller="Admin" >Admin</a></li>
-                            <li><a class="dropdown-item" href="/LoginTeacher">Teacher</a></li>
-                            <li><a class="dropdown-item" href="/StudentLogin">Student</a></li>
+                            <li><a class="dropdown-item" asp-action="LoginTeacher" asp-controller="Teacher">Teacher</a></li>
+                            <li><a class="dropdown-item" asp-action="LoginStudent" asp-controller="Student">Student</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -54,7 +69,11 @@
                     </li>
 
                 </ul>
-            </div>
+            </div> 
+
+            }
+            
+           
         </div>
     </nav>
 

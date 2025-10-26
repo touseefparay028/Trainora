@@ -377,7 +377,18 @@ namespace LearningManagementSystem.Controllers
             var course = await lMSDbContext.Courses
                 .Include(c => c.Teacher)
                 .FirstOrDefaultAsync(m => m.Id == id);
+            //  Check if any students are enrolled in this course
+            bool hasEnrolledStudents = await lMSDbContext.StudentCourses
+                .AnyAsync(e => e.CourseId == id);
 
+            if (hasEnrolledStudents)
+            {
+                TempData["Message"] = "Cannot delete course. There are students enrolled in this course.";
+                var courseVMM = mapper.Map<CourseVM>(course);
+                return RedirectToAction("AdminGetCourses");
+
+
+            }
             if (course == null)
             {
                 return NotFound();

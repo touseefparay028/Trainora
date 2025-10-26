@@ -353,6 +353,7 @@ namespace LearningManagementSystem.Controllers.Account
 
             return View(teacherList);
         }
+        [Authorize(Roles ="Admin")]
         public async Task<IActionResult> GetStudents()
         {
             // Get all students
@@ -380,7 +381,7 @@ namespace LearningManagementSystem.Controllers.Account
 
             return View(batchStudents);
         }
-
+        [Authorize(Roles ="Admin")]
         public async Task<IActionResult> GetStudentProfile(Guid id)
         {
             var userid = id.ToString();

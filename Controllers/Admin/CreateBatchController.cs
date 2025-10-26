@@ -40,6 +40,7 @@ namespace LearningManagementSystem.Controllers.Admin
             List<BatchVM> batchVM = mapper.Map<List<BatchVM>>(batchDMs);
             return View(batchVM);
         }
+        [Authorize(Roles ="Admin")]
         public IActionResult Delete(Guid id)
         {
             // 1. Fetch from DM (database)

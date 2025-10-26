@@ -257,7 +257,7 @@ namespace LearningManagementSystem.Controllers.Account
             return View();
         }
 
-        [Route("LoginTeacher")]
+        //[Route("LoginTeacher")]
         public IActionResult LoginTeacher()
         {
             if (User.Identity != null && User.Identity.IsAuthenticated)
@@ -381,70 +381,99 @@ namespace LearningManagementSystem.Controllers.Account
             }
         }
         [Route("StartConference")]
-        public async Task<IActionResult> StartConference(Guid batchId,Guid CourseId)
+        public async Task<IActionResult> StartConference(Guid batchId, Guid CourseId)
         {
-            var meetingLink = $"https://meet.jit.si/{Guid.NewGuid()}"; // Unique meeting link
-            var conference = new VideoConference     //Conference will be created every time because needs to reflect to student side.
+            var now = DateTime.Now; // Local time
+            var today = now.Date;
+
+            // 1️⃣ Check if the class is scheduled now
+            var timetable = await lMSDbContext.TimeTables
+                .Where(t => t.CourseId == CourseId && t.Day == now.DayOfWeek.ToString())
+                .FirstOrDefaultAsync();
+
+            if (timetable == null)
+            {
+                TempData["Message"] = "No class is scheduled for today.";
+                return RedirectToAction("GetCourses", "Course");
+            }
+
+            // Compare time range (assuming timetable has StartTime and EndTime columns)
+            var startTime = timetable.StartTime; // e.g., 10:00 AM
+            var endTime = timetable.EndTime;     // e.g., 11:00 AM
+
+            if (now.TimeOfDay < startTime || now.TimeOfDay > endTime)
+            {
+                TempData["Message"] = "No class is scheduled right now.";
+                return RedirectToAction("GetCourses","Course");
+            }
+
+            // 2️⃣ Continue with conference creation
+            var meetingLink = $"https://meet.jit.si/{Guid.NewGuid()}";
+            var conference = new VideoConference
             {
                 Id = Guid.NewGuid(),
                 BatchId = batchId,
-                CourseId=CourseId,
+                CourseId = CourseId,
                 TeacherId = new Guid(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value),
-                StartTime = DateTime.Now,
+                StartTime = now,
                 MeetingLink = meetingLink
             };
-            lMSDbContext.VideoConference.Add(conference);
-            lMSDbContext.SaveChanges();
-            var today = DateTime.UtcNow;
-            var existingsession = await lMSDbContext.ClassSessions
-                .FirstOrDefaultAsync(s=>s.CourseId == CourseId && s.SessionDate.Date == today.Date);
-            if (existingsession == null) {
-                {
-                    existingsession = new ClassSessions
-                    {
-                        Id = Guid.NewGuid(),
-                        CourseId = CourseId,
-                        SessionDate = today.Date,
-                        SessionTime = today.TimeOfDay
-                    };
-                    lMSDbContext.ClassSessions.Add(existingsession);
-                }
 
-                var enrolledstudents = await lMSDbContext.StudentCourses
-                    .Where(sc => sc.CourseId == CourseId && sc.IsApproved)
-                    .Include(sc => sc.Student)
-                    .ToListAsync();
-                foreach(var sc in enrolledstudents)
+            lMSDbContext.VideoConference.Add(conference);
+            await lMSDbContext.SaveChangesAsync();
+
+            // Create class session if not already created for today
+            var existingSession = await lMSDbContext.ClassSessions
+                .FirstOrDefaultAsync(s => s.CourseId == CourseId && s.SessionDate.Date == today);
+
+            if (existingSession == null)
+            {
+                existingSession = new ClassSessions
                 {
-                    var studentid = sc.StudentId;
+                    Id = Guid.NewGuid(),
+                    CourseId = CourseId,
+                    SessionDate = today,
+                    SessionTime = now.TimeOfDay
+                };
+                lMSDbContext.ClassSessions.Add(existingSession);
+
+                var enrolledStudents = await lMSDbContext.StudentCourses
+                    .Where(sc => sc.CourseId == CourseId && sc.IsApproved)
+                    .ToListAsync();
+
+                foreach (var sc in enrolledStudents)
+                {
+                    var studentId = sc.StudentId;
                     var exists = await lMSDbContext.Attendances.AnyAsync(a =>
-                    a.CourseId == CourseId &&
-                    a.StudentId == studentid &&
-                    a.Date.Date == today.Date);
+                        a.CourseId == CourseId &&
+                        a.StudentId == studentId &&
+                        a.Date.Date == today);
+
                     if (!exists)
                     {
                         lMSDbContext.Attendances.Add(new AttendanceDM
                         {
                             Id = Guid.NewGuid(),
                             CourseId = CourseId,
-                            StudentId = studentid,
-                            BatchDMId=batchId,
-                            Date = today.Date,
+                            StudentId = studentId,
+                            BatchDMId = batchId,
+                            Date = today,
                             IsPresent = false,
                             JoinTime = null,
-                            Remark = null,
+                            Remark = null
                         });
                     }
                 }
-                await lMSDbContext.SaveChangesAsync();   
-                    
 
+                await lMSDbContext.SaveChangesAsync();
             }
-            // Redirect teacher to the conference page
+
+            // 4️⃣ Redirect teacher to the conference page
             return RedirectToAction("ConferenceRoom", new { id = conference.Id });
         }
+
         //Page that embeds the video conference
-       [Route("ConferenceRoom")]
+        [Route("ConferenceRoom")]
         public IActionResult ConferenceRoom(Guid id)
         {
             var conference = lMSDbContext.VideoConference.FirstOrDefault(c => c.Id == id);
