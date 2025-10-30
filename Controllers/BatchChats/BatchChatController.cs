@@ -1,6 +1,7 @@
 ﻿using LearningManagementSystem.DatabaseDbContext;
 using LearningManagementSystem.Models.DTO;
 using LearningManagementSystem.Models.IdentityEntities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,7 @@ namespace LearningManagementSystem.Controllers.BatchChats
         }
 
         [Route("GoChat/{id:guid}")]
+        [Authorize(AuthenticationSchemes ="TeacherAuth,StudentAuth",Roles ="Teacher,Student")]
         public async Task<IActionResult> Chat(Guid id) // id = BatchId
         {
             var user = await _userManager.GetUserAsync(User);

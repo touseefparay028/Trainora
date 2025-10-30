@@ -41,7 +41,7 @@ namespace LearningManagementSystem.Controllers.Home
             return View();
         }
         [Route("AccessDenied")]
-        public IActionResult AccessDenied()
+        public IActionResult AccessDenied(string? returnurl)
         {
             return View();
         }

@@ -82,10 +82,25 @@ builder.Services.AddAuthorization(options =>
 //  });
 //});
 //Custom AccessDenied Path
-//builder.Services.ConfigureApplicationCookie(options =>
-//{
-//    options.AccessDeniedPath = "/Home/AccessDenied";
-//});
+builder.Services.AddAuthentication()
+    .AddCookie("AdminAuth", options =>
+    {
+        options.Cookie.Name = "AdminAuth";
+        options.LoginPath = "/Admin/Login";
+        options.AccessDeniedPath = "/Home/AccessDenied";
+    })
+    .AddCookie("TeacherAuth", options =>
+    {
+        options.Cookie.Name = "TeacherAuth";
+        options.LoginPath = "/Teacher/LoginTeacher";
+        options.AccessDeniedPath = "/Home/AccessDenied";
+    })
+    .AddCookie("StudentAuth", options =>
+    {
+        options.Cookie.Name = "StudentAuth";
+        options.LoginPath = "/Student/LoginStudent";
+        options.AccessDeniedPath = "/Home/AccessDenied";
+    });
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -113,7 +128,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapControllers(); //  execute endpoint
-app.MapHub<ChatHub>("/chatHub");
+app.MapHub<ChatHub>("/chatHub").RequireAuthorization();
 
 
 

@@ -29,6 +29,7 @@ namespace LearningManagementSystem.Controllers.Teacher
         }
 
         [Route("CreateAssignment")]
+        [Authorize(AuthenticationSchemes = "TeacherAuth", Roles = "Teacher")]
         public async Task<IActionResult> CreateAssignment()
         {
             var model = new TeacherAssignmentVM
@@ -38,6 +39,7 @@ namespace LearningManagementSystem.Controllers.Teacher
             return View(model);
         }
         [HttpPost]
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles ="Teacher")]
        public async Task<IActionResult> Create(TeacherAssignmentVM assignmentVM)
         {
             if(ModelState.IsValid)
@@ -49,22 +51,26 @@ namespace LearningManagementSystem.Controllers.Teacher
             assignmentVM.BatchList = await fileService.GetBatchSelectListAsync();
             return View("CreateAssignment", assignmentVM);
         }
+        [Authorize(AuthenticationSchemes = "TeacherAuth", Roles = "Teacher")]
         public async Task<IActionResult> GetCreatedAssignments()
         {
          return View(await fileService.GetCreatedAssignments());
         }
         [Route("CreateAssignment/GetFilesAsync")]
+       
         public async Task<IActionResult> GetListAsync()
         {
 
             return View(await fileService.GetFilesAsync());
         }
+        [Authorize(AuthenticationSchemes = "TeacherAuth", Roles = "Teacher")]
         public async Task<IActionResult> SubmittedAssignments(Guid Id)
         {
             
             return View(await fileService.SubmittedAssignments(Id));
         }
         [Route("CreateAssignment/Download")]
+        [Authorize(AuthenticationSchemes = "TeacherAuth", Roles = "Teacher")]
         public IActionResult Download(string FilePath)
         {
 
@@ -100,6 +106,7 @@ namespace LearningManagementSystem.Controllers.Teacher
             // 4. Redirect back to List of the assignments.
             return RedirectToAction("GetCreatedAssignments");
         }
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles ="Teacher")]
         public IActionResult DeleteSubmission(Guid id)
         {
            

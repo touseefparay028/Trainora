@@ -2,17 +2,13 @@
     ViewData["Title"] = "Student Dashboard";
     Layout = "~/Views/Shared/StudentLayout.cshtml";
 }
-<style>
-    .sidebar{
-        padding-left:0;
-        padding-right: 0;
-    }
-</style>
+<link href="~/css/studentdashboard.css" rel="stylesheet" />
+
 
 <div class="container-fluid">
     <div class="row">
         <!-- Sidebar -->
-        <nav class="col-md-3 col-lg-2 collapse d-md-block bg-dark text-white sidebar vh-100 shadow" id="sidebarMenu">
+        <nav class="col-md-3 col-lg-2 bg-dark text-white sidebar vh-100 shadow collapse d-md-block" id="sidebarMenu">
             <div class="position-sticky pt-3">
                 <h4 class="text-center mb-4 fw-bold text-success">Student Panel</h4>
 
@@ -29,7 +25,7 @@
                     </li>
                     <li class="nav-item mb-2">
                         <a class="nav-link text-white" asp-action="GetListAAsync" asp-controller="Student">
-                            <i class="bi bi-pencil-square me-2"></i>Pending Assignments
+                            <i class="bi bi-pencil-square me-2"></i> Pending Assignments
                         </a>
                     </li>
                     <li class="nav-item mb-2">
@@ -37,15 +33,17 @@
                             <i class="bi bi-clipboard-check me-2"></i> Quiz
                         </a>
                     </li>
-                    @* <li class="nav-item mb-2">
-                        <a class="nav-link text-white" asp-action="Results">
-                            <i class="bi bi-bar-chart-line me-2"></i> Results
-                        </a>
-                    </li> *@
-                    <li class="nav-item mb-2">
+                    <li class="nav-item mb-2 position-relative">
                         <a class="nav-link text-white" asp-action="Chat" asp-controller="BatchChat" asp-route-id="@ViewBag.batchid">
                             <i class="bi bi-person-check me-2"></i> Chat
                         </a>
+                        @* Example unread badge if needed *@
+                        @if (ViewBag.UnreadCount != null && (int)ViewBag.UnreadCount > 0)
+                        {
+                            <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill">
+                                @ViewBag.UnreadCount
+                            </span>
+                        }
                     </li>
                     <li class="nav-item mb-2">
                         <a class="nav-link text-white d-flex justify-content-between align-items-center"
@@ -59,7 +57,6 @@
                             }
                         </a>
                     </li>
-
                     <li class="nav-item mb-2">
                         <a class="nav-link text-white" asp-action="GetAnnouncements" asp-controller="Announcements">
                             <i class="bi bi-megaphone me-2"></i> College Notices
@@ -76,64 +73,49 @@
                         </a>
                     </li>
                 </ul>
-
                 <hr class="text-secondary">
-
-                @* <div class="text-center">
-                    <a asp-action="Logout" asp-controller="Student" class="btn btn-sm btn-outline-light w-75">Logout</a>
-                </div> *@
             </div>
         </nav>
-      
+
+        <!-- Sidebar Toggle for Mobile -->
+        <button class="btn btn-success sidebar-toggle m-3" type="button"
+                onclick="document.getElementById('sidebarMenu').classList.toggle('show')">
+            ☰ Menu
+        </button>
+
         <!-- Main Content -->
-        <main class="col-md-9  col-lg-10 px-md-4 py-4">
+        <main class="col-md-9 col-lg-10 px-md-4 py-4">
             <h2 class="fw-bold text-success mb-4">
                 <i class="bi bi-speedometer2"></i> Welcome, @ViewBag.Name
             </h2>
 
             <!-- Stats Section -->
-            <div class="row mb-4">
-                <div class="col-md-3">
-                    <div class="card shadow rounded-4 border-0">
-                        <div class="card-body text-center">
+            <div class="row mb-4 g-3">
+                <div class="col-6 col-md-3">
+                    <div class="card shadow border-0 rounded-4">
+                        <div class="card-body">
                             <i class="bi bi-journal-bookmark text-success fs-2"></i>
                             <h5 class="mt-2">Courses</h5>
                             <p class="fw-bold">@ViewBag.enrolledCount Enrolled</p>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-3">
-                    <div class="card shadow rounded-4 border-0">
-                        <div class="card-body text-center">
+
+                <div class="col-6 col-md-3">
+                    <div class="card shadow border-0 rounded-4">
+                        <div class="card-body">
                             <i class="bi bi-pencil-square text-primary fs-2"></i>
                             <h5 class="mt-2">Assignments</h5>
                             <p class="fw-bold">@ViewBag.CountOfAssignments Pending</p>
                         </div>
                     </div>
                 </div>
-                @* <div class="col-md-3">
-                    <div class="card shadow rounded-4 border-0">
-                        <div class="card-body text-center">
-                            <i class="bi bi-clipboard-check text-warning fs-2"></i>
-                            <h5 class="mt-2">Quiz</h5>
-                        </div>
-                    </div>
-                </div> *@
-                @* <div class="col-md-3">
-                    <div class="card shadow rounded-4 border-0">
-                        <div class="card-body text-center">
-                            <i class="bi bi-bar-chart-line text-danger fs-2"></i>
-                            <h5 class="mt-2">Results</h5>
-                            <p class="fw-bold">View</p>
-                        </div>
-                    </div>
-                </div> *@
             </div>
+
+            <!-- Notices + Courses -->
             <div class="row g-3">
-                <!-- Single row container with some gap -->
-                <!-- Latest College Notices -->
-                <div class="col-md-6">
-                    <div class="card shadow rounded-4 border-0 h-100">
+                <div class="col-12 col-lg-6">
+                    <div class="card shadow border-0 rounded-4 h-100">
                         <div class="card-header bg-success text-white rounded-top-4">
                             <h5 class="mb-0">Latest College Notices</h5>
                         </div>
@@ -144,11 +126,14 @@
                                     foreach (var ann in ViewBag.Announcements)
                                     {
                                         bool isNew = (DateTime.Now - ann.CreatedAt).TotalHours <= 24;
-                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
                                             <div>
                                                 @if (!string.IsNullOrEmpty(ann.FilePath))
                                                 {
-                                                    <a asp-action="ViewAnnouncement" asp-controller="Announcements" asp-route-FilePath="@ann.FilePath" class="fw-semibold text-dark text-decoration-none">
+                                                    <a asp-action="ViewAnnouncement"
+                                                       asp-controller="Announcements"
+                                                       asp-route-FilePath="@ann.FilePath"
+                                                       class="fw-semibold text-dark text-decoration-none">
                                                         @ann.Description
                                                     </a>
                                                 }
@@ -176,43 +161,43 @@
                     </div>
                 </div>
 
-                <!-- Available Courses -->
-                <div class="col-md-6">
-                    <div class="card shadow rounded-4 border-0 h-100">
+                <div class="col-12 col-lg-6">
+                    <div class="card shadow border-0 rounded-4 h-100">
                         <div class="card-header bg-success text-white rounded-top-4">
                             <h5 class="mb-0">Available Courses</h5>
                         </div>
                         <div class="card-body" style="max-height: 300px; overflow-y: auto; position: relative;">
-                            <table class="table table-sm mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Course</th>
-                                        <th>Description</th>
-                                        <th>Teacher</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @if (ViewBag.FewCourses != null)
-                                    {
-                                        foreach (var course in ViewBag.FewCourses)
+                            <div class="table-responsive">
+                                <table class="table table-sm mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Course</th>
+                                            <th>Description</th>
+                                            <th>Teacher</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (ViewBag.FewCourses != null)
+                                        {
+                                            foreach (var course in ViewBag.FewCourses)
+                                            {
+                                                <tr>
+                                                    <td>@course.Title</td>
+                                                    <td>@course.Description</td>
+                                                    <td>@course.Teacher.Name</td>
+                                                </tr>
+                                            }
+                                        }
+                                        else
                                         {
                                             <tr>
-                                                <td>@course.Title</td>
-                                                <td>@course.Description</td>
-                                                <td>@course.Teacher.Name</td>
+                                                <td colspan="3" class="text-muted text-center">No courses available.</td>
                                             </tr>
                                         }
-                                    }
-                                    else
-                                    {
-                                        <tr>
-                                            <td colspan="3" class="text-muted">No courses available.</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
+                                    </tbody>
+                                </table>
+                            </div>
 
-                            <!-- View All button -->
                             <a href="@Url.Action("ExploreCourses", "Course")"
                                class="btn btn-link position-absolute bottom-0 end-0 m-2">
                                 View All
@@ -221,3 +206,6 @@
                     </div>
                 </div>
             </div>
+        </main>
+    </div>
+</div>

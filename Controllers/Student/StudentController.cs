@@ -4,6 +4,7 @@ using LearningManagementSystem.Models.DTO;
 using LearningManagementSystem.Models.IdentityEntities;
 using LearningManagementSystem.RoleEnums;
 using LearningManagementSystem.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using Org.BouncyCastle.Pqc.Crypto.Lms;
+using System.Security.Claims;
 using System.Text.Encodings.Web;
 
 namespace LearningManagementSystem.Controllers.Student
@@ -255,21 +257,35 @@ namespace LearningManagementSystem.Controllers.Student
             return View();
         }
 
-
-        public IActionResult LoginStudent()
+        [AllowAnonymous]
+        public async Task<IActionResult> LoginStudent()
         {
-            if (User.Identity != null && User.Identity.IsAuthenticated)
+            // Force ASP.NET to check all authentication schemes
+            var adminAuth = await HttpContext.AuthenticateAsync("AdminAuth");
+            var teacherAuth = await HttpContext.AuthenticateAsync("TeacherAuth");
+            var studentAuth = await HttpContext.AuthenticateAsync("StudentAuth");
+
+            // Block access if logged in as Admin or Student
+            if ((adminAuth.Succeeded && adminAuth.Principal != null) ||
+                (teacherAuth.Succeeded && teacherAuth.Principal != null))
             {
-                if(User.IsInRole("Student"))
+                return RedirectToAction("AccessDenied", "Home");
+            }
+
+            //  If already logged in as Teacher, go to Dashboard
+            if (studentAuth.Succeeded && studentAuth.Principal != null)
+            {
+                var principal = studentAuth.Principal;
+
+                // Double-check role from claims to be safe
+                if (principal.IsInRole("Student"))
                 {
                     return RedirectToAction("StudentDashboard", "StudentDashboard");
                 }
-                else
-                {
-                    return RedirectToAction("AccessDenied", "Home");
-                }
-                
+
+                return RedirectToAction("AccessDenied", "Home");
             }
+
 
             return View();
         }
@@ -278,57 +294,62 @@ namespace LearningManagementSystem.Controllers.Student
         
         public async Task<IActionResult> StudentLogin(LoginDTO loginDTO, string? ReturnUrl = null)
         {
-
-
             if (!ModelState.IsValid)
+                return View("LoginStudent", loginDTO);
+
+            var user = await userManager.FindByEmailAsync(loginDTO.Email);
+            if (user == null)
             {
-                ViewBag.Error = ModelState.Values.SelectMany(x => x.Errors).Select(y => y.ErrorMessage);
+                ModelState.AddModelError(string.Empty, "Student doesn't exist");
                 return View("LoginStudent", loginDTO);
             }
 
-
-            ApplicationUser? user = await userManager.FindByEmailAsync(loginDTO.Email);
-            if (user != null)
+            if (!await userManager.IsEmailConfirmedAsync(user))
             {
-                // ✅ Check if email is confirmed
-                if (!await userManager.IsEmailConfirmedAsync(user))
-                {
-                    ModelState.AddModelError(string.Empty,
-                        "Your email is not veirified yet. Please check your email inbox to verify your account.");
-                    return View("LoginStudent", loginDTO);
-                }
-                if (await userManager.IsInRoleAsync(user, UserTypeOptions.Student.ToString()))
-                {
-                    var result = await signInManager.PasswordSignInAsync(user, loginDTO.Password, isPersistent: loginDTO.RememberMe, false);
-
-                    if (result.Succeeded)
-                    {
-                        if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
-                        {
-                            return Redirect(ReturnUrl);
-                        }
-                        return RedirectToAction("StudentDashboard", "StudentDashboard");
-                    }
-
-
-                    ModelState.AddModelError(string.Empty, "Invalid Username or Password");
-
-
-                    return View("LoginStudent", loginDTO);
-
-                }
-                ModelState.AddModelError(string.Empty, "User is not a student");
+                ModelState.AddModelError(string.Empty, "Email not verified");
                 return View("LoginStudent", loginDTO);
-
             }
-            ModelState.AddModelError(string.Empty, "User Doesn't Exist ");
-            return View("LoginStudent", loginDTO);
+
+            if (!await userManager.IsInRoleAsync(user, UserTypeOptions.Student.ToString()))
+            {
+                ModelState.AddModelError(string.Empty, "User is not a teacher");
+                return View("LoginStudent", loginDTO);
+            }
+
+            if (!await userManager.CheckPasswordAsync(user, loginDTO.Password))
+            {
+                ModelState.AddModelError(string.Empty, "Invalid password");
+                return View("LoginStudent", loginDTO);
+            }
+
+            // ✅ Sign in with TeacherAuth scheme
+            var claims = new List<Claim>
+                {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName ?? ""),
+                new Claim(ClaimTypes.Role, "Student")
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, "StudentAuth");
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+            await HttpContext.SignInAsync("StudentAuth", claimsPrincipal, new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+            {
+                IsPersistent = loginDTO.RememberMe,
+                ExpiresUtc = DateTime.UtcNow.AddHours(4)
+            });
+
+            if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                return Redirect(ReturnUrl);
+
+            return RedirectToAction("StudentDashboard", "StudentDashboard");
 
         }
         [Route("StudentLogout")]
+        [Authorize(AuthenticationSchemes ="StudentAuth")]
         public async Task<IActionResult> Logout()
         {
-            await signInManager.SignOutAsync();
+            await HttpContext.SignOutAsync("StudentAuth");
             return RedirectToAction("LoginStudent");
         }
         [Route("Student/ChangePassword")]
@@ -367,7 +388,7 @@ namespace LearningManagementSystem.Controllers.Student
         }
 
         [Route("/Student/GetListAAsync")]
-        [Authorize(Roles = "Student")]
+        [Authorize(AuthenticationSchemes ="StudentAuth",Roles = "Student")]
         public async Task<IActionResult> GetListAAsync()
         {
 
@@ -395,7 +416,7 @@ namespace LearningManagementSystem.Controllers.Student
                 return Json(true);
             }
         }
-        [Authorize(Roles = "Student")]
+        [Authorize(AuthenticationSchemes ="StudentAuth",Roles = "Student")]
         [Route("TakeQuiz")]
         public IActionResult TakeQuiz()
         {
@@ -435,7 +456,7 @@ namespace LearningManagementSystem.Controllers.Student
 
             return View(questions);
         }
-        [Authorize(Roles = "Student")]
+        [Authorize(AuthenticationSchemes ="StudentAuth",Roles = "Student")]
         [HttpPost("SubmitQuiz")]
         public IActionResult SubmitQuiz(List<QuizQuestionVM> Answers)
         {
@@ -463,13 +484,14 @@ namespace LearningManagementSystem.Controllers.Student
 
             return View("QuizResult");
         }
-        [Authorize(Roles = "Student")]
+        [Authorize(AuthenticationSchemes ="StudentAuth",Roles = "Student")]
         [Route("QuizResult")]
         public IActionResult QuizResult()
         {
             return View();
         }
         [Route("MyBtachConference")]
+        [Authorize(AuthenticationSchemes = "StudentAuth", Roles = "Student")]
         public IActionResult MyBatchConference()
         {
             // ✅ Get the current logged-in user's ID
@@ -510,6 +532,7 @@ namespace LearningManagementSystem.Controllers.Student
             // ✅ Return the list to the view
             return View(conferences);
         }
+        [Authorize(AuthenticationSchemes ="StudentAuth",Roles ="Student")]
         public async Task<IActionResult> Profile()
         {
             var user = await userManager.GetUserAsync(User);

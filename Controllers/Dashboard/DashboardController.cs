@@ -20,8 +20,8 @@ namespace LearningManagementSystem.Controllers.Dashboard
             this.lMSDbContext = lMSDbContext;
         }
         [Route("Dashboard")]
-        
-       
+
+        [Authorize(AuthenticationSchemes ="AdminAuth",Roles = "Admin")]
         public IActionResult Dashboard()
         {
             var pendingCount = lMSDbContext.StudentCourses

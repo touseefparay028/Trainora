@@ -222,6 +222,47 @@ namespace LearningManagementSystem.Services
             var announcementsVM = mapper.Map<List<AnnouncementsVM>>(announcements);
             return announcementsVM;
         }
+        public async Task UploadCourseMaterialAsync(CourseMaterialVM courseMaterialVM)
+        {
+            string FolderPath = Path.Combine(webHostEnvironment.WebRootPath, "CourseMaterials");
+            if (!Directory.Exists(FolderPath))
+            {
+                Directory.CreateDirectory(FolderPath);
+            }
+            string FileName = Guid.NewGuid().ToString() + "_" + courseMaterialVM.File.FileName;
+            string FullPath = Path.Combine(FolderPath, FileName);
+            using (FileStream FileStream = new FileStream(FullPath, FileMode.Create))
+            {
+                await courseMaterialVM.File.CopyToAsync(FileStream);
+            }
+
+            var UserId = httpContextAccessor.HttpContext?.User?
+                .FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(UserId))
+            {
+                throw new InvalidOperationException("No user is logged in right now");
+            }
+            var user = await userManager.FindByIdAsync(UserId);
+            CourseMaterial CourseMaterial = mapper.Map<CourseMaterial>(courseMaterialVM);
+            CourseMaterial.FilePath = FileName;
+            CourseMaterial.UploadedOn = DateTime.Now;
+            //StudyMaterial.Title = studyMaterialsVM.Title
+            //StudyMaterial.Description = studyMaterialsVM.Description;
+            CourseMaterial.UploadedOn = DateTime.Now;
+            //CourseMaterial.ApplicationUserId = Guid.Parse(UserId);
+            await lMSDbContext.CourseMaterial.AddAsync(CourseMaterial);
+            await lMSDbContext.SaveChangesAsync();
+        }
+        public async Task<List<CourseMaterial>> GetCourseMaterialsByCourseIdAsync(Guid courseId)
+        {
+            var material= await lMSDbContext.CourseMaterial
+                .Where(m => m.CourseId == courseId)
+                .OrderByDescending(m => m.UploadedOn)
+                .ToListAsync();
+           
+            return material;
+        }
+
 
     }
 }

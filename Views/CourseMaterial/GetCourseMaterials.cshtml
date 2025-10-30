@@ -1,0 +1,37 @@
+﻿@model List<LearningManagementSystem.Models.DTO.CourseMaterialVM>
+
+@{
+    ViewData["Title"] = "Course Materials";
+}
+
+<h2>Course Materials</h2>
+
+<a asp-action="UploadCourseMaterial" asp-route-CourseId="@ViewBag.CourseId" class="btn btn-primary mb-3">
+    Upload New Material
+</a>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>File</th>
+            <th>Uploaded On</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var material in Model)
+        {
+            <tr>
+                <td>@material.Title</td>
+                <td>@material.Description</td>
+                <td>
+                    <a href="@material.FilePath" target="_blank" class="btn btn-sm btn-outline-info">
+                        View File
+                    </a>
+                </td>
+                <td>@material.UploadedOn.ToString("dd MMM yyyy")</td>
+            </tr>
+        }
+    </tbody>
+</table>

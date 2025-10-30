@@ -4,10 +4,12 @@ using LearningManagementSystem.Models.DTO;
 using LearningManagementSystem.Models.IdentityEntities;
 using LearningManagementSystem.RoleEnums;
 using LearningManagementSystem.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace LearningManagementSystem.Controllers.Account
@@ -249,78 +251,99 @@ namespace LearningManagementSystem.Controllers.Account
         }
 
 
-        
+        [AllowAnonymous]
         //[Authorize(Roles ="Admin", Policy = "NotAuthenticated")]
-        public IActionResult Login()
+        public async Task<IActionResult> Login()
         {
-            if (User.Identity != null && User.Identity.IsAuthenticated)
+            // Force ASP.NET to check all authentication schemes
+            var adminAuth = await HttpContext.AuthenticateAsync("AdminAuth");
+            var teacherAuth = await HttpContext.AuthenticateAsync("TeacherAuth");
+            var studentAuth = await HttpContext.AuthenticateAsync("StudentAuth");
+
+            // 🔒 Block access if logged in as Admin or Student
+            if ((teacherAuth.Succeeded && teacherAuth.Principal != null) ||
+                (studentAuth.Succeeded && studentAuth.Principal != null))
             {
-                if (User.IsInRole(UserTypeOptions.Admin.ToString()))
+                return RedirectToAction("AccessDenied", "Home");
+            }
+
+            // ✅ If already logged in as Teacher, go to Dashboard
+            if (adminAuth.Succeeded && adminAuth.Principal != null)
+            {
+                var principal = adminAuth.Principal;
+
+                // Double-check role from claims to be safe
+                if (principal.IsInRole("Admin"))
                 {
                     return RedirectToAction("Dashboard", "Dashboard");
                 }
-                else
-                {
-                    return RedirectToAction("AccessDenied", "Home");
-                }
+
+                return RedirectToAction("AccessDenied", "Home");
             }
+
             return View();
         }
-
+        [AllowAnonymous]
         [HttpPost]
         [Route("AdminLogin")]
         public async Task<IActionResult> LoginUser(LoginDTO loginDTO,string? ReturnUrl=null)
         {
+           
             if (!ModelState.IsValid)
+                return View("Login", loginDTO);
+
+            var user = await _userManager.FindByEmailAsync(loginDTO.Email);
+            if (user == null)
             {
-                ViewBag.Error = ModelState.Values.SelectMany(x => x.Errors).Select(y => y.ErrorMessage);
-                return View("Login",loginDTO);
+                ModelState.AddModelError(string.Empty, "User doesn't exist");
+                return View("Login", loginDTO);
             }
 
-            
-            ApplicationUser? user = await _userManager.FindByEmailAsync(loginDTO.Email);
-            if(user!=null)
+            if (!await _userManager.IsEmailConfirmedAsync(user))
             {
-                // ✅ Check if email is confirmed
-                if (!await _userManager.IsEmailConfirmedAsync(user))
-                {
-                    ModelState.AddModelError(string.Empty,
-                        "Your email is not veirified yet. Please check your email inbox to verify your account.");
-                    return View("Login", loginDTO);
-                }
-                if (await _userManager.IsInRoleAsync(user, UserTypeOptions.Admin.ToString()))
-                {
-                    var result = await _signInManager.PasswordSignInAsync(user, loginDTO.Password, isPersistent:loginDTO.RememberMe, false);
-
-                    if (result.Succeeded)
-                    {
-                        if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
-                        {
-                            return Redirect(ReturnUrl);
-                        }
-                        
-                        return RedirectToAction("Dashboard", "Dashboard");
-                    }
-                   
-
-                    ModelState.AddModelError(string.Empty, "Invalid Username or Password");
-
-
-                    return View("Login", loginDTO);
-
-                }
-                ModelState.AddModelError(string.Empty, "User is not an admin");
-                return View("Login",loginDTO);
-
+                ModelState.AddModelError(string.Empty, "Email not verified");
+                return View("Login", loginDTO);
             }
-            ModelState.AddModelError(string.Empty, "User Doesn't Exist ");
-            return View("Login", loginDTO);
 
+            if (!await _userManager.IsInRoleAsync(user, UserTypeOptions.Admin.ToString()))
+            {
+                ModelState.AddModelError(string.Empty, "User is not an Admin");
+                return View("Login", loginDTO);
+            }
+
+            if (!await _userManager.CheckPasswordAsync(user, loginDTO.Password))
+            {
+                ModelState.AddModelError(string.Empty, "Invalid password");
+                return View("Login", loginDTO);
+            }
+
+            // ✅ Sign in with TeacherAuth scheme
+            var claims = new List<Claim>
+                {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName ?? ""),
+                new Claim(ClaimTypes.Role, "Admin")
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, "AdminAuth");
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+            await HttpContext.SignInAsync("AdminAuth", claimsPrincipal, new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+            {
+                IsPersistent = loginDTO.RememberMe,
+                ExpiresUtc = DateTime.UtcNow.AddHours(4)
+            });
+
+            if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                return Redirect(ReturnUrl);
+
+            return RedirectToAction("Dashboard", "Dashboard");
         }
         [Route("Logout")]
+        [Authorize(AuthenticationSchemes ="AdminAuth")]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
+            await HttpContext.SignOutAsync("AdminAuth");
             return RedirectToAction("Login");
         }
         [Route("isitavailable")]
@@ -338,7 +361,7 @@ namespace LearningManagementSystem.Controllers.Account
                 return Json(true);
             }
         }
-        [Authorize(Roles ="Admin")]
+        [Authorize(AuthenticationSchemes ="AdminAuth",Roles ="Admin")]
         public async Task<IActionResult> GetTeachers()
         {
             var users = await _userManager.GetUsersInRoleAsync("Teacher");
@@ -353,7 +376,7 @@ namespace LearningManagementSystem.Controllers.Account
 
             return View(teacherList);
         }
-        [Authorize(Roles ="Admin")]
+        [Authorize(AuthenticationSchemes ="AdminAuth",Roles ="Admin")]
         public async Task<IActionResult> GetStudents()
         {
             // Get all students
@@ -381,7 +404,7 @@ namespace LearningManagementSystem.Controllers.Account
 
             return View(batchStudents);
         }
-        [Authorize(Roles ="Admin")]
+        [Authorize(AuthenticationSchemes ="AdminAuth,TeacherAuth",Roles ="Admin,Teacher")]
         public async Task<IActionResult> GetStudentProfile(Guid id)
         {
             var userid = id.ToString();

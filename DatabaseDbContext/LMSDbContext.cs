@@ -30,6 +30,7 @@ namespace LearningManagementSystem.DatabaseDbContext
         public virtual DbSet<Announcements> Announcements { get; set; }
         public virtual DbSet<AttendanceDM> Attendances { get; set; }
         public virtual DbSet<ClassSessions> ClassSessions { get; set; }
+        public virtual DbSet<CourseMaterial> CourseMaterial { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -57,6 +58,7 @@ namespace LearningManagementSystem.DatabaseDbContext
             .HasForeignKey(a => a.StudentId)
             .OnDelete(DeleteBehavior.Restrict); // NO ACTION
         }
+        public DbSet<LearningManagementSystem.Models.DTO.CourseMaterialVM> CourseMaterialVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.AnnouncementsVM> AnnouncementsVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.CourseVM> CourseVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.StudyMaterialsVM> StudyMaterialsVM { get; set; } = default!;

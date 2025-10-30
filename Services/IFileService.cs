@@ -1,4 +1,5 @@
-﻿using LearningManagementSystem.Models.DTO;
+﻿using LearningManagementSystem.Models.Domains;
+using LearningManagementSystem.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -17,5 +18,8 @@ namespace LearningManagementSystem.Services
         Task<List<TeacherAssignmentVM>> GetCreatedAssignments();
         Task CreateAnnouncements(AnnouncementsVM announcements);
         Task<List<AnnouncementsVM>> GetAllAnnouncements();
+        public Task UploadCourseMaterialAsync(CourseMaterialVM courseMaterialVM);
+        Task<List<CourseMaterial>> GetCourseMaterialsByCourseIdAsync(Guid courseId);
+
     }
 }

@@ -1,0 +1,50 @@
+﻿@model LearningManagementSystem.Models.DTO.CourseMaterialVM
+
+@{
+    ViewData["Title"] = "UploadCourseMaterial";
+}
+
+<h1>UploadCourseMaterial</h1>
+
+<h4>CourseMaterialVM</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="UploadCourseMaterials" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input asp-for="CourseId" type="hidden" value="@ViewBag.CourseId" />
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="File" class="control-label"></label>
+                <input asp-for="File" type="file" class="form-control" />
+                <span asp-validation-for="File" class="text-danger"></span>
+            </div>
+            @* <div class="form-group">
+                <label asp-for="UploadedOn" class="control-label"></label>
+                <input asp-for="UploadedOn" class="form-control" />
+                <span asp-validation-for="UploadedOn" class="text-danger"></span>
+            </div> *@
+            @* <div class="form-group">
+                <label asp-for="ApplicationUserId" class="control-label"></label>
+                <select asp-for="ApplicationUserId" class ="form-control" asp-items="ViewBag.ApplicationUserId"></select>
+            </div> *@
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+

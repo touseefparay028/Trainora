@@ -27,8 +27,8 @@ namespace LearningManagementSystem.Controllers
             this.fileService = fileService;
         }
         [Route("GetCourses")]
-        [Authorize(Roles = "Teacher")]
         // GET: Courses (List of courses)
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
         public async Task<IActionResult> GetCourses()
         {
            
@@ -57,7 +57,7 @@ namespace LearningManagementSystem.Controllers
             return View(CourseVM);
         }
        
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes ="AdminAuth",Roles = "Admin")]
         public async Task<IActionResult> AdminGetCourses()
         {
             var courses = await lMSDbContext.Courses
@@ -77,6 +77,7 @@ namespace LearningManagementSystem.Controllers
         }
 
         // GET: Courses/Details/5
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
         public async Task<IActionResult> Details(Guid id)
         {
             if (id == Guid.Empty)
@@ -97,7 +98,7 @@ namespace LearningManagementSystem.Controllers
             var courseVM = mapper.Map<CourseVM>(course);
             return View(courseVM);
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes ="AdminAuth",Roles = "Admin")]
         public async Task<IActionResult> AdminGetDetails(Guid id)
         {
             if (id == Guid.Empty)
@@ -119,7 +120,7 @@ namespace LearningManagementSystem.Controllers
         }
 
         // GET: Courses/Create
-        [Authorize(Roles = "Teacher")]
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
         public async Task<IActionResult> Create()
         {
             var model = new CourseVM
@@ -129,7 +130,7 @@ namespace LearningManagementSystem.Controllers
             return View(model);
         }
        
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes ="AdminAuth",Roles = "Admin")]
         public async Task<IActionResult> AdminCreateCourse()
         {
             // Get all users with the "Teacher" role
@@ -149,7 +150,7 @@ namespace LearningManagementSystem.Controllers
         // POST: Courses/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Teacher")]
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
         public async Task<IActionResult> Create(CourseVM course)
         {
             if (ModelState.IsValid)
@@ -176,7 +177,7 @@ namespace LearningManagementSystem.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes ="AdminAuth",Roles = "Admin")]
         public async Task<IActionResult> AdminCreate(CourseVM course)
         {
             if (ModelState.IsValid)
@@ -208,7 +209,7 @@ namespace LearningManagementSystem.Controllers
             return View("AdminCreateCourse", course);
         }
         // GET: Courses/Edit/5
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes ="AdminAuth",Roles = "Admin")]
         public async Task<IActionResult> AdminCourseEdit(Guid id)
         {
             if (id == Guid.Empty)
@@ -237,7 +238,7 @@ namespace LearningManagementSystem.Controllers
                }));
             return View(courseVM);
         }
-        [Authorize(Roles = "Teacher")]
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
         public async Task<IActionResult> Edit(Guid id)
         {
             if (id == Guid.Empty)
@@ -265,7 +266,8 @@ namespace LearningManagementSystem.Controllers
 
         // POST: Courses/Edit/5
         [HttpPost]
-        [ValidateAntiForgeryToken] [Authorize(Roles = "Teacher")]
+        [ValidateAntiForgeryToken]
+        [Authorize(AuthenticationSchemes = "TeacherAuth", Roles = "Teacher")]
         public async Task<IActionResult> Edit(Guid id, CourseVM course)
         {
             if (id != course.Id)
@@ -275,14 +277,31 @@ namespace LearningManagementSystem.Controllers
 
             if (ModelState.IsValid)
             {
+                // ✅ Get the logged-in teacher correctly
                 var user = await userManager.GetUserAsync(User);
-                var courseDM = mapper.Map<CourseDM>(course);
-                {                  
-                    courseDM.TeacherId = user.Id;
+
+                if (user == null)
+                {
+                    ModelState.AddModelError("", "Unable to find the logged-in teacher. Please re-login.");
+                    return View("Edit", course);
                 }
+
+                // ✅ Fetch the existing course from DB (so we preserve unchanged values)
+                var existingCourse = await lMSDbContext.Courses.FindAsync(id);
+                if (existingCourse == null)
+                {
+                    return NotFound();
+                }
+
+                // ✅ Manually map updated fields
+                existingCourse.Title = course.Title;
+                existingCourse.Description = course.Description;
+                existingCourse.BatchId = course.BatchId; // make sure BatchId is passed in the form
+                existingCourse.TeacherId = user.Id;
+
                 try
                 {
-                    lMSDbContext.Courses.Update(courseDM);
+                    lMSDbContext.Courses.Update(existingCourse);
                     await lMSDbContext.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -296,10 +315,13 @@ namespace LearningManagementSystem.Controllers
                         throw;
                     }
                 }
+
                 return RedirectToAction(nameof(GetCourses));
             }
+
             return View("Edit", course);
         }
+
         public async Task<IActionResult> AdminEdit(Guid id, CourseVM course)
         {
             if (id != course.Id)
@@ -442,6 +464,7 @@ namespace LearningManagementSystem.Controllers
             return View(courseVM);
         }
         [HttpPost]
+        [Authorize(AuthenticationSchemes ="StudentAuth",Roles ="Student")]
         public async Task<IActionResult> Enroll(Guid courseId)
         {
             var user = await userManager.GetUserAsync(User);
@@ -477,13 +500,29 @@ namespace LearningManagementSystem.Controllers
             TempData["Message"] = "Enrollment request submitted successfully. Waiting for admin approval.";
             return RedirectToAction("ExploreCourses");
         }
+        [Authorize(AuthenticationSchemes = "StudentAuth", Roles = "Student")]
         public async Task<IActionResult> MyCourses()
         {
-            var user = await userManager.GetUserAsync(User);
+            // Get Student ID from Claims (works for custom schemes)
+            var studentIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
 
+            if (studentIdClaim == null)
+            {
+                // No valid claim -> force re-login
+                return RedirectToAction("LoginStudent", "Student");
+            }
+
+            Guid studentId;
+            if (!Guid.TryParse(studentIdClaim.Value, out studentId))
+            {
+                // Invalid ID format (if stored as string)
+                return RedirectToAction("LoginStudent", "Student");
+            }
+
+            // Fetch approved courses for this student
             var courses = await lMSDbContext.StudentCourses
-                .Where(e => e.StudentId == user.Id && e.IsApproved)
                 .Include(e => e.Course)
+                .Where(e => e.StudentId == studentId && e.IsApproved)
                 .Select(e => new
                 {
                     e.Course.Title,
@@ -491,8 +530,17 @@ namespace LearningManagementSystem.Controllers
                 })
                 .ToListAsync();
 
+            //// If no courses found, you can handle that gracefully
+            //if (courses == null || !courses.Any())
+            //{
+            //    ViewBag.Message = "You have no approved courses yet.";
+            //    return View("NoCourses"); // or same view with empty model
+            //}
+
             return View(courses);
         }
+
+        [Authorize(AuthenticationSchemes = "TeacherAuth,AdminAuth", Roles = "Teacher,Admin")]
         public async Task<IActionResult> EnrollmentRequests()
         {
             var pending = await lMSDbContext.StudentCourses

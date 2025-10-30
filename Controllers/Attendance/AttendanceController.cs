@@ -25,6 +25,7 @@ namespace LearningManagementSystem.Controllers.Attendance
         }
         //  MARK ATTENDANCE (Auto or Manual)
         [HttpGet]
+        [Authorize(AuthenticationSchemes ="StudentAuth",Roles ="Student")]
         public async Task<IActionResult> MarkAttendance(Guid ConferenceId)
         {
             var user = await userManager.GetUserAsync(User);
@@ -96,7 +97,7 @@ namespace LearningManagementSystem.Controllers.Attendance
            
         }
         // 🧩 TEACHER — SELECT STUDENT
-        [Authorize(Roles = "Teacher")]
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
         public async Task<IActionResult> GetStudentsByCourse(Guid courseId)
         {
             // Fetch course with enrolled students
@@ -177,7 +178,7 @@ namespace LearningManagementSystem.Controllers.Attendance
         //}
 
         //  TEACHER — VIEW COURSE ATTENDANCE
-        [Authorize(Roles = "Teacher")]
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
         public async Task<IActionResult> ViewCourseAttendance(Guid studentId, Guid courseId)
         {
             
@@ -211,7 +212,7 @@ namespace LearningManagementSystem.Controllers.Attendance
         }
 
         //  STUDENT — VIEW OWN ATTENDANCE SUMMARY
-        [Authorize(Roles = "Student")]
+        [Authorize(AuthenticationSchemes ="StudentAuth",Roles = "Student")]
         public async Task<IActionResult> StudentAttendanceSummary()
         {
             var user = await userManager.GetUserAsync(User);
@@ -237,7 +238,7 @@ namespace LearningManagementSystem.Controllers.Attendance
 
             return View(grouped);
         }
-        [Authorize(Roles ="Student")]
+        [Authorize(AuthenticationSchemes ="StudentAuth",Roles ="Student")]
         public async Task<IActionResult> ViewStudentCourseAttendance(Guid courseid)
         {
             var user =await userManager.GetUserAsync(User);
@@ -274,7 +275,7 @@ namespace LearningManagementSystem.Controllers.Attendance
 
 
         // 🧩 EDIT ATTENDANCE (Optional)
-        [Authorize(Roles = "Teacher")]
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
         public async Task<IActionResult> EditAttendance(Guid id)
         {
             var attendance = await lMSDbContext.Attendances.FindAsync(id);
@@ -283,7 +284,7 @@ namespace LearningManagementSystem.Controllers.Attendance
         }
 
         [HttpPost]
-        [Authorize(Roles = "Teacher")]
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
         public async Task<IActionResult> EditAttendance(AttendanceDM model)
         {
             lMSDbContext.Attendances.Update(model);

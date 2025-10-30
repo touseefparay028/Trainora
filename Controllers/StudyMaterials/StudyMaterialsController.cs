@@ -2,6 +2,7 @@
 using LearningManagementSystem.DatabaseDbContext;
 using LearningManagementSystem.Models.DTO;
 using LearningManagementSystem.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -21,11 +22,13 @@ namespace LearningManagementSystem.Controllers.StudyMaterials
             this.mapper = mapper;
         }
         [Route("StudyMaterials")]
+        [Authorize(AuthenticationSchemes = "StudentAuth", Roles = "Student")]
         public IActionResult UploadStudyMaterial()
         {
             return View();
         }
         [HttpPost("UploadNow")]
+        [Authorize(AuthenticationSchemes = "StudentAuth", Roles = "Student")]
         public async Task<IActionResult> UploadStudyMaterials(StudyMaterialsVM studyMaterialsVM)
         {
             if (ModelState.IsValid)
@@ -38,10 +41,12 @@ namespace LearningManagementSystem.Controllers.StudyMaterials
             return View("UploadStudyMaterial", studyMaterialsVM);
         }
         [Route("GetMaterial")]
+        [Authorize(AuthenticationSchemes = "StudentAuth", Roles = "Student")]
         public async Task<IActionResult> GetMaterials()
         {
             return View(await fileService.GetMaterialAsync());
         }
+        [Authorize(AuthenticationSchemes ="StudentAuth",Roles ="Student")]
         public IActionResult MyMaterials()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -53,6 +58,7 @@ namespace LearningManagementSystem.Controllers.StudyMaterials
 
             return View(materialVMs);
         }
+        [Authorize(AuthenticationSchemes = "StudentAuth", Roles = "Student")]
         public IActionResult DownloadMaterial(string FilePath)
         {
 
@@ -61,6 +67,7 @@ namespace LearningManagementSystem.Controllers.StudyMaterials
                 FileDownloadName = FilePath
             };
         }
+        [Authorize(AuthenticationSchemes = "StudentAuth", Roles = "Student")]
         public IActionResult DeleteMaterial(Guid id)
         {
             // 1. Fetch from DM (database)

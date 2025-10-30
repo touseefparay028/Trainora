@@ -76,7 +76,7 @@
                 @* <a asp-action="GetFilesAsync" asp-controller="CreateAssignment">Assignments</a> *@
                 <a asp-action="GetCreatedAssignments" asp-controller="CreateAssignment">Created Assignments</a>
                 @* <a asp-action="AssignGrades" asp-controller="Teacher">Assign Grades</a> *@
-                <a class="dropdown-toggle" data-bs-toggle="dropdown">
+                @* <a class="dropdown-toggle" data-bs-toggle="dropdown">
                     Create Meet
                 </a>
                 <ul class="dropdown-menu">
@@ -91,7 +91,7 @@
                             </a>
                         </li>
                     }
-                </ul>
+                </ul> *@
                 <a class="dropdown-toggle" data-bs-toggle="dropdown">
                     Chat
                 </a>
@@ -163,7 +163,7 @@
                         <a class="d-block p-2" asp-action="GetCreatedAssignments" asp-controller="CreateAssignment">Created Assignments</a>
                         @* <a class="d-block p-2" asp-action="AssignGrades" asp-controller="Teacher">Assign Grades</a> *@
                         
-                            <button class="btn w-100 dropdown-toggle text-start " type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            @* <button class="btn w-100 dropdown-toggle text-start " type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Create Meet
                             </button>
                             <ul class="dropdown-menu" createmeet>
@@ -178,7 +178,7 @@
                                         </a>
                                     </li>
                                 }
-                            </ul>
+                            </ul> *@
                         <a class="d-block p-2" asp-action="GetConferences" asp-controller="Teacher">Meetings</a>
                         <button class="btn w-100 dropdown-toggle text-start " type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Chat

@@ -20,7 +20,8 @@ namespace LearningManagementSystem.Controllers.Student
             this.userManager = userManager;
         }
 
-        [Route("StudentDashboard")]
+        //[Route("StudentDashboard")]
+        [Authorize(AuthenticationSchemes ="StudentAuth",Roles = "Student")]
         public async Task<IActionResult> StudentDashboard()
         {
             //int CountOfAssignments;

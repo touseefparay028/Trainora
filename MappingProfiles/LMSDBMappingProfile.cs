@@ -14,8 +14,6 @@ namespace LearningManagementSystem.MappingProfiles
                 .ForMember(dest => dest.UserName, opt => opt.MapFrom(src => src.Email))
                 .ForSourceMember(drc => drc.ConfirmPassword, opt => opt.DoNotValidate());
             CreateMap<ApplicationUser, RegisterDTO>();
-
-
             CreateMap<TeacherAssignmentVM, TeacherAssignmentDM>()
             .ForMember(dest => dest.Path, opt => opt.Ignore());  //File is Saved seperately
             CreateMap<TeacherAssignmentDM, TeacherAssignmentVM>();
@@ -26,6 +24,8 @@ namespace LearningManagementSystem.MappingProfiles
             CreateMap<TimeTableDM, TimeTableVM>().ReverseMap();
             CreateMap<AccountDeletionReason, AccountDeletionReasonDM>().ReverseMap();
             CreateMap<AnnouncementsVM, Announcements>().ReverseMap()
+                .ForMember(dest => dest.File, opt => opt.Ignore()); // File is saved separately
+            CreateMap<CourseMaterialVM, CourseMaterial>().ReverseMap()
                 .ForMember(dest => dest.File, opt => opt.Ignore()); // File is saved separately
         }
     }

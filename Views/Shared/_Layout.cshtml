@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Authentication
+@using System.Security.Claims
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -30,7 +32,82 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            @if (User.IsInRole("Admin"))
+
+            @{
+                var context = Context; // current HttpContext
+                ClaimsPrincipal user = null;
+
+                // Try to authenticate from each custom cookie scheme
+                var adminResult = await context.AuthenticateAsync("AdminAuth");
+                if (adminResult.Succeeded && adminResult.Principal.Identity?.IsAuthenticated == true)
+                {
+                    user = adminResult.Principal;
+                }
+                else
+                {
+                    var teacherResult = await context.AuthenticateAsync("TeacherAuth");
+                    if (teacherResult.Succeeded && teacherResult.Principal.Identity?.IsAuthenticated == true)
+                    {
+                        user = teacherResult.Principal;
+                    }
+                    else
+                    {
+                        var studentResult = await context.AuthenticateAsync("StudentAuth");
+                        if (studentResult.Succeeded && studentResult.Principal.Identity?.IsAuthenticated == true)
+                        {
+                            user = studentResult.Principal;
+                        }
+                    }
+                }
+
+                var userName = user?.Identity?.Name;
+                var role = user?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+            }
+
+            @if (!string.IsNullOrEmpty(userName))
+            {
+                if (role == "Admin")
+                {
+                    <a class="btn btn-primary ms-3" asp-action="Dashboard" asp-controller="Dashboard">@userName</a>
+                }
+                else if (role == "Teacher")
+                {
+                    <a class="btn btn-primary ms-3" asp-action="TeacherDashboard" asp-controller="TeacherDashboard">@userName</a>
+                }
+                else if (role == "Student")
+                {
+                    <a class="btn btn-primary ms-3" asp-action="StudentDashboard" asp-controller="StudentDashboard">@userName</a>
+                }
+            }
+            else
+            {
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="registerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Login
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="registerDropdown">
+                                <li><a class="dropdown-item" asp-action="Login" asp-controller="Admin">Admin</a></li>
+                                <li><a class="dropdown-item" asp-action="LoginTeacher" asp-controller="Teacher">Teacher</a></li>
+                                <li><a class="dropdown-item" asp-action="LoginStudent" asp-controller="Student">Student</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="registerDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Register
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="registerDropdown">
+                                <li><a class="dropdown-item" href="/AdminRegister">Admin</a></li>
+                                <li><a class="dropdown-item" href="/TeacherRegister">Teacher</a></li>
+                                <li><a class="dropdown-item" href="/StudentRegister">Student</a></li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                </div>
+}
+            @* @if (User.IsInRole("Admin"))
             {
                 <a class="btn btn-primary ms-3" asp-action="Dashboard" asp-controller="Dashboard">@User.Identity.Name</a>
             }
@@ -71,7 +148,7 @@
                 </ul>
             </div> 
 
-            }
+            } *@
             
            
         </div>

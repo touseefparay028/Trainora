@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace LearningManagementSystem.Controllers.TimeTable
 {
@@ -24,11 +25,13 @@ namespace LearningManagementSystem.Controllers.TimeTable
         }
         [Route("CreateTimeTable")]
         // GET: Create new slot for a specific course
+        [Authorize(AuthenticationSchemes = "TeacherAuth,AdminAuth", Roles = "Teacher,Admin")]
         public IActionResult Create(Guid courseId)
         {
             ViewBag.CourseId = courseId;
             return View();
         }
+        [Authorize(AuthenticationSchemes ="TeacherAuth,AdminAuth", Roles = "Teacher,Admin")]
         public IActionResult CreateTimeTable(TimeTableVM TimeTable)
         {
             if (ModelState.IsValid)
@@ -82,17 +85,18 @@ namespace LearningManagementSystem.Controllers.TimeTable
                 var TimeTables = mapper.Map<TimeTableDM>(TimeTable);
                 lMSDbContext.TimeTables.Add(TimeTables);
                 lMSDbContext.SaveChanges();
-                if(User.IsInRole("Admin"))
+                if (User.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == "Admin"))
                 {
-                    return RedirectToAction("AdminGetDetails","Course", new {id = TimeTable.CourseId });
+                    return RedirectToAction("AdminGetDetails", "Course", new { id = TimeTable.CourseId });
                 }
+
                 return RedirectToAction("Details", "Course", new { id = TimeTable.CourseId });
             }
 
             ViewBag.CourseId = TimeTable.CourseId;
             return View("Create",TimeTable);
         }
-        
+        [Authorize(AuthenticationSchemes = "TeacherAuth,AdminAuth", Roles = "Teacher,Admin")]
         public IActionResult ManageTimeTable(Guid courseId)
         {
             var course = lMSDbContext.Courses
@@ -116,6 +120,7 @@ namespace LearningManagementSystem.Controllers.TimeTable
             lMSDbContext.SaveChanges();
             return RedirectToAction("ManageTimeTable", new { courseId = timeTable.CourseId });
         }
+        [Authorize(AuthenticationSchemes = "StudentAuth", Roles = "Student")]
         public async Task<IActionResult> ViewTimeTable()
         {
             // Get currently logged-in student
@@ -159,7 +164,8 @@ namespace LearningManagementSystem.Controllers.TimeTable
             return View(model);
         }
 
-        [Authorize(Roles = "Admin,Teacher")]
+        [Authorize(AuthenticationSchemes = "TeacherAuth,AdminAuth", Roles = "Teacher,Admin")]
+
         public async Task<IActionResult> GeneralTimeTable()
         {
             var timeTables = await lMSDbContext.TimeTables

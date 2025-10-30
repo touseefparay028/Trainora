@@ -6,6 +6,7 @@ using LearningManagementSystem.Models.IdentityEntities;
 using LearningManagementSystem.RoleEnums;
 using LearningManagementSystem.Services;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using System;
+using System.Runtime.Intrinsics.X86;
 using System.Security.Claims;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
@@ -258,78 +260,150 @@ namespace LearningManagementSystem.Controllers.Account
         }
 
         //[Route("LoginTeacher")]
-        public IActionResult LoginTeacher()
+        [AllowAnonymous]
+        public async Task<IActionResult> LoginTeacher()
         {
-            if (User.Identity != null && User.Identity.IsAuthenticated)
+            // Force ASP.NET to check all authentication schemes
+            var adminAuth = await HttpContext.AuthenticateAsync("AdminAuth");
+            var teacherAuth = await HttpContext.AuthenticateAsync("TeacherAuth");
+            var studentAuth = await HttpContext.AuthenticateAsync("StudentAuth");
+
+            // Block access if logged in as Admin or Student
+            if ((adminAuth.Succeeded && adminAuth.Principal != null) ||
+                (studentAuth.Succeeded && studentAuth.Principal != null))
             {
-                if(User.IsInRole("Teacher"))
+                return RedirectToAction("AccessDenied", "Home");
+            }
+
+            //  If already logged in as Teacher, go to Dashboard
+            if (teacherAuth.Succeeded && teacherAuth.Principal != null)
+            {
+                var principal = teacherAuth.Principal;
+
+                // Double-check role from claims to be safe
+                if (principal.IsInRole("Teacher"))
                 {
                     return RedirectToAction("TeacherDashboard", "TeacherDashboard");
                 }
-                else
-                {
-                    return RedirectToAction("AccessDenied", "Home");
-                }
-               
+
+                return RedirectToAction("AccessDenied", "Home");
             }
-            
+
+            // 🧭 Not authenticated — show login form
             return View();
         }
 
+        [AllowAnonymous]
         [HttpPost("PostTeacherLogin")]
-        public async Task<IActionResult> Login(LoginDTO loginDTO,string? ReturnUrl=null)
+        public async Task<IActionResult> Login(LoginDTO loginDTO, string? ReturnUrl = null)
         {
-
-
             if (!ModelState.IsValid)
+                return View("LoginTeacher", loginDTO);
+
+            var user = await _userManager.FindByEmailAsync(loginDTO.Email);
+            if (user == null)
             {
-                ViewBag.Error = ModelState.Values.SelectMany(x => x.Errors).Select(y => y.ErrorMessage);
+                ModelState.AddModelError(string.Empty, "Teacher doesn't exist");
                 return View("LoginTeacher", loginDTO);
             }
 
-
-            ApplicationUser? user = await _userManager.FindByEmailAsync(loginDTO.Email);
-            if (user != null)
+            if (!await _userManager.IsEmailConfirmedAsync(user))
             {
-                // ✅ Check if email is confirmed
-                if (!await _userManager.IsEmailConfirmedAsync(user))
-                {
-                    ModelState.AddModelError(string.Empty,
-                        "Your email is not veirified yet. Please check your email inbox to verify your account.");
-                    return View("LoginTeacher", loginDTO);
-                }
-                if (await _userManager.IsInRoleAsync(user, UserTypeOptions.Teacher.ToString()))
-                {
-                    var result = await _signInManager.PasswordSignInAsync(user, loginDTO.Password, isPersistent:loginDTO.RememberMe, false);
-
-                    if (result.Succeeded)
-                    {
-                      
-                        if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
-                        {
-                            return Redirect(ReturnUrl);
-                        }
-                        return RedirectToAction("TeacherDashboard", "TeacherDashboard");
-                    }
-
-
-                    ModelState.AddModelError(string.Empty, "Invalid Username or Password");
-                     return View("LoginTeacher", loginDTO);
-
-                }
-                ModelState.AddModelError(string.Empty,"User Is Not A Teacher");
+                ModelState.AddModelError(string.Empty, "Email not verified");
                 return View("LoginTeacher", loginDTO);
-
             }
-            ModelState.AddModelError(string.Empty, "Teacher Doesn't Exist ");
-            return View("LoginTeacher", loginDTO);
 
+            if (!await _userManager.IsInRoleAsync(user, UserTypeOptions.Teacher.ToString()))
+            {
+                ModelState.AddModelError(string.Empty, "User is not a teacher");
+                return View("LoginTeacher", loginDTO);
+            }
+
+            if (!await _userManager.CheckPasswordAsync(user, loginDTO.Password))
+            {
+                ModelState.AddModelError(string.Empty, "Invalid password");
+                return View("LoginTeacher", loginDTO);
+            }
+
+            // ✅ Sign in with TeacherAuth scheme
+            var claims = new List<Claim>
+                {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.UserName ?? ""),
+                new Claim(ClaimTypes.Role, "Teacher")
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, "TeacherAuth");
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+            await HttpContext.SignInAsync("TeacherAuth", claimsPrincipal, new Microsoft.AspNetCore.Authentication.AuthenticationProperties
+            {
+                IsPersistent = loginDTO.RememberMe,
+                ExpiresUtc = DateTime.UtcNow.AddHours(4)
+            });
+
+            if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+                return Redirect(ReturnUrl);
+
+            return RedirectToAction("TeacherDashboard", "TeacherDashboard");
         }
+
+        //public async Task<IActionResult> Login(LoginDTO loginDTO, string? ReturnUrl = null)
+        //{
+
+
+        //    if (!ModelState.IsValid)
+        //    {
+        //        ViewBag.Error = ModelState.Values.SelectMany(x => x.Errors).Select(y => y.ErrorMessage);
+        //        return View("LoginTeacher", loginDTO);
+        //    }
+
+
+        //    ApplicationUser? user = await _userManager.FindByEmailAsync(loginDTO.Email);
+        //    if (user != null)
+        //    {
+        //        // ✅ Check if email is confirmed
+        //        if (!await _userManager.IsEmailConfirmedAsync(user))
+        //        {
+        //            ModelState.AddModelError(string.Empty,
+        //                "Your email is not veirified yet. Please check your email inbox to verify your account.");
+        //            return View("LoginTeacher", loginDTO);
+        //        }
+        //        if (await _userManager.IsInRoleAsync(user, UserTypeOptions.Teacher.ToString()))
+        //        {
+        //            var result = await _signInManager.PasswordSignInAsync(user, loginDTO.Password, isPersistent: loginDTO.RememberMe, false);
+
+        //            if (result.Succeeded)
+        //            {
+
+
+        //                if (!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
+        //                {
+        //                    return Redirect(ReturnUrl);
+        //                }
+        //                return RedirectToAction("TeacherDashboard", "TeacherDashboard");
+        //            }
+
+
+        //            ModelState.AddModelError(string.Empty, "Invalid Username or Password");
+        //            return View("LoginTeacher", loginDTO);
+
+        //        }
+        //        ModelState.AddModelError(string.Empty, "User Is Not A Teacher");
+        //        return View("LoginTeacher", loginDTO);
+
+        //    }
+        //    ModelState.AddModelError(string.Empty, "Teacher Doesn't Exist ");
+        //    return View("LoginTeacher", loginDTO);
+
+        //}
+
         [Route("LogoutTeacher")]
+        [Authorize(AuthenticationSchemes ="TeacherAuth")]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
-            return RedirectToAction("LoginTeacher");
+            await HttpContext.SignOutAsync("TeacherAuth");
+            return RedirectToAction("LoginTeacher", "Teacher");
         }
         [HttpGet]
         [Route("ChangePassword")]
@@ -482,6 +556,7 @@ namespace LearningManagementSystem.Controllers.Account
             return View(conference); // Pass conference to view
         }
         [Route("Conferencess")]
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles ="Teacher")]
         public IActionResult GetConferences()
         {
             // Get the logged-in teacher's ID

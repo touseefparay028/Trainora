@@ -1,4 +1,6 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Authentication
+@using System.Security.Claims
+@{
     ViewData["Title"] = "Trainora - Accelerate Your Learning";
     Layout = null;
 }
@@ -132,22 +134,57 @@
                 <li class="nav-item"><a class="nav-link text-white" asp-action="About" asp-controller="Home">About</a></li>
                 <li class="nav-item"><a class="nav-link text-white" asp-action="Contact" asp-controller="Home">Contact</a></li>
             </ul>
-           @if(User.IsInRole("Admin"))
-            {
-                <a class="btn btn-primary ms-3" asp-action="Dashboard" asp-controller="Dashboard">@User.Identity.Name</a>
+
+            @{
+                var context = Context; // current HttpContext
+                ClaimsPrincipal user = null;
+
+                // Try to authenticate from each custom cookie scheme
+                var adminResult = await context.AuthenticateAsync("AdminAuth");
+                if (adminResult.Succeeded && adminResult.Principal.Identity?.IsAuthenticated == true)
+                {
+                    user = adminResult.Principal;
+                }
+                else
+                {
+                    var teacherResult = await context.AuthenticateAsync("TeacherAuth");
+                    if (teacherResult.Succeeded && teacherResult.Principal.Identity?.IsAuthenticated == true)
+                    {
+                        user = teacherResult.Principal;
+                    }
+                    else
+                    {
+                        var studentResult = await context.AuthenticateAsync("StudentAuth");
+                        if (studentResult.Succeeded && studentResult.Principal.Identity?.IsAuthenticated == true)
+                        {
+                            user = studentResult.Principal;
+                        }
+                    }
+                }
+
+                var userName = user?.Identity?.Name;
+                var role = user?.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             }
-            else if(User.IsInRole("Teacher"))
+
+            @if (!string.IsNullOrEmpty(userName))
             {
-                <a class="btn btn-primary ms-3" asp-action="TeacherDashboard" asp-controller="TeacherDashboard">@User.Identity.Name</a>
+                if (role == "Admin")
+                {
+                    <a class="btn btn-primary ms-3" asp-action="Dashboard" asp-controller="Dashboard">@userName</a>
+                }
+                else if (role == "Teacher")
+                {
+                    <a class="btn btn-primary ms-3" asp-action="TeacherDashboard" asp-controller="TeacherDashboard">@userName</a>
+                }
+                else if (role == "Student")
+                {
+                    <a class="btn btn-primary ms-3" asp-action="StudentDashboard" asp-controller="StudentDashboard">@userName</a>
+                }
             }
-            else if(User.IsInRole("Student"))
+            else
             {
-                <a class="btn btn-primary ms-3" asp-action="StudentDashboard" asp-controller="StudentDashboard">@User.Identity.Name</a>
+                <a class="btn btn-primary ms-3" asp-action="Join" asp-controller="Home">Log In / Sign Up</a>
             }
-           else
-           {
-               <a class="btn btn-primary ms-3" asp-action="Join" asp-controller="Home">Log In/Sign Up</a>
-           }
         </div>
     </div>
 </nav>

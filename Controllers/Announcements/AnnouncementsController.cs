@@ -22,11 +22,12 @@ namespace LearningManagementSystem.Controllers.Announcements
             this.lMSDbContext = lMSDbContext;
             this.roleManager = roleManager;
         }
-        [Authorize(Roles="Admin,Teacher")]
+        [Authorize(AuthenticationSchemes ="AdminAuth,TeacherAuth",Roles="Admin,Teacher")]
         public IActionResult Create()
         {
             return View();
         }
+        [Authorize(AuthenticationSchemes = "AdminAuth,TeacherAuth,StudentAuth", Roles = "Admin,Teacher,Student")]
         public async Task<IActionResult> CreateAnnouncement(AnnouncementsVM announcementsVM)
         {
             if (ModelState.IsValid)
@@ -37,13 +38,13 @@ namespace LearningManagementSystem.Controllers.Announcements
             }
             return View("Create",announcementsVM);
         }
-        [Authorize(Roles="Admin,Teacher,Student")]
+        [Authorize(AuthenticationSchemes ="AdminAuth,TeacherAuth,StudentAuth",Roles="Admin,Teacher,Student")]
         public async Task<IActionResult> GetAnnouncements()
         {
             var announcements = await fileService.GetAllAnnouncements();
             return View(announcements);
         }
-        [Authorize(Roles="Admin,Teacher,Student")]
+        [Authorize(AuthenticationSchemes = "AdminAuth,TeacherAuth,StudentAuth", Roles = "Admin,Teacher,Student")]
         public IActionResult ViewAnnouncement(string FilePath)
         {
             return new VirtualFileResult($"Announcements/{FilePath}", "application/application.pdf")
@@ -52,7 +53,7 @@ namespace LearningManagementSystem.Controllers.Announcements
             };
             
         }
-
+        [Authorize(AuthenticationSchemes = "AdminAuth,TeacherAuth", Roles = "Admin,Teacher")]
         public IActionResult DeleteAnnouncement(Guid Id)
         {
             var ann = lMSDbContext.Announcements.Find(Id);

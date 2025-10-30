@@ -50,7 +50,7 @@
                   
                    
                         <!-- Enroll Button -->
-                        <form asp-action="Enroll" method="post" class="mt-auto">
+                        <form asp-action="Enroll" asp-controller="Course" method="post" class="mt-auto">
                             <input type="hidden" name="courseId" value="@course.Id" />
                             <button type="submit" class="btn btn-primary w-100 rounded-pill fw-semibold">
                                 Enroll Now

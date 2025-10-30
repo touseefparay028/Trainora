@@ -20,6 +20,7 @@ namespace LearningManagementSystem.Controllers.Student
             this.lMSDbContext = lMSDbContext;
         }
         [Route("Submit")]
+        [Authorize(AuthenticationSchemes ="StudentAuth",Roles ="Student")]
         public async Task<IActionResult> SubmitAssignment(Guid Id)
         {
 
@@ -34,6 +35,7 @@ namespace LearningManagementSystem.Controllers.Student
             return View(new StudentAssignmentVM { assignmentDMId=Id });
         }
         [HttpPost("PostSubmit")]
+        [Authorize(AuthenticationSchemes = "StudentAuth", Roles = "Student")]
         public async Task<IActionResult> Submit(StudentAssignmentVM assignmentVM)
         {
             var studentID = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));

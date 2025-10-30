@@ -24,7 +24,7 @@ namespace LearningManagementSystem.Controllers.Teacher
             this.userManager = userManager;
         }
         [Route("TeacherDashboard")]
-       
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
         public async Task<IActionResult> TeacherDashboard()
         {
             var batches = await lMSDbContext.BatchDMs.ToListAsync();

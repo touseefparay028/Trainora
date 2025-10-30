@@ -6,54 +6,63 @@
 }
 
 <h2 class="mt-4 mb-4 text-center text-primary fw-bold">My Assigned Courses</h2>
-@if(TempData["Message"] != null)
+
+@if (TempData["Message"] != null)
 {
-    <div class="alert alert-info">
+    <div class="alert alert-info text-center">
         @TempData["Message"]
     </div>
 }
 
-<table class="table table-striped table-hover align-middle">
-    <thead class="table-light">
-        <tr>
-            <th scope="col">Course Title</th>
-            <th scope="col">Description</th>
-            <th scope="col">Batch</th>
-            <th scope="col">Teacher</th>
-            <th scope="col">Actions</th>
-            <th scope="col">Time Table</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var course in Model)
-        {
+<div class="table-responsive shadow-sm rounded-4">
+    <table class="table table-striped table-hover align-middle mb-0">
+        <thead class="table-light">
             <tr>
-                <td class="fw-semibold">@course.Title</td>
-                <td>@course.Description</td>
-                <td>@course.Batch.Name</td>
-                <td>@course.Teacher?.Name</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@course.Id" class="btn btn-sm btn-outline-primary me-1">Edit</a>
-                    <a asp-action="Details" asp-route-id="@course.Id" class="btn btn-sm btn-outline-info me-1">Details</a>
-                    <a asp-action="Delete" asp-route-id="@course.Id" class="btn btn-sm btn-outline-danger">Delete</a>
-                    <a asp-action="GetStudentsByCourse" asp-controller="Attendance" asp-route-courseId="@course.Id">Students Enrolled</a>
-                    <a asp-action="StartConference" asp-controller="Teacher" asp-route-batchId="@course.BatchId" asp-route-CourseId="@course.Id">Start Session</a>
-                </td>
-                <td>
-                    @if (course.TimeTables != null && course.TimeTables.Any())
-                    {
-                        <a asp-action="ManageTimeTable" asp-controller="TimeTable" asp-route-courseId="@course.Id" class="btn btn-sm btn-success">
-                            Manage Time Table
-                        </a>
-                    }
-                    else
-                    {
-                        <a asp-action="Create" asp-controller="TimeTable" asp-route-courseId="@course.Id" class="btn btn-sm btn-warning">
-                            Set Time Table
-                        </a>
-                    }
-                </td>
+                <th scope="col">Course Title</th>
+                <th scope="col">Description</th>
+                <th scope="col">Batch</th>
+                <th scope="col">Teacher</th>
+                <th scope="col">Actions</th>
+                <th scope="col">Time Table</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var course in Model)
+            {
+                <tr>
+                    <td class="fw-semibold">@course.Title</td>
+                    <td>@course.Description</td>
+                    <td>@course.Batch?.Name</td>
+                    <td>@course.Teacher?.Name</td>
+                    <td>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a asp-action="Edit" asp-controller"Course" asp-route-id="@course.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <a asp-action="Details" asp-route-id="@course.Id" class="btn btn-sm btn-outline-info">Details</a>
+                            <a asp-action="Delete" asp-route-id="@course.Id" class="btn btn-sm btn-outline-danger">Delete</a>
+                            <a asp-action="GetStudentsByCourse" asp-controller="Attendance" asp-route-courseId="@course.Id" class="btn btn-sm btn-outline-secondary">Students Enrolled</a>
+                            <a asp-action="StartConference" asp-controller="Teacher" asp-route-batchId="@course.BatchId" asp-route-CourseId="@course.Id" class="btn btn-sm btn-outline-success">Start Session</a>
+                            <a asp-action="UploadCourseMaterial" asp-controller="CourseMaterial" asp-route-CourseId="@course.Id" class="btn btn-sm btn-outline-primary">V/M Materials</a>
+                         
+                        </div>
+                    </td>
+                    <td>
+                        @if (course.TimeTables != null && course.TimeTables.Any())
+                        {
+                            <a asp-action="ManageTimeTable" asp-controller="TimeTable" asp-route-courseId="@course.Id" class="btn btn-sm btn-success w-100">
+                                Manage Time Table
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-action="Create" asp-controller="TimeTable" asp-route-courseId="@course.Id" class="btn btn-sm btn-warning w-100">
+                                Set Time Table
+                            </a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+

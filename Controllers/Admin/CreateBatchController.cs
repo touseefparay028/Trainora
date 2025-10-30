@@ -19,12 +19,13 @@ namespace LearningManagementSystem.Controllers.Admin
             this.mapper = mapper;
         }
         [Route("CreateBatch")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(AuthenticationSchemes ="AdminAuth",Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
         [HttpPost("PostCreateBatch")]
+        [Authorize(AuthenticationSchemes = "AdminAuth", Roles = "Admin")]
         public async Task<IActionResult> CreateBatch(BatchVM batchVM)
         {
            BatchDM batchDM = mapper.Map<BatchDM>(batchVM);
@@ -33,14 +34,14 @@ namespace LearningManagementSystem.Controllers.Admin
             return RedirectToAction("Read");
         }
         [Route("GetBatch")]
-        [Authorize(Roles ="Admin")]
+        [Authorize(AuthenticationSchemes ="AdminAuth",Roles ="Admin")]
         public async Task<IActionResult> Read()
         {
             List<BatchDM> batchDMs = await lMSDbContext.BatchDMs.ToListAsync();
             List<BatchVM> batchVM = mapper.Map<List<BatchVM>>(batchDMs);
             return View(batchVM);
         }
-        [Authorize(Roles ="Admin")]
+        [Authorize(AuthenticationSchemes ="AdminAuth",Roles ="Admin")]
         public IActionResult Delete(Guid id)
         {
             // 1. Fetch from DM (database)
