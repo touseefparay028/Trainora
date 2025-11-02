@@ -131,5 +131,9 @@ namespace LearningManagementSystem.Controllers.Home
 
             return View("DeleteAccount", accountDeletionReason);
         }
+        public IActionResult newmodel()
+        {
+            return View();
+        }
     }
 }
