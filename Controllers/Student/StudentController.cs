@@ -359,7 +359,8 @@ namespace LearningManagementSystem.Controllers.Student
             return View();
         }
         [HttpPost]
-        [ValidateAntiForgeryToken]
+      
+        [Authorize(AuthenticationSchemes ="StudentAuth",Roles ="Student")]
         public async Task<IActionResult> ChangePasswordNow(ChangePasswordVM changePassword)
         {
             if (!ModelState.IsValid)

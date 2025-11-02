@@ -1,4 +1,6 @@
-﻿@{
+﻿@model List<LearningManagementSystem.Models.DTO.ContactVM>
+
+@{
     ViewData["Title"] = "Admin Dashboard";
 }
 @{
@@ -122,6 +124,60 @@
                         </div> *@
                     </div>
                 </div>
+                @if (Model != null && Model.Any())
+                {
+                    <div class="row g-3 mt-4">
+                        <h4 class="mb-3">Recent Contact Messages</h4>
+
+                        <div class="col-12">
+                            <div class="card shadow-sm border-0" style="border-radius: 1rem;">
+                                <div class="card-body" style="max-height: 350px; overflow-y: auto;">
+                                    @foreach (var msg in Model)
+                                    {
+                                        <div class="d-flex align-items-start mb-3 pb-3 border-bottom">
+                                            <div class="bg-danger bg-opacity-10 text-danger rounded-circle d-flex justify-content-center align-items-center me-3" style="width:45px; height:45px;">
+                                                <i class="bi bi-person-fill fs-5"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">@msg.Name</h6>
+                                                <small class="text-muted d-block">@msg.Email</small>
+                                                <p class="mb-0 mt-1 text-secondary">@msg.Message</p>
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <style>
+                                        /* Remove border for last message */
+                                        .card-body > div:last-child {
+                                            border-bottom: none !important;
+                                            margin-bottom: 0 !important;
+                                            padding-bottom: 0 !important;
+                                        }
+
+                                        /* Scrollbar styling for better UI */
+                                        .card-body::-webkit-scrollbar {
+                                            width: 6px;
+                                        }
+
+                                        .card-body::-webkit-scrollbar-thumb {
+                                            background: rgba(220, 53, 69, 0.5); /* red with opacity */
+                                            border-radius: 4px;
+                                        }
+
+                                            .card-body::-webkit-scrollbar-thumb:hover {
+                                                background: rgba(220, 53, 69, 0.8);
+                                            }
+                                    </style>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted mt-4">No contact messages yet.</p>
+                }
+
             </main>
         </div>
     </div>

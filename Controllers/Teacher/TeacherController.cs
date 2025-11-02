@@ -289,7 +289,7 @@ namespace LearningManagementSystem.Controllers.Account
                 return RedirectToAction("AccessDenied", "Home");
             }
 
-            // 🧭 Not authenticated — show login form
+            // Not authenticated — show login form
             return View();
         }
 

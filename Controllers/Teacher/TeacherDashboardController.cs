@@ -12,7 +12,7 @@ using System.Security.Claims;
 namespace LearningManagementSystem.Controllers.Teacher
 {
     
-    [Authorize(Roles = "Teacher")]
+    
     public class TeacherDashboardController : Controller
     {
         private readonly LMSDbContext lMSDbContext;
