@@ -36,7 +36,7 @@
                     <td>@course.Teacher?.Name</td>
                     <td>
                         <div class="d-flex flex-wrap gap-2">
-                            <a asp-action="Edit" asp-controller"Course" asp-route-id="@course.Id" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <a asp-action="Edit" asp-controller"Course" asp-route-id="@course.Id" asp-route-BatchId="@course.BatchId" class="btn btn-sm btn-outline-primary">Edit</a>
                             <a asp-action="Details" asp-route-id="@course.Id" class="btn btn-sm btn-outline-info">Details</a>
                             <a asp-action="Delete" asp-route-id="@course.Id" class="btn btn-sm btn-outline-danger">Delete</a>
                             <a asp-action="GetStudentsByCourse" asp-controller="Attendance" asp-route-courseId="@course.Id" class="btn btn-sm btn-outline-secondary">Students Enrolled</a>

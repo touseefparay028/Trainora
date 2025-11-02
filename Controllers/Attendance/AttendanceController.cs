@@ -100,63 +100,28 @@ namespace LearningManagementSystem.Controllers.Attendance
         [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
         public async Task<IActionResult> GetStudentsByCourse(Guid courseId)
         {
-            // Fetch course with enrolled students
             var course = await lMSDbContext.Courses
                 .Include(c => c.Enrollments)
-                    .ThenInclude(e => e.Student) // Assuming StudentCourseDM.Student is ApplicationUser
+                    .ThenInclude(e => e.Student)
                 .FirstOrDefaultAsync(c => c.Id == courseId);
 
             if (course == null)
                 return NotFound("Course not found.");
 
-            // Map enrolled students
-            var Students = mapper.Map<List<RegisterDTO>>(
-            course.Enrollments
-            .Where(e => e.IsApproved)   // only approved enrollments
-            .Select(e => e.Student)
-            .ToList()
-);
+            // Fetch all approved students of the course
+            var students = course.Enrollments
+                .Where(e => e.IsApproved && e.Student != null)
+                .Select(e => new RegisterDTO
+                {
+                    Id = e.Student.Id,
+                    Name = e.Student.Name,
+                    Email = e.Student.Email,
+                    EnrollmentNumber = e.Student.EnrollmentNumber
+                })
+                .ToList();
 
-            //var students = course.Enrollments
-            //    .Where(e => e.Student != null)
-            //    .Select(e => new RegisterDTO
-            //    {
-            //        Id = e.Student.Id,
-            //        Name = e.Student.Name,
-            //        Email = e.Student.Email
-            //    })
-            //    .ToList();
-
-
-            // Get all batches
-            var batches = await lMSDbContext.BatchDMs.ToListAsync();
-
-            // Group students by batch
-            var batchStudents = batches.Select(batch => new BatchVM
-            {
-                Name = batch.Name,
-                ApplicationUser = Students
-                            .Where(u => u.BatchDMId == batch.id) // link students to batch
-                            .Select(u => new ApplicationUser
-                            {
-                                Id = u.Id,
-                                Name = u.Name,
-                                Email = u.Email,
-                                EnrollmentNumber = u.EnrollmentNumber,
-                                BatchDMId = batch.id
-                            })
-                            .ToList()
-            }).ToList();
-            //// Create ViewModel
-            //var StudentVM = new CourseVM
-            //{
-            //    Id = course.Id,
-            //    Title = course.Titleb,
-            //    TeacherName = course.Teacher?.Name,
-            //    Students = Students
-            //};
             ViewBag.CourseId = courseId;
-            return View(batchStudents);
+            return View(students);
         }
 
 

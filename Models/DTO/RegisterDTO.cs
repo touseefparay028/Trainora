@@ -51,17 +51,13 @@ namespace LearningManagementSystem.Models.DTO
         [CustomValidation(typeof(StudentDateOfBirth), nameof(StudentDateOfBirth.ValidateDateOfBirth))]
         public DateTime? DateOfBirth { get; set; }
 
-        
         [Required(ErrorMessage = "Enrollment number is required.")]
-        [StringLength(10, ErrorMessage = "Enrollment number should not exceed 10 digits")]
-        [RegularExpression("^[0-9]*$", ErrorMessage = "Number Only")]
+        
         public int? EnrollmentNumber { get; set; }
+
         [Required(ErrorMessage = "Please enter your course")]
         public string? Course { get; set; }
         public Guid? BatchDMId { get; set; }
-
         public IEnumerable<SelectListItem>? BatchList { get; set; }
-
-
     }
 }

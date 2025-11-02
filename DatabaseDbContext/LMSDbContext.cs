@@ -58,7 +58,8 @@ namespace LearningManagementSystem.DatabaseDbContext
             .HasForeignKey(a => a.StudentId)
             .OnDelete(DeleteBehavior.Restrict); // NO ACTION
         }
-        public DbSet<LearningManagementSystem.Models.DTO.CourseMaterialVM> CourseMaterialVM { get; set; } = default!;
+        //public DbSet<LearningManagementSystem.Models.DTO.CourseMaterialVM> CourseMaterialVM { get; set; } = default!;
+        //public DbSet<LearningManagementSystem.Models.DTO.AttendanceVM> AttendanceVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.AnnouncementsVM> AnnouncementsVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.CourseVM> CourseVM { get; set; } = default!;
         //public DbSet<LearningManagementSystem.Models.DTO.StudyMaterialsVM> StudyMaterialsVM { get; set; } = default!;

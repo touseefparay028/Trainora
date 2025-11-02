@@ -6,52 +6,127 @@
 
 <h2>Attendance Summary</h2>
 
-<div class="mb-3">
-    <strong>Student:</strong> @Model.StudentName <br />
-    <strong>Course:</strong> @Model.CourseName <br />
-    <strong>Total Classes:</strong> @Model.TotalClasses <br />
-    <strong>Classes Attended:</strong> @Model.ClassesAttended <br />
-    <strong>Attendance %:</strong>
-    @(Model.TotalClasses > 0
-        ? ((double)Model.ClassesAttended / Model.TotalClasses * 100).ToString("0.##") + "%"
-        : "0%")
-</div>
+<div id="printSection">
+    <div class="mb-3">
+        <strong>Student:</strong> @Model.StudentName <br />
+        <strong>Course:</strong> @Model.CourseName <br />
+        <strong>Total Classes:</strong> @Model.TotalClasses <br />
+        <strong>Classes Attended:</strong> @Model.ClassesAttended <br />
+        <strong>Attendance %:</strong>
+        @(Model.TotalClasses > 0
+                ? ((double)Model.ClassesAttended / Model.TotalClasses * 100).ToString("0.##") + "%"
+                : "0%")
+    </div>
 
-<table class="table table-bordered table-striped">
-    <thead class="table-dark">
-        <tr>
-            <th>#</th>
-            <th>Date</th>
-            <th>Present</th>
-            <th>Remark</th>
-        </tr>
-    </thead>
-    <tbody>
-        @if (Model.AttendanceRecords != null && Model.AttendanceRecords.Any())
-        {
-            int index = 1;
-            foreach (var record in Model.AttendanceRecords)
+    <!-- Date Range Filter (Right aligned) -->
+    <div class="d-flex justify-content-end align-items-center mb-3 gap-2">
+        <input type="date" id="fromDate" class="form-control" style="width: 180px;" />
+        <input type="date" id="toDate" class="form-control" style="width: 180px;" />
+        <button class="btn btn-success fw-semibold" onclick="filterAttendance()">
+            View by Date
+        </button>
+    </div>
+
+    <table class="table table-bordered table-striped" id="attendanceTable">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Present</th>
+                <th>Remark</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.AttendanceRecords != null && Model.AttendanceRecords.Any())
+            {
+                int index = 1;
+                foreach (var record in Model.AttendanceRecords)
+                {
+                    <tr>
+                        <td>@index</td>
+                        <td data-date="@record.Date.ToString("yyyy-MM-dd")">@record.Date.ToString("dd MMM yyyy")</td>
+                        <td>@(record.IsPresent ? "Yes" : "No")</td>
+                        <td>@record.Remark</td>
+                    </tr>
+                    index++;
+                }
+            }
+            else
             {
                 <tr>
-                    <td>@index</td>
-                    <td>@record.Date.ToString("dd MMM yyyy")</td>
-                    <td>@(record.IsPresent ? "Yes" : "No")</td>
-                    <td>@record.Remark</td>
+                    <td colspan="4" class="text-center">No attendance records found.</td>
                 </tr>
-                index++;
             }
-        }
-        else
-        {
-            <tr>
-                <td colspan="4" class="text-center">No attendance records found.</td>
-            </tr>
-        }
-    </tbody>
-</table>
+        </tbody>
+    </table>
+</div>
 
 <div class="mt-3">
-    <button class="btn btn-primary" onclick="window.print();">
-        Print / Save as PDF
-    </button>
+    <button class="btn btn-primary" onclick="printSection();">Print / Save as PDF</button>
 </div>
+
+@section Scripts {
+    <script>
+        // Print logic remains unchanged
+        function printSection() {
+            var printContents = document.getElementById('printSection').innerHTML;
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+            location.reload();
+        }
+
+               // Date filter logic
+              function filterAttendance() {
+            const fromDateValue = document.getElementById("fromDate").value;
+            const toDateValue = document.getElementById("toDate").value;
+            const rows = document.querySelectorAll("#attendanceTable tbody tr");
+
+            // ✅ Check if both fields are empty
+            if (!fromDateValue || !toDateValue) {
+                alert("Please enter both 'From Date' and 'To Date' before filtering.");
+                return;
+            }
+
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const dateCell = row.querySelector("td[data-date]");
+                if (!dateCell) return;
+
+                const recordDate = new Date(dateCell.getAttribute("data-date"));
+                const fromDate = fromDateValue ? new Date(fromDateValue) : null;
+                const toDate = toDateValue ? new Date(toDateValue) : null;
+
+                if (
+                    (!fromDate || recordDate >= fromDate) &&
+                    (!toDate || recordDate <= toDate)
+                ) {
+                    row.style.display = "";
+                    visibleCount++;
+                } else {
+                    row.style.display = "none";
+                }
+            });
+
+            // Remove existing "no records" row if present
+            const tbody = document.querySelector("#attendanceTable tbody");
+            const existingMessageRow = document.getElementById("noRecordRow");
+            if (existingMessageRow) existingMessageRow.remove();
+
+            // If no rows visible, show "No records available"
+            if (visibleCount === 0) {
+                const noRecordRow = document.createElement("tr");
+                noRecordRow.id = "noRecordRow";
+                noRecordRow.innerHTML = `
+                    <td colspan="4" class="text-center text-danger fw-semibold">
+                        No records available for the selected date range.
+                    </td>`;
+                tbody.appendChild(noRecordRow);
+            }
+        }
+
+
+    </script>
+}

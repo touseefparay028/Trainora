@@ -15,6 +15,7 @@
         <tr>
             <th>Title</th>
             <th>Description</th>
+            <th>Actions</th>
             <th>File</th>
             <th>Uploaded On</th>
         </tr>
@@ -26,7 +27,12 @@
                 <td>@material.Title</td>
                 <td>@material.Description</td>
                 <td>
-                    <a href="@material.FilePath" target="_blank" class="btn btn-sm btn-outline-info">
+                    <a asp-action="DeleteCourseMaterial" asp-route-id="@material.Id" class="btn btn-sm btn-outline-info">
+                        Delete File
+                    </a>
+                </td>
+                <td>
+                    <a asp-action="DownloadCourseMaterial" asp-route-FilePath="@material.FilePath" class="btn btn-sm btn-outline-info">
                         View File
                     </a>
                 </td>

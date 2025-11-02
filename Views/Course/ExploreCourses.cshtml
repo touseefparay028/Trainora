@@ -32,16 +32,26 @@
                     <p class="text-muted small flex-grow-1">@course.Description</p>
 
                     <!-- Teacher -->
-                    @* <p class="mb-2"><strong>Teacher:</strong> @course.Teacher?.Name</p> *@
+                    <p class="mb-2"><strong>Teacher:</strong> @course.Teacher?.Name</p>
 
                     <!-- Time Table -->
                     <h6 class="text-secondary mt-2 mb-1">Time Table:</h6>
                     <ul class="list-unstyled small mb-2">
-                        @foreach (var slot in course.TimeTables)
+                        @if (course.TimeTables != null && course.TimeTables.Any())
                         {
-                            <li>@slot.Day — @slot.StartTime.ToString(@"hh\:mm") - @slot.EndTime.ToString(@"hh\:mm") (@slot.LabLocation)</li>
+                            foreach (var slot in course.TimeTables)
+                            {
+                                <li>
+                                    @slot.Day — @slot.StartTime.ToString(@"hh\:mm") - @slot.EndTime.ToString(@"hh\:mm") (@slot.LabLocation)
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li class="text-muted">No timetable scheduled</li>
                         }
                     </ul>
+
 
                     <!-- Enrolled Students -->
                     <span class="badge bg-primary rounded-pill px-3 py-2 mb-3">

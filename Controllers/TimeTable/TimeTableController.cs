@@ -51,6 +51,7 @@ namespace LearningManagementSystem.Controllers.TimeTable
                     t.CourseId == TimeTable.CourseId);
                 bool isOverlapping = lMSDbContext.TimeTables.Any(t =>
                     t.Day == TimeTable.Day &&       // same day
+                    t.LabLocation == TimeTable.LabLocation &&  // only check overlap in the same lab
                     (
                      (TimeTable.StartTime >= t.StartTime && TimeTable.StartTime < t.EndTime) || // starts inside another slot
                      (TimeTable.EndTime > t.StartTime && TimeTable.EndTime <= t.EndTime) ||     // ends inside another slot

@@ -3,6 +3,8 @@ using LearningManagementSystem.DatabaseDbContext;
 using LearningManagementSystem.Models.Domains;
 using LearningManagementSystem.Models.DTO;
 using LearningManagementSystem.Models.IdentityEntities;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -78,12 +80,14 @@ namespace LearningManagementSystem.Controllers.Home
             return RedirectToAction("Index", TempData["SuccessMessage"]);
         }
         [HttpGet]
+        [Authorize(AuthenticationSchemes ="AdminAuth,TeacherAuth,StudentAuth",Roles ="Admin,Teacher,Student")]
         public IActionResult DeleteAccount()
         {
             return View();
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(AuthenticationSchemes ="AdminAuth,TeacherAuth,StudentAuth",Roles ="Admin,Teacher,Student")]
         public async Task<IActionResult> DeleteAccount(AccountDeletionReason accountDeletionReason)
         {
             if (!ModelState.IsValid)
@@ -113,7 +117,9 @@ namespace LearningManagementSystem.Controllers.Home
 
             if (result.Succeeded)
             {
-                await signInManager.SignOutAsync();
+                await HttpContext.SignOutAsync("AdminAuth");
+                await HttpContext.SignOutAsync("TeacherAuth");
+                await HttpContext.SignOutAsync("StudentAuth");
                 TempData["SuccessMessage"] = "Your account has been deleted successfully.";
                 return RedirectToAction("Index", "Home");
             }

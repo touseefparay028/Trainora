@@ -2,6 +2,7 @@
 {
     public class AttendanceVM
     {
+        public Guid id { get; set; }
         public string StudentName { get; set; }
         public string BatchName { get; set; }
         public string CourseName { get; set; }

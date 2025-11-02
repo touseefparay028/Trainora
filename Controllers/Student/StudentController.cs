@@ -312,7 +312,7 @@ namespace LearningManagementSystem.Controllers.Student
 
             if (!await userManager.IsInRoleAsync(user, UserTypeOptions.Student.ToString()))
             {
-                ModelState.AddModelError(string.Empty, "User is not a teacher");
+                ModelState.AddModelError(string.Empty, "User is not a student");
                 return View("LoginStudent", loginDTO);
             }
 

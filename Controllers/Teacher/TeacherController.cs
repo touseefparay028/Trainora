@@ -455,6 +455,7 @@ namespace LearningManagementSystem.Controllers.Account
             }
         }
         [Route("StartConference")]
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles ="Teacher")]
         public async Task<IActionResult> StartConference(Guid batchId, Guid CourseId)
         {
             var now = DateTime.Now; // Local time
@@ -483,6 +484,14 @@ namespace LearningManagementSystem.Controllers.Account
 
             // 2️⃣ Continue with conference creation
             var meetingLink = $"https://meet.jit.si/{Guid.NewGuid()}";
+            var teacherIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+
+            if (teacherIdClaim == null)
+            {
+                return Unauthorized("User identity claim not found. Please log in again.");
+            }
+
+            var teacherId = new Guid(teacherIdClaim.Value);
             var conference = new VideoConference
             {
                 Id = Guid.NewGuid(),

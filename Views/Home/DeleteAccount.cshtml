@@ -7,7 +7,8 @@
 
 <p>Please tell us why you want to delete your account. This will help us improve.</p>
 
-<form asp-action="DeleteAccount" asp-controller="Home" method="post">
+<form asp-action="DeleteAccount" asp-controller="Home"  method="post">
+    @Html.AntiForgeryToken()
     <div class="form-group">
         <textarea asp-for="Reason" class="form-control" placeholder="Reason for deleting..." rows="4"></textarea>
         <span asp-validation-for="Reason" class="text-danger"></span>

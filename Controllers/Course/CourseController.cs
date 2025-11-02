@@ -27,41 +27,52 @@ namespace LearningManagementSystem.Controllers
             this.fileService = fileService;
         }
         [Route("GetCourses")]
-        // GET: Courses (List of courses)
-        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
+        [Authorize(AuthenticationSchemes = "TeacherAuth", Roles = "Teacher")]
         public async Task<IActionResult> GetCourses()
         {
-           
+            // 1️⃣ Get current teacher's ID from the logged-in user
+            var teacher = await userManager.GetUserAsync(User);
+            if (teacher == null)
+            {
+                return Unauthorized();
+            }
+
+            // 2️⃣ Fetch only the courses belonging to this teacher
             var courses = await lMSDbContext.Courses
                 .Include(c => c.Teacher)
-                .Include(c=>c.Batch)
+                .Include(c => c.Batch)
                 .Include(c => c.TimeTables)
                 .Include(c => c.Enrollments)
+                .Where(c => c.TeacherId == teacher.Id)  // 👈 filter by TeacherId
                 .ToListAsync();
-            //var batches = lMSDbContext.Courses.ToListAsync();
+
+            // 3️⃣ Get batches for dropdowns etc.
             var batches = await lMSDbContext.BatchDMs.ToListAsync();
 
             var model = new VideoConference
             {
                 BatchList = batches
             };
+
+            // 4️⃣ Map to ViewModel
             var CourseVM = mapper.Map<List<CourseVM>>(courses);
-           
-            
-            
+
+            // 5️⃣ Calculate enrolled students
             CourseVM.ForEach(c =>
-             c.EnrolledStudentsCount = c.Enrollments != null
-         ? c.Enrollments.Count(e => e.IsApproved)
-         : 0
- );
+                c.EnrolledStudentsCount = c.Enrollments != null
+                    ? c.Enrollments.Count(e => e.IsApproved)
+                    : 0
+            );
+
             return View(CourseVM);
         }
-       
+
         [Authorize(AuthenticationSchemes ="AdminAuth",Roles = "Admin")]
         public async Task<IActionResult> AdminGetCourses()
         {
             var courses = await lMSDbContext.Courses
                 .Include(c => c.Teacher)
+                .Include(c=>c.Batch)
                 .Include(c => c.TimeTables)
                 .Include(c=> c.Enrollments)
                 .ToListAsync();
@@ -239,12 +250,13 @@ namespace LearningManagementSystem.Controllers
             return View(courseVM);
         }
         [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
-        public async Task<IActionResult> Edit(Guid id)
+        public async Task<IActionResult> Edit(Guid id,Guid BatchId)
         {
             if (id == Guid.Empty)
             {
                 return NotFound();
             }
+            
             var course = await lMSDbContext.Courses.FindAsync(id);
             if (course == null)
             {
@@ -257,7 +269,9 @@ namespace LearningManagementSystem.Controllers
                 return Forbid();
             }
             var courseVM = mapper.Map<CourseVM>(course);
-            {   courseVM.TeacherId = user.Id; }
+            {   courseVM.TeacherId = user.Id;
+                courseVM.BatchId = BatchId;
+            }
             return View(courseVM);
         }
 
@@ -321,7 +335,7 @@ namespace LearningManagementSystem.Controllers
 
             return View("Edit", course);
         }
-
+        [Authorize(AuthenticationSchemes ="AdminAuth",Roles = "Admin")]
         public async Task<IActionResult> AdminEdit(Guid id, CourseVM course)
         {
             if (id != course.Id)
@@ -358,6 +372,7 @@ namespace LearningManagementSystem.Controllers
             return View("AdminCourseEdit", course);
         }
         // GET: Courses/Delete/5
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
         public async Task<IActionResult> Delete(Guid id)
         {
             if (id == Guid.Empty)
@@ -388,7 +403,7 @@ namespace LearningManagementSystem.Controllers
             return View(courseVM);
         }
 
-
+        [Authorize(AuthenticationSchemes ="AdminAuth",Roles = "Admin")]
         public async Task<IActionResult> AdminDelete(Guid id)
         {
             if (id == Guid.Empty)
@@ -422,6 +437,7 @@ namespace LearningManagementSystem.Controllers
         // POST: Courses/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             var course = await lMSDbContext.Courses.FindAsync(id);
@@ -434,6 +450,7 @@ namespace LearningManagementSystem.Controllers
         }
         [HttpPost, ActionName("AdminDeleteConfirmed")]
         [ValidateAntiForgeryToken]
+        [Authorize(AuthenticationSchemes ="AdminAuth",Roles = "Admin")]
         public async Task<IActionResult> AdminDeleteConfirmed(Guid id)
         {
             var course = await lMSDbContext.Courses.FindAsync(id);
@@ -445,24 +462,37 @@ namespace LearningManagementSystem.Controllers
             return RedirectToAction(nameof(AdminGetCourses));
         }
         [Route("ExploreCourses")]
+        [Authorize(AuthenticationSchemes = "StudentAuth", Roles = "Student")]
         public async Task<IActionResult> ExploreCourses()
         {
-           
+            // Get the currently logged-in student
+            var userEmail = User.Identity?.Name;
+            var student = await lMSDbContext.Users
+                .FirstOrDefaultAsync(u => u.Email == userEmail);
+
+            if (student == null)
+                return Unauthorized("Student not found.");
+
+            // Fetch only those courses that match the student's batch
             var courses = await lMSDbContext.Courses
                 .Include(c => c.Teacher)
                 .Include(c => c.TimeTables)
                 .Include(c => c.Enrollments)
+                .Where(c => c.BatchId == student.BatchDMId)
                 .ToListAsync();
 
+            // Map to your CourseVM
             var courseVM = mapper.Map<List<CourseVM>>(courses);
-            {  foreach (var course in courseVM)
-                {
-                    course.EnrolledStudentsCount = course.Enrollments?.Count ?? 0;
-                }
+
+            // Set the enrolled student count
+            foreach (var course in courseVM)
+            {
+                course.EnrolledStudentsCount = course.Enrollments?.Count ?? 0;
             }
-            
+
             return View(courseVM);
         }
+
         [HttpPost]
         [Authorize(AuthenticationSchemes ="StudentAuth",Roles ="Student")]
         public async Task<IActionResult> Enroll(Guid courseId)
@@ -552,6 +582,7 @@ namespace LearningManagementSystem.Controllers
             return View(pending);
         }
         [HttpPost]
+        [Authorize(AuthenticationSchemes = "TeacherAuth,AdminAuth", Roles = "Teacher,Admin")]
         public async Task<IActionResult> ApproveEnrollment(Guid id)
         {
             var enrollment = await lMSDbContext.StudentCourses.FindAsync(id);
@@ -563,6 +594,7 @@ namespace LearningManagementSystem.Controllers
             await lMSDbContext.SaveChangesAsync();
             return RedirectToAction("EnrollmentRequests");
         }
+        [Authorize(AuthenticationSchemes = "TeacherAuth,AdminAuth", Roles = "Teacher,Admin")]
         public async Task<IActionResult> RejectEnrollment(Guid id)
         {
             var enrollment = await lMSDbContext.StudentCourses.FindAsync(id);
