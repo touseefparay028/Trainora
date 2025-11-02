@@ -26,6 +26,7 @@ else
             <tr>
                 <th>Course Name</th>
                 <th>Description</th>
+                <th>Material</th>
             </tr>
         </thead>
         <tbody>
@@ -34,6 +35,11 @@ else
                 <tr>
                     <td>@course.Title</td>
                     <td>@course.Description</td>
+                        <td>
+                            <a asp-action="GetStudentCourseMaterial" asp-controller="CourseMaterial" asp-route-id="@course.Id" class="btn btn-primary mb-3">
+                               View Material
+                            </a>
+                        </td>
                 </tr>
             }
         </tbody>

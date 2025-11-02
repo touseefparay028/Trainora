@@ -555,6 +555,7 @@ namespace LearningManagementSystem.Controllers
                 .Where(e => e.StudentId == studentId && e.IsApproved)
                 .Select(e => new
                 {
+                    e.Course.Id,
                     e.Course.Title,
                     e.Course.Description
                 })

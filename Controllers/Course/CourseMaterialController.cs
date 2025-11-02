@@ -61,10 +61,10 @@ namespace LearningManagementSystem.Controllers.Course
         public IActionResult DownloadCourseMaterial(string FilePath)
         {
 
-            return new VirtualFileResult($"CourseMaterials/{FilePath}", "application/octet-stream")
-            {
-                FileDownloadName = FilePath
-            };
+            return new VirtualFileResult($"CourseMaterials/{FilePath}", "application/pdf");
+            //{
+            //    FileDownloadName = FilePath
+            //};
         }
         [Authorize(AuthenticationSchemes ="TeacherAuth",Roles ="Teacher")]
        public async Task<IActionResult> DeleteCourseMaterial(Guid id)
@@ -78,6 +78,23 @@ namespace LearningManagementSystem.Controllers.Course
                 return RedirectToAction("GetCourseMaterials", new { courseId = material.CourseId });
             }
             return NotFound();
+        }
+        //FOR STUDENT SIDE.
+        [Authorize(AuthenticationSchemes ="StudentAuth",Roles ="Student")]
+        public async Task<IActionResult> GetStudentCourseMaterial(Guid id)
+        {
+            var materials = await fileService.GetCourseMaterialsByCourseIdAsync(id);
+            var materialVMs = materials.Select(m => new CourseMaterialVM
+            {
+                Id = m.Id,
+                Title = m.Title,
+                Description = m.Description,
+                FilePath = m.FilePath,
+                UploadedOn = m.UploadedOn,
+                CourseId = m.CourseId
+            }).ToList();
+            ViewBag.CourseId = id;
+            return View(materialVMs);
         }
     }
 }

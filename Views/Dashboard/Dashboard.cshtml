@@ -76,7 +76,6 @@
                         <span class="badge bg-danger">@ViewBag.PendingCount</span>
                     }
                 </a>
-
                 <a asp-action="AdminGetCourses" asp-controller="Course">View Courses</a>
                 <a asp-action="Create" asp-controller="CreateBatch">Create Batch</a>
                 <a asp-action="Logout" asp-controller="Admin">Logout</a>
@@ -129,7 +128,7 @@
                     <div class="row g-3 mt-4">
                         <h4 class="mb-3">Recent Contact Messages</h4>
 
-                        <div class="col-12">
+                        <div class="col-6">
                             <div class="card shadow-sm border-0" style="border-radius: 1rem;">
                                 <div class="card-body" style="max-height: 350px; overflow-y: auto;">
                                     @foreach (var msg in Model)
@@ -163,7 +162,6 @@
                                             background: rgba(220, 53, 69, 0.5); /* red with opacity */
                                             border-radius: 4px;
                                         }
-
                                             .card-body::-webkit-scrollbar-thumb:hover {
                                                 background: rgba(220, 53, 69, 0.8);
                                             }

@@ -5,10 +5,14 @@
 }
 
 <h2>Course Materials</h2>
-
-<a asp-action="UploadCourseMaterial" asp-route-CourseId="@ViewBag.CourseId" class="btn btn-primary mb-3">
-    Upload New Material
-</a>
+<div>
+    <a asp-action="UploadCourseMaterial" asp-route-CourseId="@ViewBag.CourseId" class="btn btn-primary mb-3">
+        Upload New Material
+    </a>
+    <a asp-action="GetCourses" asp-controller="Course" class="btn btn-success mb-3">
+        Back to courses
+    </a>
+</div>
 
 <table class="table table-bordered table-striped">
     <thead>

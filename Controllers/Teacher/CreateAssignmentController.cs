@@ -79,6 +79,7 @@ namespace LearningManagementSystem.Controllers.Teacher
                 FileDownloadName = FilePath
             };
         }
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles ="Teacher")]
         public IActionResult Delete(Guid id)
         {
             // 1. Fetch from DM (database)
@@ -148,6 +149,7 @@ namespace LearningManagementSystem.Controllers.Teacher
 
         //    return View(teacherAssignmentVM);
         //}
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles ="Teacher")]
         public IActionResult ViewAssignment(string Path)
         {
 
