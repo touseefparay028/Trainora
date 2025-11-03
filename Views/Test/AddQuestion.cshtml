@@ -1,0 +1,74 @@
+﻿@model LearningManagementSystem.Models.DTO.TestVM.AddQuestionVM
+
+@{
+    ViewData["Title"] = "Add Question to Test";
+}
+
+<div class="container mt-5">
+    <h3 class="fw-bold text-primary mb-3">➕ Add Question to Test: @ViewBag.TestTitle</h3>
+
+    <form asp-action="AddQuestion" method="post" class="shadow p-4 rounded bg-light">
+        @Html.AntiForgeryToken()
+
+        <input type="hidden" asp-for="TestId" />
+
+        <div class="mb-3">
+            <label asp-for="QuestionText" class="form-label fw-semibold"></label>
+            <textarea asp-for="QuestionText" class="form-control" rows="3" placeholder="Enter question text"></textarea>
+            <span asp-validation-for="QuestionText" class="text-danger"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="OptionA" class="form-label"></label>
+                <input asp-for="OptionA" class="form-control" placeholder="Option A" />
+                <span asp-validation-for="OptionA" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="OptionB" class="form-label"></label>
+                <input asp-for="OptionB" class="form-control" placeholder="Option B" />
+                <span asp-validation-for="OptionB" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="OptionC" class="form-label"></label>
+                <input asp-for="OptionC" class="form-control" placeholder="Option C" />
+                <span asp-validation-for="OptionC" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label asp-for="OptionD" class="form-label"></label>
+                <input asp-for="OptionD" class="form-control" placeholder="Option D" />
+                <span asp-validation-for="OptionD" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CorrectAnswer" class="form-label fw-semibold"></label>
+            <select asp-for="CorrectAnswer" class="form-select">
+                <option value="">-- Select Correct Answer --</option>
+                <option value="A">Option A</option>
+                <option value="B">Option B</option>
+                <option value="C">Option C</option>
+                <option value="D">Option D</option>
+            </select>
+            <span asp-validation-for="CorrectAnswer" class="text-danger"></span>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a asp-action="ViewQuestions" asp-route-testId="@Model.TestId" class="btn btn-secondary">⬅ Back</a>
+            <a asp-action="ViewQuestions" asp-route-testId="@Model.TestId" class="btn btn-secondary">View Question</a>
+            <button type="submit" class="btn btn-primary">Add Question</button>
+        </div>
+    </form>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success mt-3">@TempData["SuccessMessage"]</div>
+    }
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

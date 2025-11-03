@@ -1,0 +1,54 @@
+﻿@model IEnumerable<LearningManagementSystem.Models.DTO.TestVM.CreateTestVM>
+
+@{
+    ViewData["Title"] = "Tests for " + ViewBag.CourseName;
+}
+
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="fw-bold text-primary mb-0">
+            📘 Tests for Course: @ViewBag.CourseName
+        </h3>
+        <a asp-action="GetCourses" asp-controller="Course" class="btn btn-primary">
+             Back to courses
+        </a>
+        <a asp-action="Create" asp-controller="Test" asp-route-courseId="@ViewBag.CourseId" class="btn btn-primary">
+            ➕ Create Test
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+    }
+    @if (ViewBag.Message != null)
+    {
+        <div class="alert alert-warning">@ViewBag.Message</div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped shadow-sm">
+            <thead class="table-primary">
+                <tr>
+                    <th>Title</th>
+                    <th>Total Marks</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var test in Model)
+                {
+                    <tr>
+                        <td>@test.Title</td>
+                        <td>@test.TotalMarks</td>
+                        <td>
+                            <a asp-action="ViewQuestions" asp-route-testId="@test.TestId" class="btn btn-sm btn-info">View</a>
+                            <a asp-action="AddQuestion" asp-route-testId="@test.TestId" class="btn btn-sm btn-success">Add Questions</a>
+                            <a asp-action="DeleteTest" asp-route-testId="@test.TestId" class="btn btn-sm btn-info">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

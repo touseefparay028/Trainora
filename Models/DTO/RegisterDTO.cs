@@ -20,9 +20,6 @@ namespace LearningManagementSystem.Models.DTO
         [Remote(action: "IsEmailRegisteredAlready", controller: "Admin", ErrorMessage = "Already taken")]
         public string? Email { get; set; }
 
-
-
-
         [Required(ErrorMessage = "Phone Can't be blank")]
         [RegularExpression("^[0-9]*$" ,ErrorMessage ="Number Only")]
         [DataType(DataType.PhoneNumber)]

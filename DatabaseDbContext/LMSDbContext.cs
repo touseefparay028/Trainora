@@ -1,4 +1,5 @@
 ﻿using LearningManagementSystem.Models.Domains;
+using LearningManagementSystem.Models.Domains.TestDM;
 using LearningManagementSystem.Models.DTO;
 using LearningManagementSystem.Models.IdentityEntities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -31,6 +32,9 @@ namespace LearningManagementSystem.DatabaseDbContext
         public virtual DbSet<AttendanceDM> Attendances { get; set; }
         public virtual DbSet<ClassSessions> ClassSessions { get; set; }
         public virtual DbSet<CourseMaterial> CourseMaterial { get; set; }
+        public virtual DbSet<TestDM> Tests { get; set; }
+        public virtual DbSet<QuestionDM> Questions { get; set; }
+        public virtual DbSet<StudentTestResult> StudentTestResults { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

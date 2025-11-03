@@ -1,0 +1,66 @@
+﻿@model IEnumerable<LearningManagementSystem.Models.DTO.TestVM.QuestionVM>
+
+@{
+    ViewData["Title"] = "Questions for " + ViewBag.TestTitle;
+}
+
+<div class="container mt-5">
+    <h3 class="fw-bold text-primary mb-4">📋 Questions for Test: @ViewBag.TestTitle</h3>
+
+    <div class="d-flex justify-content-between mb-3">
+        <a asp-action="AddQuestion" asp-route-testId="@Context.Request.Query["testId"]" class="btn btn-success">
+            ➕ Add New Question
+        </a>
+        <a asp-action="ListByCourse" asp-route-courseId="@ViewBag.CourseId" class="btn btn-secondary">⬅ Back to Tests</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">No questions added yet for this test.</div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped align-middle shadow-sm">
+            <thead class="table-primary text-center">
+                <tr>
+                    <th>#</th>
+                    <th>Question</th>
+                    <th>Option A</th>
+                    <th>Option B</th>
+                    <th>Option C</th>
+                    <th>Option D</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    int index = 1;
+                }
+                @foreach (var q in Model)
+                {
+                    <tr>
+                        <td class="text-center">@index</td>
+                        <td>@q.QuestionText</td>
+                        <td>@q.OptionA</td>
+                        <td>@q.OptionB</td>
+                        <td>@q.OptionC</td>
+                        <td>@q.OptionD</td>
+                        <td class="text-center">
+                            <a asp-action="EditQuestion" asp-route-questionId="@q.QuestionId" class="btn btn-sm btn-warning me-1">
+                                ✏ Edit
+                            </a>
+                            <form asp-action="DeleteQuestion" asp-route-questionId="@q.QuestionId" method="post"
+                            onsubmit="return confirm('Are you sure you want to delete this question?');" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    🗑 Delete
+                                </button>
+                            </form>
+
+                        </td>
+                    </tr>
+                    index++;
+                }
+            </tbody>
+        </table>
+    }
+</div>
