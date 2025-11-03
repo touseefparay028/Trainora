@@ -61,6 +61,7 @@ namespace LearningManagementSystem.Controllers.Account
             ModelState.Remove("EnrollmentNumber");
             ModelState.Remove("Course");
             ModelState.Remove("Gender");
+            ModelState.Remove("BatchDMId");
             if (!ModelState.IsValid)
             {
                 ViewBag.Error = ModelState.Values.SelectMany(x => x.Errors).Select(y => y.ErrorMessage);
@@ -464,23 +465,31 @@ namespace LearningManagementSystem.Controllers.Account
             // 1️⃣ Check if the class is scheduled now
             var timetable = await lMSDbContext.TimeTables
                 .Where(t => t.CourseId == CourseId && t.Day == now.DayOfWeek.ToString())
-                .FirstOrDefaultAsync();
+                .ToListAsync();
 
             if (timetable == null)
             {
                 TempData["Message"] = "No class is scheduled for today.";
                 return RedirectToAction("GetCourses", "Course");
             }
+            // Find if any timetable matches the current time
+            var currentTimetable = timetable
+                .FirstOrDefault(t => now.TimeOfDay >= t.StartTime && now.TimeOfDay <= t.EndTime);
 
-            // Compare time range (assuming timetable has StartTime and EndTime columns)
-            var startTime = timetable.StartTime; // e.g., 10:00 AM
-            var endTime = timetable.EndTime;     // e.g., 11:00 AM
-
-            if (now.TimeOfDay < startTime || now.TimeOfDay > endTime)
+            if (currentTimetable == null)
             {
                 TempData["Message"] = "No class is scheduled right now.";
-                return RedirectToAction("GetCourses","Course");
+                return RedirectToAction("GetCourses", "Course");
             }
+            //// Compare time range (assuming timetable has StartTime and EndTime columns)
+            //var startTime = timetable.StartTime; // e.g., 10:00 AM
+            //var endTime = timetable.EndTime;     // e.g., 11:00 AM
+
+            //if (now.TimeOfDay < startTime || now.TimeOfDay > endTime)
+            //{
+            //    TempData["Message"] = "No class is scheduled right now.";
+            //    return RedirectToAction("GetCourses","Course");
+            //}
 
             // 2️⃣ Continue with conference creation
             var meetingLink = $"https://meet.jit.si/{Guid.NewGuid()}";

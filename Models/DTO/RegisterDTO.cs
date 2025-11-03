@@ -57,6 +57,7 @@ namespace LearningManagementSystem.Models.DTO
 
         [Required(ErrorMessage = "Please enter your course")]
         public string? Course { get; set; }
+        [Required(ErrorMessage = "Please select a batch")]
         public Guid? BatchDMId { get; set; }
         public IEnumerable<SelectListItem>? BatchList { get; set; }
     }

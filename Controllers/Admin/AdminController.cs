@@ -52,6 +52,7 @@ namespace LearningManagementSystem.Controllers.Account
             ModelState.Remove("EnrollmentNumber");
             ModelState.Remove("Course");
             ModelState.Remove("Gender");
+            ModelState.Remove("BatchDMId");
             if (!ModelState.IsValid)
             {
               ViewBag.Error=  ModelState.Values.SelectMany(x => x.Errors).Select(y=>y.ErrorMessage);

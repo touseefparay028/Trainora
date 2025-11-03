@@ -25,6 +25,7 @@ namespace LearningManagementSystem.Models.DTO
         public string? TeacherName { get; set; }
         public List<RegisterDTO>? Students { get; set; }
         public int EnrolledStudentsCount { get; set; }
+        [Required(ErrorMessage = "Please select a batch.")]
         public Guid? BatchId { get; set; }  // For course associated with a batch
         public BatchDM? Batch { get; set; }
         // Navigation

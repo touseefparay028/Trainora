@@ -18,7 +18,7 @@ namespace LearningManagementSystem.Models.Domains
         //public int TeacherDMId { get; set;}
         //public TeacherDM TeacherDM { get; set; }
         public Guid BatchDMId { get; set; }
-        public ICollection<BatchDM> BatchDM { get; set; } 
+        public BatchDM? BatchDM { get; set; } 
 
     }
 }

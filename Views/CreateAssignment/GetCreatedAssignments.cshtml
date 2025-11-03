@@ -21,6 +21,7 @@
                 <tr>
                     <th>@Html.DisplayNameFor(model => model.Title)</th>
                     <th>@Html.DisplayNameFor(model => model.Subject)</th>
+                    <th>Batch</th>
                     <th>@Html.DisplayNameFor(model => model.DueTime)</th>
                     <th class="text-center">Actions</th>
                     <th>check</th>
@@ -36,6 +37,7 @@
                         <tr>
                             <td>@Html.DisplayFor(modelItem => item.Title)</td>
                             <td>@item.Subject</td>
+                            <td>@item.BatchDM.Name</td>
                             <td>
                                 <span class="badge bg-warning text-dark">
                                     @(item.DueTime.ToString("dd MMM yyyy hh:mm tt") ?? "-")

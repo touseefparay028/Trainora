@@ -84,6 +84,7 @@ namespace LearningManagementSystem.Services
             // Get only assignments created by this user
             var assignments = await lMSDbContext.AssignmentDMs
                 .Where(a => a.ApplicationUserId == uid)
+                .Include(a => a.BatchDM)
                 .ToListAsync();
             var assignment = mapper.Map<List<TeacherAssignmentVM>>(assignments);
             return assignment;
