@@ -2,7 +2,9 @@
 
 @{
     ViewData["Title"] = "Student Test Responses";
+    Layout = "~/Views/Shared/TeacherLayout.cshtml";
 }
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <div class="container mt-5">
     @if (TempData["ErrorMessage"]!=null)
@@ -12,7 +14,15 @@
     <h3 class="fw-bold text-primary mb-4">
         🧾 Responses for @ViewBag.TestTitle
     </h3>
-
+    <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-2">
+        <a asp-action="ListByCourse" asp-controller="Test" asp-route-courseId="@ViewBag.CourseId" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-arrow-left"></i> Back to Tests
+        </a>
+        <a asp-action="GetCourses" asp-controller="Course" asp-route-courseId="@ViewBag.CourseId" class="btn btn-primary btn-sm">
+            <i></i> Courses
+        </a>
+    </div>
+    <br />
     @if (!Model.Any())
     {
         <div class="alert alert-info">No student has attempted this test yet.</div>

@@ -53,7 +53,7 @@ namespace LearningManagementSystem.Controllers
             {
                 BatchList = batches
             };
-
+            ViewBag.CourseCount = courses.Count();
             // 4️⃣ Map to ViewModel
             var CourseVM = mapper.Map<List<CourseVM>>(courses);
 

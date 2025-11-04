@@ -2,54 +2,75 @@
 
 @{
     ViewData["Title"] = "Tests for " + ViewBag.CourseName;
+    Layout = "~/Views/Shared/TeacherLayout.cshtml";
 }
 
 <div class="container mt-5">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="fw-bold text-primary mb-0">
+    <!-- Header Section -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 text-center text-md-start">
+        <h3 class="fw-bold text-primary mb-2 mb-md-0 w-100 w-md-auto">
             📘 Tests for Course: @ViewBag.CourseName
         </h3>
-        <a asp-action="GetCourses" asp-controller="Course" class="btn btn-primary">
-             Back to courses
-        </a>
-        <a asp-action="Create" asp-controller="Test" asp-route-courseId="@ViewBag.CourseId" class="btn btn-primary">
-            ➕ Create Test
-        </a>
+
+        <div class="d-flex flex-wrap justify-content-center justify-content-md-end gap-2">
+            <a asp-action="GetCourses" asp-controller="Course" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-arrow-left"></i> Back to Courses
+            </a>
+            <a asp-action="Create" asp-controller="Test" asp-route-courseId="@ViewBag.CourseId" class="btn btn-primary btn-sm">
+                <i class="bi bi-plus-circle"></i> Create Test
+            </a>
+        </div>
     </div>
 
+    <!-- Alerts -->
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        <div class="alert alert-success text-center shadow-sm">@TempData["SuccessMessage"]</div>
     }
     @if (ViewBag.Message != null)
     {
-        <div class="alert alert-warning">@ViewBag.Message</div>
+        <div class="alert alert-warning text-center shadow-sm">@ViewBag.Message</div>
     }
     else
     {
-        <table class="table table-bordered table-striped shadow-sm">
-            <thead class="table-primary">
-                <tr>
-                    <th>Title</th>
-                    <th>Total Marks</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var test in Model)
-                {
+        <!-- Responsive Table Wrapper -->
+        <div class="table-responsive shadow-sm rounded-3">
+            <table class="table table-bordered table-striped align-middle mb-0">
+                <thead class="table-primary text-center">
                     <tr>
-                        <td>@test.Title</td>
-                        <td>@test.TotalMarks</td>
-                        <td>
-                            <a asp-action="ViewResponses" asp-route-testId="@test.TestId" class="btn btn-sm btn-info">View Responses</a>
-                            <a asp-action="ViewQuestions" asp-route-testId="@test.TestId" class="btn btn-sm btn-info">View Questions</a>
-                            <a asp-action="AddQuestion" asp-route-testId="@test.TestId" class="btn btn-sm btn-success">Add Questions</a>
-                            <a asp-action="DeleteTest" onclick="return confirm('Are your sure you want to delete the test?')" asp-route-testId="@test.TestId" class="btn btn-sm btn-info">Delete</a>
-                        </td>
+                        <th scope="col">Title</th>
+                        <th scope="col">Total Marks</th>
+                        <th scope="col">Actions</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody class="text-center">
+                    @foreach (var test in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@test.Title</td>
+                            <td>@test.TotalMarks</td>
+                            <td>
+                                <div class="d-flex flex-wrap justify-content-center gap-2">
+                                    <a asp-action="ViewResponses" asp-route-testId="@test.TestId" class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-eye"></i> Responses
+                                    </a>
+                                    <a asp-action="ViewQuestions" asp-route-testId="@test.TestId" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-question-circle"></i> Questions
+                                    </a>
+                                    <a asp-action="AddQuestion" asp-route-testId="@test.TestId" class="btn btn-sm btn-outline-success">
+                                        <i class="bi bi-plus-square"></i> Add
+                                    </a>
+                                    <a asp-action="DeleteTest" onclick="return confirm('Are you sure you want to delete the test?')" asp-route-testId="@test.TestId" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 </div>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">

@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using NuGet.DependencyResolver;
 using System.Security.Claims;
 
 namespace LearningManagementSystem.Controllers.Teacher
@@ -36,13 +37,15 @@ namespace LearningManagementSystem.Controllers.Teacher
             var pendingCount = lMSDbContext.StudentCourses
             .Where(e => e.IsApproved == false)
               .Count();
-
+            
 
             ViewBag.PendingCount = pendingCount;
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var user = await userManager.FindByIdAsync(userId);
             ViewBag.Name = user?.Name ?? "Unknown";
-
+            var courses = lMSDbContext.Courses
+                .Where(c => c.TeacherId == Guid.Parse(userId));
+            ViewBag.CourseCount= courses.Count();
             return View(model);
         }
 

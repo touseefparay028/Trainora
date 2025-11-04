@@ -372,7 +372,7 @@ namespace LearningManagementSystem.Controllers.Test
                     TakenAt = r.TakenAt
                 })
                 .ToListAsync();
-
+            ViewBag.CourseId = test.CourseId;
             return View(responses);
         }
         [Authorize(AuthenticationSchemes = "TeacherAuth", Roles = "Teacher")]

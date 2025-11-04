@@ -62,10 +62,9 @@
                 <div class="text-center mb-4">
                     <h4>Teacher Panel</h4>
                 </div>
-
                 <a asp-action="TeacherDashboard" asp-controller="TeacherDashboard">Dashboard</a>
                 <a asp-action="Create" asp-controller="Course">Add Course</a>
-                <a asp-action="GetCourses" asp-controller="Course">View My Courses</a>
+                <a asp-action="GetCourses" asp-controller="Course">Assigned Courses(@ViewBag.CourseCount)</a>
                 <a asp-action="EnrollmentRequests" asp-controller="Course">
                     Enrollment Requests
                     @if (ViewBag.PendingCount > 0)
@@ -150,8 +149,8 @@
                     </div>
                     <div class="offcanvas-body p-0">
                         <a class="d-block p-2" asp-action="TeacherDashboard" asp-controller="TeacherDashboard">Dashboard</a>
-                        <a class="d-block p-2" asp-action="AddCourse" asp-controller="Teacher">Add Course</a>
-                        <a class="d-block p-2" asp-action="MyCourses" asp-controller="Teacher">View My Courses</a>
+                        <a class="d-block p-2" asp-action="Create" asp-controller="Course">Add Course</a>
+                        <a class="d-block p-2" asp-action="GetCourses" asp-controller="Course">Assigned Courses(@ViewBag.CourseCount)</a>
                         <a asp-action="EnrollmentRequests" asp-controller="Course">
                             Enrollment Requests
                             @if (ViewBag.PendingCount > 0)
@@ -249,7 +248,7 @@
                         <div class="col-12 col-sm-6 col-lg-4">
                             <div class="card p-4 text-center">
                                 <i class="bi bi-journals card-icon"></i>
-                                <h5 class="mt-2">My Courses</h5>
+                                <h5 class="mt-2">Assigned Courses</h5>
                                 <p>Check your active courses.</p>
                                 <a asp-action="GetCourses" asp-controller="Course" class="btn btn-primary">View Courses</a>
                             </div>
