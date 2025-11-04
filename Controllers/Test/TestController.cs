@@ -4,6 +4,7 @@ using LearningManagementSystem.Models.DTO.TestVM;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace LearningManagementSystem.Controllers.Test
 {
@@ -217,6 +218,185 @@ namespace LearningManagementSystem.Controllers.Test
             TempData["SuccessMessage"] = "Question deleted successfully!";
             return RedirectToAction("ViewQuestions", new { testId = testId });
         }
+
+        [Authorize(AuthenticationSchemes = "StudentAuth", Roles = "Student")]
+        public async Task<IActionResult> AvailableTests(Guid courseId)
+        {
+            var studentId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            var course = await lMSDbContext.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+            if (course == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.CourseName = course.Title;
+
+            // Fetch all tests for this course
+            var tests = await lMSDbContext.Tests
+                .Where(t => t.CourseId == courseId)
+                .Select(t => new CreateTestVM
+                {
+                    TestId = t.TestId,
+                    Title = t.Title,
+                    CourseId = t.CourseId,
+                    TotalMarks = t.TotalMarks
+                })
+                .ToListAsync();
+
+            // Get all test IDs already attempted by the student
+            var takenTestIds = await lMSDbContext.StudentTestResults
+                .Where(r => r.StudentId == studentId)
+                .Select(r => r.TestId)
+                .ToListAsync();
+
+            // Pass both lists to ViewBag
+            ViewBag.TakenTestIds = takenTestIds;
+
+            return View(tests);
+        }
+
+        [Authorize(AuthenticationSchemes = "StudentAuth", Roles = "Student")]
+        [HttpGet]
+        public async Task<IActionResult> TakeTest(Guid testId)
+        {
+            var test = await lMSDbContext.Tests
+                .Include(t => t.Questions)
+                .FirstOrDefaultAsync(t => t.TestId == testId);
+
+            if (test == null)
+            {
+                return NotFound();
+            }
+
+            var vm = new TakeTestVM
+            {
+                TestId = test.TestId,
+                TestTitle = test.Title,
+                Questions = test.Questions.Select(q => new QuestionVM
+                {
+                    QuestionId = q.QuestionId,
+                    QuestionText = q.QuestionText,
+                    OptionA = q.OptionA,
+                    OptionB = q.OptionB,
+                    OptionC = q.OptionC,
+                    OptionD = q.OptionD
+                }).ToList()
+            };
+
+            return View(vm);
+        }
+        [Authorize(AuthenticationSchemes = "StudentAuth", Roles = "Student")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitTest(SubmitTestVM model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("TakeTest",model);
+            }
+
+            var test = await lMSDbContext.Tests
+                .Include(t => t.Questions)
+                .FirstOrDefaultAsync(t => t.TestId == model.TestId);
+
+            if (test == null)
+            {
+                ModelState.AddModelError(string.Empty, "test Not found");
+                return View("TakeTest",model);
+            }
+
+            // Calculate score
+            int score = 0;
+            foreach (var q in test.Questions)
+            {
+                if (model.Answers.TryGetValue(q.QuestionId.GetHashCode(), out string givenAnswer))
+                {
+                    if (string.Equals(givenAnswer, q.CorrectAnswer, StringComparison.OrdinalIgnoreCase))
+                    {
+                        score++;
+                    }
+                }
+            }
+
+            // Get logged-in student’s ID
+            var studentIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (studentIdClaim == null) return Unauthorized();
+
+            var studentId = Guid.Parse(studentIdClaim);
+
+            // Save result
+            var result = new StudentTestResult
+            {
+                ResultId = Guid.NewGuid(),
+                StudentId = studentId,
+                TestId = model.TestId,
+                Score = score,
+                AssignedMarks=0,
+                TakenAt = DateTime.Now
+            };
+
+            lMSDbContext.StudentTestResults.Add(result);
+            await lMSDbContext.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"You scored {score} out of {test.Questions.Count}!";
+            return RedirectToAction("AvailableTests" , new { courseId = test.CourseId});
+        }
+
+        [Authorize(AuthenticationSchemes = "TeacherAuth", Roles = "Teacher")]
+        public async Task<IActionResult> ViewResponses(Guid testId)
+        {
+            var test = await lMSDbContext.Tests
+                .Include(t => t.Questions)
+                .FirstOrDefaultAsync(t => t.TestId == testId);
+
+            if (test == null)
+                return NotFound();
+
+            ViewBag.TestTitle = test.Title;
+            int totalQuestions = test.Questions.Count;
+
+            var responses = await lMSDbContext.StudentTestResults
+                .Where(r => r.TestId == testId)
+                .Include(r => r.Test)
+                .Include(r => r.Student)
+                .Select(r => new TestResponseVM
+                {
+                    ResultId = r.ResultId,
+                    StudentName = r.Student.Name,
+                    Score = r.Score,
+                    TotalQuestions = totalQuestions,
+                    AssignedMarks = r.AssignedMarks, // if you have separate marks column, map that instead
+                    TotalMarks = test.TotalMarks ?? 100,
+                    TakenAt = r.TakenAt
+                })
+                .ToListAsync();
+
+            return View(responses);
+        }
+        [Authorize(AuthenticationSchemes = "TeacherAuth", Roles = "Teacher")]
+        [HttpPost]
+        public async Task<IActionResult> SaveMarksForStudent(Guid ResultId, int Marks)
+        {
+            var result = await lMSDbContext.StudentTestResults.FindAsync(ResultId);
+            if (result == null)
+            {
+                TempData["ErrorMessage"] = "Student test result not found.";
+                return RedirectToAction("ListByCourse");
+            }
+
+            result.AssignedMarks = Marks;
+            await lMSDbContext.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Marks saved successfully!";
+            return RedirectToAction("ViewResponses", new { testId = result.TestId });
+        }
+
+
+
+
+
 
 
     }

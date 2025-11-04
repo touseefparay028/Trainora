@@ -42,9 +42,10 @@
                         <td>@test.Title</td>
                         <td>@test.TotalMarks</td>
                         <td>
-                            <a asp-action="ViewQuestions" asp-route-testId="@test.TestId" class="btn btn-sm btn-info">View</a>
+                            <a asp-action="ViewResponses" asp-route-testId="@test.TestId" class="btn btn-sm btn-info">View Responses</a>
+                            <a asp-action="ViewQuestions" asp-route-testId="@test.TestId" class="btn btn-sm btn-info">View Questions</a>
                             <a asp-action="AddQuestion" asp-route-testId="@test.TestId" class="btn btn-sm btn-success">Add Questions</a>
-                            <a asp-action="DeleteTest" asp-route-testId="@test.TestId" class="btn btn-sm btn-info">Delete</a>
+                            <a asp-action="DeleteTest" onclick="return confirm('Are your sure you want to delete the test?')" asp-route-testId="@test.TestId" class="btn btn-sm btn-info">Delete</a>
                         </td>
                     </tr>
                 }

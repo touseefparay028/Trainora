@@ -39,6 +39,9 @@ else
                             <a asp-action="GetStudentCourseMaterial" asp-controller="CourseMaterial" asp-route-id="@course.Id" class="btn btn-primary mb-3">
                                View Material
                             </a>
+                            <a asp-action="AvailableTests" asp-controller="Test" asp-route-courseId="@course.Id" class="btn btn-outline-primary mb-3">
+                                View/Take Tests
+                            </a>
                         </td>
                 </tr>
             }

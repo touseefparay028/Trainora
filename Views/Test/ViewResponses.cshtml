@@ -1,0 +1,80 @@
+﻿@model IEnumerable<LearningManagementSystem.Models.DTO.TestVM.TestResponseVM>
+
+@{
+    ViewData["Title"] = "Student Test Responses";
+}
+
+<div class="container mt-5">
+    @if (TempData["ErrorMessage"]!=null)
+    {
+        <div class="alert alert-info">@TempData["ErrorMessage"]</div>
+    }
+    <h3 class="fw-bold text-primary mb-4">
+        🧾 Responses for @ViewBag.TestTitle
+    </h3>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">No student has attempted this test yet.</div>
+    }
+    else
+    {
+        <table class="table table-bordered table-striped shadow-sm align-middle">
+            <thead class="table-primary">
+                <tr class="text-center">
+                    <th>Student Name</th>
+                    <th>Score (Correct Answers)</th>
+                    <th>Total Questions</th>
+                    <th>Attempted On</th>
+                    <th>Assigned Marks</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr class="text-center">
+                        <td>@item.StudentName</td>
+                        <td>@item.Score</td>
+                        <td>@item.TotalQuestions</td>
+                        <td>@item.TakenAt.ToString("dd MMM yyyy, hh:mm tt")</td>
+                        <td>
+                            @if (item.AssignedMarks != null && item.AssignedMarks > 0)
+                            {
+                                <span class="badge bg-success fs-6">
+                                    @item.AssignedMarks / @item.TotalMarks
+                                </span>
+                            }
+                            else
+                            {
+                                <form asp-action="SaveMarksForStudent" method="post" class="d-flex justify-content-center align-items-center gap-2">
+                                    <input type="hidden" name="ResultId" value="@item.ResultId" />
+                                    <input type="number"
+                                           name="Marks"
+                                           class="form-control"
+                                           placeholder="Marks"
+                                           min="0"
+                                           max="@item.TotalMarks"
+                                           style="width:100px;" />
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        💾 Save
+                                    </button>
+                                </form>
+                            }
+                        </td>
+                        <td>
+                            @if (item.AssignedMarks != null && item.AssignedMarks > 0)
+                            {
+                                <span class="text-muted">✔ Evaluated</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger">⏳ Pending</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

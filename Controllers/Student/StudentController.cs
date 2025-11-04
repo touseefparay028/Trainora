@@ -322,7 +322,7 @@ namespace LearningManagementSystem.Controllers.Student
                 return View("LoginStudent", loginDTO);
             }
 
-            // ✅ Sign in with TeacherAuth scheme
+            // ✅ Sign in with StudentAuth scheme
             var claims = new List<Claim>
                 {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
