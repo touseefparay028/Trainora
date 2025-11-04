@@ -1,0 +1,45 @@
+﻿@model IEnumerable<LearningManagementSystem.Models.DTO.TestVM.StudentTestResponseVM>
+@{
+    ViewData["Title"] = "Your Test Responses";
+    Layout = "~/Views/Shared/StudentLayout.cshtml";
+}
+
+<div class="container mt-4">
+    <h3 class="fw-bold text-primary mb-4">📄 Your Responses</h3>
+
+    @if (Model != null && Model.Any())
+    {
+        foreach (var item in Model)
+        {
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <h5 class="fw-semibold">@item.QuestionText</h5>
+                    <ul class="list-group mt-2">
+                        <li class="list-group-item @(item.StudentAnswer == "A" ? "list-group-item-info" : "")">A. @item.OptionA</li>
+                        <li class="list-group-item @(item.StudentAnswer == "B" ? "list-group-item-info" : "")">B. @item.OptionB</li>
+                        <li class="list-group-item @(item.StudentAnswer == "C" ? "list-group-item-info" : "")">C. @item.OptionC</li>
+                        <li class="list-group-item @(item.StudentAnswer == "D" ? "list-group-item-info" : "")">D. @item.OptionD</li>
+                    </ul>
+
+                    <p class="mt-2">
+                        <strong>Your Answer:</strong> @item.StudentAnswer <br />
+                        <strong>Correct Answer:</strong> @item.CorrectAnswer
+                    </p>
+
+                    @if (item.IsCorrect)
+                    {
+                        <span class="badge bg-success">✔ Correct</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">✖ Incorrect</span>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-warning">No responses available.</div>
+    }
+</div>

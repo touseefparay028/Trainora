@@ -13,5 +13,8 @@ namespace LearningManagementSystem.Models.DTO.TestVM
 
         [Display(Name = "Attempted On")]
         public DateTime TakenAt { get; set; }
+        public int? AssignedMarks { get; set; }
+        public int TotalMarks { get; set; }
+        public int TotalQuestions { get; set; }
     }
 }

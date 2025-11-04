@@ -3,62 +3,73 @@
 @{
     ViewData["Title"] = "Available Tests";
     var takenTests = ViewBag.TakenTestIds as List<Guid>;
+    Layout = "~/Views/Shared/StudentLayout.cshtml";
 }
 
-<div class="container mt-5">
-    <h3 class="fw-bold text-primary mb-4">
-        📘 Available Tests for @ViewBag.CourseName
-    </h3>
-    @if(TempData["SuccessMessage"]!=null)
+<div class="container mt-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
+        <h3 class="fw-bold text-primary mb-3 mb-md-0">
+            📘 Available Tests for @ViewBag.CourseName
+        </h3>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-info">@TempData["SuccessMessage"]</div>
+        <div class="alert alert-info text-center">@TempData["SuccessMessage"]</div>
     }
+
     @if (!Model.Any())
     {
-        <div class="alert alert-info">No tests available for this course yet.</div>
+        <div class="alert alert-info text-center shadow-sm">No tests available for this course yet.</div>
     }
     else
     {
-        <table class="table table-striped shadow-sm">
-            <thead class="table-primary">
-                <tr>
-                    <th>Test Title</th>
-                    <th>Total Marks</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var test in Model)
-                {
-                    bool alreadyTaken = takenTests != null && takenTests.Contains(test.TestId);
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-bordered align-middle text-center">
+                <thead class="table-primary">
                     <tr>
-                        <td>@test.Title</td>
-                        <td>@(test.TotalMarks ?? 0)</td>
-                        <td>
-                            @if (alreadyTaken)
-                            {
-                                <span class="badge bg-success">Taken</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-warning text-dark">Not Taken</span>
-                            }
-                        </td>
-                        <td>
-                            @if (!alreadyTaken)
-                            {
-                                <a asp-action="TakeTest" asp-route-testId="@test.TestId"
-                                   class="btn btn-success btn-sm">Start Test</a>
-                            }
-                            else
-                            {
-                                <button class="btn btn-secondary btn-sm" disabled>Attempted</button>
-                            }
-                        </td>
+                        <th scope="col">Test Title</th>
+                        <th scope="col">Total Marks</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Action</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var test in Model)
+                    {
+                        bool alreadyTaken = takenTests != null && takenTests.Contains(test.TestId);
+                        <tr>
+                            <td class="fw-semibold">@test.Title</td>
+                            <td>@(test.TotalMarks ?? 0)</td>
+                            <td>
+                                @if (alreadyTaken)
+                                {
+                                    <span class="badge bg-success px-3 py-2">Taken</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark px-3 py-2">Not Taken</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap justify-content-center gap-2">
+                                    @if (!alreadyTaken)
+                                    {
+                                        <a asp-action="TakeTest" asp-route-testId="@test.TestId"
+                                           class="btn btn-success btn-sm px-3">Start Test</a>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-secondary btn-sm px-3" disabled>Attempted</button>
+                                        <a asp-action="TestResult" asp-route-testId="@test.TestId"
+                                           class="btn btn-info btn-sm px-3">View Result</a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 </div>

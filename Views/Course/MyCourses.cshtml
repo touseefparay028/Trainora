@@ -2,50 +2,66 @@
 @{
     Layout = "~/Views/Shared/StudentLayout.cshtml";
 }
+
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="text-primary fw-bold">My Enrolled Courses</h3>
-        <a asp-action="StudentAttendanceSummary" asp-controller="Attendance" class="btn btn-primary rounded-pill fw-semibold">
-            <i class="bi bi-calendar3"></i> Attendance Summary
-        </a>
-        <a asp-action="ViewTimeTable" asp-controller="TimeTable" class="btn btn-primary rounded-pill fw-semibold">
-            <i class="bi bi-calendar3"></i> View Time Table
-        </a>
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 text-center text-md-start">
+        <h3 class="text-primary fw-bold mb-2 mb-md-0 w-100 w-md-auto">My Enrolled Courses</h3>
+        <br /><br /><br />
+        <div class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-end">
+            <a asp-action="StudentAttendanceSummary"
+               asp-controller="Attendance"
+               class="btn btn-outline-primary rounded-pill fw-semibold">
+                <i class="bi bi-calendar3"></i> Attendance Summary
+            </a>
+            <a asp-action="ViewTimeTable"
+               asp-controller="TimeTable"
+               class="btn btn-outline-primary rounded-pill fw-semibold">
+                <i class="bi bi-calendar3"></i> View Time Table
+            </a>
+        </div>
     </div>
 
-
-
-@if (!Model.Any())
-{
-    <p>No approved enrollments yet.</p>
-}
-else
-{
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th>Course Name</th>
-                <th>Description</th>
-                <th>Material</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var course in Model)
-            {
-                <tr>
-                    <td>@course.Title</td>
-                    <td>@course.Description</td>
-                        <td>
-                            <a asp-action="GetStudentCourseMaterial" asp-controller="CourseMaterial" asp-route-id="@course.Id" class="btn btn-primary mb-3">
-                               View Material
-                            </a>
-                            <a asp-action="AvailableTests" asp-controller="Test" asp-route-courseId="@course.Id" class="btn btn-outline-primary mb-3">
-                                View/Take Tests
-                            </a>
-                        </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">No approved enrollments yet.</div>
+    }
+    else
+    {
+        <div class="table-responsive shadow-sm rounded-3">
+            <table class="table table-bordered align-middle text-center">
+                <thead class="table-primary">
+                    <tr>
+                        <th scope="col">Course Name</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Material</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var course in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@course.Title</td>
+                            <td>@course.Description</td>
+                            <td>
+                                <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+                                    <a asp-action="GetStudentCourseMaterial"
+                                       asp-controller="CourseMaterial"
+                                       asp-route-id="@course.Id"
+                                       class="btn btn-outline-primary">
+                                        View Material
+                                    </a>
+                                    <a asp-action="AvailableTests"
+                                       asp-controller="Test"
+                                       asp-route-courseId="@course.Id"
+                                       class="btn btn-outline-primary">
+                                        View/Take Tests
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
 </div>

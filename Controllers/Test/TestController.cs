@@ -2,6 +2,7 @@
 using LearningManagementSystem.Models.Domains.TestDM;
 using LearningManagementSystem.Models.DTO.TestVM;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -293,7 +294,7 @@ namespace LearningManagementSystem.Controllers.Test
         {
             if (!ModelState.IsValid)
             {
-                return View("TakeTest",model);
+                return View("TakeTest", model);
             }
 
             var test = await lMSDbContext.Tests
@@ -302,38 +303,46 @@ namespace LearningManagementSystem.Controllers.Test
 
             if (test == null)
             {
-                ModelState.AddModelError(string.Empty, "test Not found");
-                return View("TakeTest",model);
+                ModelState.AddModelError(string.Empty, "Test not found");
+                return View("TakeTest", model);
             }
 
-            // Calculate score
             int score = 0;
+            var studentIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (studentIdClaim == null) return Unauthorized();
+            var studentId = Guid.Parse(studentIdClaim);
+
+            // Save responses for each question
+            var studentAnswers = new List<StudentAnswer>();
+
             foreach (var q in test.Questions)
             {
                 if (model.Answers.TryGetValue(q.QuestionId.GetHashCode(), out string givenAnswer))
                 {
-                    if (string.Equals(givenAnswer, q.CorrectAnswer, StringComparison.OrdinalIgnoreCase))
+                    bool isCorrect = string.Equals(givenAnswer, q.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
+                    if (isCorrect) score++;
+
+                    studentAnswers.Add(new StudentAnswer
                     {
-                        score++;
-                    }
+                        StudentId = studentId,
+                        TestId = test.TestId,
+                        QuestionId = q.QuestionId,
+                        SelectedOption = givenAnswer,
+                        IsCorrect = isCorrect
+                    });
                 }
             }
 
-            // Get logged-in student’s ID
-            var studentIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            await lMSDbContext.StudentAnswers.AddRangeAsync(studentAnswers);
 
-            if (studentIdClaim == null) return Unauthorized();
-
-            var studentId = Guid.Parse(studentIdClaim);
-
-            // Save result
+            // Save main result
             var result = new StudentTestResult
             {
                 ResultId = Guid.NewGuid(),
                 StudentId = studentId,
                 TestId = model.TestId,
                 Score = score,
-                AssignedMarks=0,
+                AssignedMarks = 0,
                 TakenAt = DateTime.Now
             };
 
@@ -341,7 +350,7 @@ namespace LearningManagementSystem.Controllers.Test
             await lMSDbContext.SaveChangesAsync();
 
             TempData["SuccessMessage"] = $"You scored {score} out of {test.Questions.Count}!";
-            return RedirectToAction("AvailableTests" , new { courseId = test.CourseId});
+            return RedirectToAction("AvailableTests", new { courseId = test.CourseId });
         }
 
         [Authorize(AuthenticationSchemes = "TeacherAuth", Roles = "Teacher")]
@@ -392,11 +401,68 @@ namespace LearningManagementSystem.Controllers.Test
             TempData["SuccessMessage"] = "Marks saved successfully!";
             return RedirectToAction("ViewResponses", new { testId = result.TestId });
         }
+        [Authorize(AuthenticationSchemes = "StudentAuth", Roles = "Student")]
+        public async Task<IActionResult> TestResult(Guid testId)
+        {
+            var studentId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
 
+            var result = await lMSDbContext.StudentTestResults
+                .Include(r => r.Test)
+                .Where(r => r.TestId == testId && r.StudentId == studentId)
+                .Select(r => new TestResultVM
+                {
+                    TestTitle = r.Test.Title,
+                    Score = r.Score,
+                    AssignedMarks = r.AssignedMarks,
+                    TotalMarks = r.Test.TotalMarks ?? 0,
+                    TotalQuestions = r.Test.Questions.Count,
+                    TakenAt = r.TakenAt
+                })
+                .FirstOrDefaultAsync();
+            ViewBag.CourseId = (await lMSDbContext.Tests.FindAsync(testId))?.CourseId;
+            if (result == null)
+            {
+                TempData["ErrorMessage"] = "No result found for this test.";
+                return RedirectToAction("AvailableTests", new { courseId = ViewBag.CourseId });
+            }
+            ViewBag.TestId = testId;
+            return View(result);
+        }
+        [Authorize(AuthenticationSchemes = "StudentAuth", Roles = "Student")]
+        public async Task<IActionResult> ViewTestResponses(Guid testId)
+        {
+            var studentIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (studentIdClaim == null) return Unauthorized();
 
+            var studentId = Guid.Parse(studentIdClaim);
 
+            var responses = await lMSDbContext.StudentAnswers
+                .Where(a => a.StudentId == studentId && a.TestId == testId)
+                .Join(lMSDbContext.Questions,
+                      answer => answer.QuestionId,
+                      question => question.QuestionId,
+                      (answer, question) => new StudentTestResponseVM
+                      {
+                          QuestionId = question.QuestionId,
+                          QuestionText = question.QuestionText,
+                          OptionA = question.OptionA,
+                          OptionB = question.OptionB,
+                          OptionC = question.OptionC,
+                          OptionD = question.OptionD,
+                          CorrectAnswer = question.CorrectAnswer,
+                          StudentAnswer = answer.SelectedOption,
+                          IsCorrect = answer.IsCorrect
+                      })
+                .ToListAsync();
 
+            if (responses == null || !responses.Any())
+            {
+                ViewBag.Message = "No responses found for this test.";
+                return View("TestResult");
+            }
 
+            return View(responses);
+        }
 
 
     }

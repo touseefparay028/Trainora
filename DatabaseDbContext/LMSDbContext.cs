@@ -35,6 +35,7 @@ namespace LearningManagementSystem.DatabaseDbContext
         public virtual DbSet<TestDM> Tests { get; set; }
         public virtual DbSet<QuestionDM> Questions { get; set; }
         public virtual DbSet<StudentTestResult> StudentTestResults { get; set; }
+        public virtual DbSet<StudentAnswer> StudentAnswers { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
