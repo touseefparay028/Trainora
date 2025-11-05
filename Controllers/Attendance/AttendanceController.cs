@@ -70,8 +70,8 @@ namespace LearningManagementSystem.Controllers.Attendance
                     Date = DateTime.Today,
                     JoinTime = currentTime,
                     IsPresent = true
-                };
 
+                };
                 lMSDbContext.Attendances.Add(attendance);
                 await lMSDbContext.SaveChangesAsync();
                 return Redirect(conference.MeetingLink);

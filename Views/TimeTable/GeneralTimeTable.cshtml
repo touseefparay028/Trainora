@@ -30,8 +30,9 @@
                             <tr>
                                 <td>@item.Course?.Title</td>
                                 <td>@item.Course?.Teacher?.Name</td>  <!-- dynamic teacher -->
-                                <td>@item.StartTime.ToString(@"hh\:mm")</td>
-                                <td>@item.EndTime.ToString(@"hh\:mm")</td>
+                                <td>@DateTime.Today.Add(item.StartTime).ToString("hh:mm tt")</td>
+                                <td>@DateTime.Today.Add(item.EndTime).ToString("hh:mm tt")</td>
+
                             </tr>
                         }
                     </tbody>

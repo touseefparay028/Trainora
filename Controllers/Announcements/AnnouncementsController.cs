@@ -27,7 +27,7 @@ namespace LearningManagementSystem.Controllers.Announcements
         {
             return View();
         }
-        [Authorize(AuthenticationSchemes = "AdminAuth,TeacherAuth,StudentAuth", Roles = "Admin,Teacher,Student")]
+        [Authorize(AuthenticationSchemes = "AdminAuth,TeacherAuth", Roles = "Admin,Teacher")]
         public async Task<IActionResult> CreateAnnouncement(AnnouncementsVM announcementsVM)
         {
             if (ModelState.IsValid)
@@ -38,7 +38,7 @@ namespace LearningManagementSystem.Controllers.Announcements
             }
             return View("Create",announcementsVM);
         }
-        [Authorize(AuthenticationSchemes ="AdminAuth,TeacherAuth,StudentAuth",Roles="Admin,Teacher,Student")]
+        [Authorize(AuthenticationSchemes ="AdminAuth,TeacherAuth",Roles="Admin,Teacher")]
         public async Task<IActionResult> GetAnnouncements()
         {
             var announcements = await fileService.GetAllAnnouncements();

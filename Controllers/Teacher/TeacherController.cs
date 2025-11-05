@@ -430,7 +430,7 @@ namespace LearningManagementSystem.Controllers.Account
             {
                 await _signInManager.RefreshSignInAsync(user);
                 TempData["SuccessMessage"] = "Password changed successfully!";
-                return RedirectToAction("TeacherDashboard", "TeacherDashboard"); // or wherever you want
+                return RedirectToAction("ChangePassword", "Teacher"); // or wherever you want
             }
 
             foreach (var error in result.Errors)
