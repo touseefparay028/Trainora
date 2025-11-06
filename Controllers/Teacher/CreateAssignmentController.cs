@@ -43,8 +43,7 @@ namespace LearningManagementSystem.Controllers.Teacher
        public async Task<IActionResult> Create(TeacherAssignmentVM assignmentVM)
         {
             if(ModelState.IsValid)
-            {
-                
+            {   
                 await fileService.CreateAssignmentAsync(assignmentVM);
                 return RedirectToAction("GetCreatedAssignments");
             }

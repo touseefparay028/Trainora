@@ -60,6 +60,16 @@ namespace LearningManagementSystem.Services
             data.Path = FileName;
             data.BatchDMId = (Guid)assignmentVM.BatchDMId;
             data.ApplicationUserId = Guid.Parse(UserId);
+            var bid = lMSDbContext.BatchDMs.Find(assignmentVM.BatchDMId);
+            var bname= bid != null ? bid.Name : "Unknown Batch";
+            var annoucement = new Announcements
+            {
+                Description = $"Assignment: '{assignmentVM.Title}' for Batch: '{bname}' has been created.",
+                FilePath=null,
+                CreatedBy = Guid.Parse(UserId),
+                CreatedAt = DateTime.Now
+            };
+            await lMSDbContext.Announcements.AddAsync(annoucement);
             await lMSDbContext.AssignmentDMs.AddAsync(data);
             await lMSDbContext.SaveChangesAsync();
         }

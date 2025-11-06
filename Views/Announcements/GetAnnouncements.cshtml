@@ -33,9 +33,22 @@ else
             {
                 <tr>
                     <td>
-                        <a asp-action="ViewAnnouncement" asp-controller="Announcements" asp-route-FilePath="@item.FilePath" class="fw-semibold text-dark text-decoration-none">
-                            @item.Description
-                        </a>
+                        @if (!string.IsNullOrEmpty(item.FilePath))
+                        {
+                            <a asp-action="ViewAnnouncement"
+                               asp-controller="Announcements"
+                               asp-route-FilePath="@item.FilePath"
+                               class="fw-semibold text-dark text-decoration-none">
+                                @item.Description
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="fw-semibold text-dark">
+                                @item.Description
+                            </span>
+                        }
+
                     </td>
                     @if (User.IsInRole("Admin") || User.IsInRole("Teacher"))
                     {
