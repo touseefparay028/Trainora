@@ -26,7 +26,6 @@ namespace LearningManagementSystem.ChatHubs
                 await Clients.Caller.SendAsync("ReceiveMessage", "System", "❌ Invalid batch. Cannot join chat.");
                 return;
             }
-
             var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             string userName = "Unknown User";
 
@@ -44,7 +43,7 @@ namespace LearningManagementSystem.ChatHubs
             await Groups.AddToGroupAsync(Context.ConnectionId, batchId);
 
             await Clients.Group(batchId)
-                .SendAsync("ReceiveMessage", "System", $"✅ {userName} joined chat.");
+                .SendAsync("ReceiveMessage", "System", $"✅ {userName} joined chat.", DateTime.Now.ToString("hh:mm tt"));
         }
 
 

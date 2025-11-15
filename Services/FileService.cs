@@ -118,7 +118,7 @@ namespace LearningManagementSystem.Services
                 .Select(sa => sa.assignmentDMId)
                 .ToListAsync();
 
-            // 3️⃣ Get pending assignments for this batch
+            // Get pending assignments for this batch
             var pendingAssignments = await lMSDbContext.AssignmentDMs
                 .Where(a => a.BatchDMId == studentBatchId && !submittedIds.Contains(a.Id))
                 .ToListAsync();

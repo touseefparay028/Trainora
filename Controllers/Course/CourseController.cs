@@ -247,6 +247,7 @@ namespace LearningManagementSystem.Controllers
                    Value = u.Id.ToString(),
                    Text = u.Name ?? u.UserName
                }));
+            courseVM.BatchId = course.BatchId;
             return View(courseVM);
         }
         [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
@@ -344,7 +345,14 @@ namespace LearningManagementSystem.Controllers
             }
             if (ModelState.IsValid)
             {
-                var courseDM = mapper.Map<CourseDM>(course);
+                var courseDM = new CourseDM
+                {
+                    Id = course.Id,
+                    Title = course.Title,
+                    Description = course.Description,
+                    TeacherId = course.TeacherId,
+                    BatchId = course.BatchId
+                };
                 try
                 {
                     lMSDbContext.Courses.Update(courseDM);
@@ -369,6 +377,7 @@ namespace LearningManagementSystem.Controllers
                    Value = u.Id.ToString(),
                    Text = u.Name ?? u.UserName
                }));
+            
             return View("AdminCourseEdit", course);
         }
         // GET: Courses/Delete/5

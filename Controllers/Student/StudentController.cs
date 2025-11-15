@@ -399,8 +399,11 @@ namespace LearningManagementSystem.Controllers.Student
         public IActionResult Download(string FilePath)
         {
 
-            return new VirtualFileResult($"Files/{FilePath}", "application/pdf");
-            
+            return new VirtualFileResult($"Files/{FilePath}", "application/octet-stream")
+            {
+                FileDownloadName = FilePath
+            };
+
         }
         [Route("EmailAvailability")]
         public async Task<IActionResult> IsEmailRegisteredAlready(string Email)
