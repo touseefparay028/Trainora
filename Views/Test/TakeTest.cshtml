@@ -3,10 +3,17 @@
 @{
     ViewData["Title"] = "Take Test";
     Layout = "~/Views/Shared/StudentLayout.cshtml";
+    var remainingSeconds = (int)ViewBag.RemainingSeconds;
 }
 
 <div class="container mt-5">
-    <h3 class="fw-bold text-primary mb-4">🧠 Test: @Model.TestTitle</h3>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-primary">🧠 Test: @Model.TestTitle</h3>
+
+        <div class="badge bg-danger fs-6 px-3 py-2 shadow-sm">
+            ⏳ Time Left: <span id="timerText"></span>
+        </div>
+    </div>
 
     @if (Model.Questions == null || !Model.Questions.Any())
     {
@@ -16,10 +23,11 @@
     }
     else
     {
-        <form asp-action="SubmitTest" method="post" class="shadow p-4 bg-light rounded">
+        <form asp-action="SubmitTest" method="post" class="shadow p-4 bg-light rounded" id="testForm">
             @Html.AntiForgeryToken()
 
             <input type="hidden" asp-for="TestId" />
+            <input type="hidden" asp-for="AttemptId" />    @* 🔹 important *@
 
             @for (int i = 0; i < Model.Questions.Count; i++)
             {
@@ -28,7 +36,7 @@
                     <h5 class="fw-semibold">@($"{i + 1}. {q.QuestionText}")</h5>
 
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="Answers[@q.QuestionId.GetHashCode()]" value="A" required />
+                        <input class="form-check-input" type="radio" name="Answers[@q.QuestionId.GetHashCode()]" value="A" />
                         <label class="form-check-label">A. @q.OptionA</label>
                     </div>
 
@@ -53,3 +61,33 @@
         </form>
     }
 </div>
+
+@section Scripts {
+    <script>
+        let remaining = @remainingSeconds;
+        const timerEl = document.getElementById('timerText');
+        const form = document.getElementById('testForm');
+
+        function updateTimer() {
+            if (remaining <= 0) {
+                timerEl.textContent = "00:00";
+                // 🔹 Bypass HTML5 required checks & auto-submit
+                form.noValidate = true;
+                form.submit();
+                return;
+            }
+
+            const mins = Math.floor(remaining / 60);
+            const secs = remaining % 60;
+
+            timerEl.textContent =
+                mins.toString().padStart(2, '0') + ":" +
+                secs.toString().padStart(2, '0');
+
+            remaining--;
+        }
+
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    </script>
+}

@@ -6,6 +6,7 @@ namespace LearningManagementSystem.Models.DTO.TestVM
     {
         [Required(ErrorMessage = "Test ID is required.")]
         public Guid TestId { get; set; }
+        public Guid AttemptId { get; set; }
 
         [Required(ErrorMessage = "Answers are required.")]
         [MinLength(1, ErrorMessage = "You must answer at least one question.")]

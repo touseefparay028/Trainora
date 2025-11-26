@@ -16,5 +16,9 @@ namespace LearningManagementSystem.Models.DTO.TestVM
         [Range(1, 500, ErrorMessage = "Total marks must be between 1 and 500.")]
         [Display(Name = "Total Marks")]
         public int? TotalMarks { get; set; }
+        [Required]
+        [Range(1, 300, ErrorMessage = "Duration must be between 1 and 300 minutes.")]
+        [Display(Name = "Duration (minutes)")]
+        public int DurationMinutes { get; set; }
     }
 }

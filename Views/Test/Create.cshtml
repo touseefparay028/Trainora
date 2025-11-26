@@ -24,6 +24,11 @@
             <input asp-for="TotalMarks" type="number" class="form-control" placeholder="Enter total marks" />
             <span asp-validation-for="TotalMarks" class="text-danger"></span>
         </div>
+        <div class="mb-3">
+            <label asp-for="DurationMinutes" class="form-label fw-semibold"></label>
+            <input asp-for="DurationMinutes" type="number" class="form-control" placeholder="Enter duration in minutes" />
+            <span asp-validation-for="DurationMinutes" class="text-danger"></span>
+        </div>
 
         <div class="d-flex justify-content-between">
             <a asp-action="ListByCourse" asp-route-courseId="@Model.CourseId" class="btn btn-secondary">⬅ Back</a>

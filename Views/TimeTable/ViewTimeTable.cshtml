@@ -23,14 +23,23 @@
 
                             <h6 class="text-secondary mt-3 mb-1">Schedule:</h6>
                             <ul class="list-unstyled small">
-                                @foreach (var slot in course.TimeTables)
-                                {
-                                    <li>
-                                        <strong>@slot.Day:</strong>
-                                        @slot.StartTime.ToString(@"hh\:mm") - @slot.EndTime.ToString(@"hh\:mm")
-                                        <span class="text-muted">(@slot.LabLocation)</span>
-                                    </li>
+                               @if(course.TimeTables != null && course.TimeTables.Any())
+                               {
+                                   foreach (var schedule in course.TimeTables)
+                                   {
+                                       <li>
+                                            <strong>@schedule.Day:</strong>
+                                            @DateTime.Today.Add(schedule.StartTime).ToString("hh:mm tt")
+                                            -
+                                            @DateTime.Today.Add(schedule.EndTime).ToString("hh:mm tt")
+                                       </li>
+                                   }
+                               }
+                               else
+                               {
+                                   <li>No scheduled classes.</li>
                                 }
+       
                             </ul>
                         </div>
                     </div>

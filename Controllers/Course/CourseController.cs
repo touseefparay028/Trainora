@@ -251,7 +251,7 @@ namespace LearningManagementSystem.Controllers
             return View(courseVM);
         }
         [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
-        public async Task<IActionResult> Edit(Guid id,Guid BatchId)
+        public async Task<IActionResult> Edit(Guid id)
         {
             if (id == Guid.Empty)
             {
@@ -271,13 +271,10 @@ namespace LearningManagementSystem.Controllers
             }
             var courseVM = mapper.Map<CourseVM>(course);
             {   courseVM.TeacherId = user.Id;
-                courseVM.BatchId = BatchId;
+                courseVM.BatchId = course.BatchId;
             }
             return View(courseVM);
         }
-
-
-
 
         // POST: Courses/Edit/5
         [HttpPost]

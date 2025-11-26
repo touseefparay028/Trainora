@@ -7,6 +7,16 @@
 
 <div class="container mt-5">
     <h3 class="fw-bold text-primary mb-3">➕ Add Question to Test: @ViewBag.TestTitle</h3>
+    <form asp-action="UploadQuestions" asp-controller="Test" enctype="multipart/form-data" method="post">
+        <input type="hidden" name="testId" value="@Model.TestId" />
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">Upload Questions Excel File</label>
+            <input type="file" name="file" class="form-control" accept=".xlsx" required />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Upload Excel</button>
+    </form>
 
     <form asp-action="AddQuestion" method="post" class="shadow p-4 rounded bg-light">
         @Html.AntiForgeryToken()

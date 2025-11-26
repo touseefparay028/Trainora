@@ -19,6 +19,9 @@ namespace LearningManagementSystem.Models.Domains.TestDM
 
         public int? TotalMarks { get; set; }
 
+        [Required]
+        public int DurationMinutes { get; set; }
+
         public ICollection<QuestionDM>? Questions { get; set; }
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 using System.Security.Claims;
 
 namespace LearningManagementSystem.Controllers.Test
@@ -89,7 +90,8 @@ namespace LearningManagementSystem.Controllers.Test
                 TestId = Guid.NewGuid(),
                 Title = model.Title,
                 TotalMarks = model.TotalMarks,
-                CourseId = model.CourseId
+                CourseId = model.CourseId,
+                DurationMinutes = model.DurationMinutes
             };
 
             lMSDbContext.Tests.Add(test);
@@ -196,6 +198,48 @@ namespace LearningManagementSystem.Controllers.Test
             ViewBag.CourseId = test.CourseId;
             return View(questions);
         }
+        [HttpPost]
+        public async Task<IActionResult> UploadQuestions(Guid testId, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                TempData["Error"] = "Please upload a valid Excel file.";
+                return RedirectToAction("AddQuestion", new { testId = testId });
+            }
+
+            using var stream = new MemoryStream();
+            await file.CopyToAsync(stream);
+            using var package = new ExcelPackage(stream);
+            var worksheet = package.Workbook.Worksheets[0];
+            int rowCount = worksheet.Dimension.Rows;
+
+            List<QuestionDM> questions = new();
+
+            for (int row = 2; row <= rowCount; row++) // Row 1 = header
+            {
+                var question = new QuestionDM
+                {
+                    TestId = testId,
+                    QuestionText = worksheet.Cells[row, 1].Value?.ToString(),
+                    OptionA = worksheet.Cells[row, 2].Value?.ToString(),
+                    OptionB = worksheet.Cells[row, 3].Value?.ToString(),
+                    OptionC = worksheet.Cells[row, 4].Value?.ToString(),
+                    OptionD = worksheet.Cells[row, 5].Value?.ToString(),
+                    CorrectAnswer = worksheet.Cells[row, 6].Value?.ToString()
+                  
+                };
+
+                questions.Add(question);
+            }
+
+            lMSDbContext.Questions.AddRange(questions);
+            await lMSDbContext.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = $"{questions.Count} questions uploaded successfully!";
+            return RedirectToAction("AddQuestion", new { testId = testId });
+        }
+
+
         // POST: /Test/DeleteQuestion
         [Authorize(AuthenticationSchemes = "TeacherAuth", Roles = "Teacher")]
         [HttpPost]
@@ -269,6 +313,46 @@ namespace LearningManagementSystem.Controllers.Test
             {
                 return NotFound();
             }
+            if (test.DurationMinutes <= 0)
+            {
+                TempData["ErrorMessage"] = "Test duration is not set.";
+                return RedirectToAction("AvailableTests", new { courseId = test.CourseId });
+            }
+            var studentIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (studentIdClaim == null) return Unauthorized();
+            
+            var studentId = Guid.Parse(studentIdClaim);
+            
+            var nowUtc = DateTime.UtcNow;
+
+            // 🔹 Find or create attempt
+            var attempt = await lMSDbContext.TestAttempts
+                .FirstOrDefaultAsync(a => a.TestId == testId && a.StudentId == studentId);
+            if (attempt == null)
+            {
+                attempt = new TestAttemptDM
+                {
+                    AttemptId = Guid.NewGuid(),
+                    TestId = testId,
+                    StudentId = studentId,
+                    StartTimeUtc = nowUtc,
+                    Status = "InProgress"
+                };
+
+                lMSDbContext.TestAttempts.Add(attempt);
+                await lMSDbContext.SaveChangesAsync();
+            }
+            var expireAt = attempt.StartTimeUtc.AddMinutes(test.DurationMinutes);
+            var remainingSeconds = (int)(expireAt - nowUtc).TotalSeconds;
+            if (remainingSeconds <= 0)
+            {
+                attempt.Status = "Expired";
+                attempt.EndTimeUtc = nowUtc;
+                await lMSDbContext.SaveChangesAsync();
+
+                TempData["ErrorMessage"] = "Your test time has expired.";
+                return RedirectToAction("AvailableTests", new { courseId = test.CourseId });
+            }
 
             var vm = new TakeTestVM
             {
@@ -282,9 +366,11 @@ namespace LearningManagementSystem.Controllers.Test
                     OptionB = q.OptionB,
                     OptionC = q.OptionC,
                     OptionD = q.OptionD
-                }).ToList()
+                }).ToList(),
+                AttemptId = attempt.AttemptId
             };
 
+            ViewBag.RemainingSeconds = remainingSeconds;
             return View(vm);
         }
         [Authorize(AuthenticationSchemes = "StudentAuth", Roles = "Student")]
@@ -294,8 +380,38 @@ namespace LearningManagementSystem.Controllers.Test
         {
             if (!ModelState.IsValid)
             {
-                return View("TakeTest", model);
+                return RedirectToAction("TakeTest", new { testId = model.TestId });
             }
+            var studentIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (studentIdClaim == null) return Unauthorized();
+            var studentId = Guid.Parse(studentIdClaim);
+
+            // 🔹 1. Load attempt with test (for duration)
+            var attempt = await lMSDbContext.TestAttempts
+                .Include(a => a.Test)
+                .FirstOrDefaultAsync(a => a.AttemptId == model.AttemptId && a.StudentId == studentId);
+
+            if (attempt == null)
+            {
+                TempData["SuccessMessage"] = "Test attempt not found.";
+                ModelState.AddModelError(string.Empty, "Test attempt not found.");
+                return RedirectToAction("TakeTest", new { testId = model.TestId });
+            }
+
+            var nowUtc = DateTime.UtcNow;
+            var expireAt = attempt.StartTimeUtc.AddMinutes(attempt.Test.DurationMinutes);
+
+            if (nowUtc > expireAt)
+            {
+                attempt.Status = "AutoSubmitted";
+            }
+            else
+            {
+                attempt.Status = "Submitted";
+            }
+            attempt.EndTimeUtc = nowUtc;
+
+
 
             var test = await lMSDbContext.Tests
                 .Include(t => t.Questions)
@@ -304,13 +420,11 @@ namespace LearningManagementSystem.Controllers.Test
             if (test == null)
             {
                 ModelState.AddModelError(string.Empty, "Test not found");
-                return View("TakeTest", model);
+                return RedirectToAction("TakeTest", new { testId = model.TestId });
             }
 
             int score = 0;
-            var studentIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (studentIdClaim == null) return Unauthorized();
-            var studentId = Guid.Parse(studentIdClaim);
+            
 
             // Save responses for each question
             var studentAnswers = new List<StudentAnswer>();

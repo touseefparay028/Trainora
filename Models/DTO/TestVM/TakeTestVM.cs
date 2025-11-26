@@ -5,8 +5,10 @@
         {
             public Guid TestId { get; set; }
             public string TestTitle { get; set; }
+        public Guid AttemptId { get; set; }
 
-            public List<QuestionVM> Questions { get; set; } = new();
+
+        public List<QuestionVM> Questions { get; set; } = new();
         }
 
         public class QuestionVM
