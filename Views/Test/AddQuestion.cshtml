@@ -7,6 +7,10 @@
 
 <div class="container mt-5">
     <h3 class="fw-bold text-primary mb-3">➕ Add Question to Test: @ViewBag.TestTitle</h3>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success mt-3">@TempData["SuccessMessage"]</div>
+    }
     <form asp-action="UploadQuestions" asp-controller="Test" enctype="multipart/form-data" method="post">
         <input type="hidden" name="testId" value="@Model.TestId" />
 
@@ -74,10 +78,7 @@
         </div>
     </form>
 
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success mt-3">@TempData["SuccessMessage"]</div>
-    }
+   
 </div>
 
 @section Scripts {

@@ -1,0 +1,438 @@
+﻿@{
+    Layout = null;
+    ViewData["Title"] = "TrainOra Documentation";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          referrerpolicy="no-referrer" />
+    <link href="~/css/documentation.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="ddoc-wrapper">
+
+        <!-- HEADER -->
+        <header class="ddoc-header">
+            <div class="ddoc-header-inner">
+                <div style="display:flex;align-items:center;gap:.75rem;">
+                    <div class="ddoc-logo">
+                        <span class="ddoc-logo-mark"></span>
+                    </div>
+                    <div>
+                        <h1 class="ddoc-title">
+                            <i class="fa-solid fa-book-open"></i>
+                            TrainOra Documentation
+                        </h1>
+                        <p class="ddoc-subtitle">
+                            Learn how TrainOra works — modules, roles, setup, and more.
+                        </p>
+                    </div>
+                </div>
+                <span class="ddoc-chip">
+                    <i class="fa-solid fa-code"></i>
+                    v1.0 · ASP.NET Core 8
+                </span>
+            </div>
+        </header>
+
+        <!-- BODY -->
+        <div class="ddoc-body">
+            <div class="ddoc-shell">
+
+                <!-- SIDEBAR -->
+                <aside class="ddoc-sidebar-wrapper">
+                    <div class="ddoc-sidebar">
+                        <div style="display:flex;align-items:center;margin-bottom:.75rem;gap:.5rem;">
+                            <div class="ddoc-sidebar-logo">
+                                <span class="ddoc-logo-mark small"></span>
+                            </div>
+                            <div>
+                                <div class="ddoc-sidebar-title">TrainOra</div>
+                                <div class="ddoc-sidebar-sub">A Smart Learning Management System</div>
+                            </div>
+                        </div>
+
+                        <div class="ddoc-section-label">Getting Started</div>
+                        <nav class="ddoc-nav">
+                            <a class="ddoc-link active" href="#overview">
+                                <i class="fa-solid fa-circle-info"></i>
+                                Overview
+                            </a>
+                            <a class="ddoc-link" href="#quickstart">
+                                <i class="fa-solid fa-bolt"></i>
+                                Quick Start
+                            </a>
+                            <a class="ddoc-link" href="#features">
+                                <i class="fa-solid fa-star"></i>
+                                Key Features
+                            </a>
+                        </nav>
+
+                        <div class="ddoc-section-label">Core Concepts</div>
+                        <nav class="ddoc-nav">
+                            <a class="ddoc-link" href="#roles">
+                                <i class="fa-solid fa-users"></i>
+                                User Roles
+                            </a>
+                            <a class="ddoc-link" href="#architecture">
+                                <i class="fa-solid fa-diagram-project"></i>
+                                Architecture
+                            </a>
+                            <a class="ddoc-link" href="#database">
+                                <i class="fa-solid fa-database"></i>
+                                Database Design
+                            </a>
+                        </nav>
+
+                        <div class="ddoc-section-label">Modules</div>
+                        <nav class="ddoc-nav">
+                            <a class="ddoc-link" href="#modules-tests">
+                                <i class="fa-solid fa-list-check"></i>
+                                Tests &amp; Results
+                            </a>
+                            <a class="ddoc-link" href="#modules-assignments">
+                                <i class="fa-solid fa-file-lines"></i>
+                                Assignments
+                            </a>
+                            <a class="ddoc-link" href="#modules-attendance">
+                                <i class="fa-solid fa-calendar-check"></i>
+                                Attendance
+                            </a>
+                            <a class="ddoc-link" href="#modules-chat">
+                                <i class="fa-solid fa-comments"></i>
+                                Chat &amp; Announcements
+                            </a>
+                        </nav>
+
+                        <div class="ddoc-section-label">Other</div>
+                        <nav class="ddoc-nav">
+                            <a class="ddoc-link" href="#setup">
+                                <i class="fa-solid fa-download"></i>
+                                Installation
+                            </a>
+                            <a class="ddoc-link" href="#future">
+                                <i class="fa-solid fa-lightbulb"></i>
+                                Future Enhancements
+                            </a>
+                            <a class="ddoc-link" href="#faq">
+                                <i class="fa-solid fa-circle-question"></i>
+                                FAQ
+                            </a>
+                        </nav>
+                    </div>
+                </aside>
+
+                <!-- MAIN CONTENT -->
+                <main class="ddoc-main">
+                    <div class="ddoc-breadcrumb">
+                        <a href="#">
+                            <i class="fa-solid fa-house"></i>
+                            Home
+                        </a>
+                        /
+                        <span>Documentation</span>
+                    </div>
+
+                    <!-- Overview -->
+                    <section id="overview" class="ddoc-section">
+                        <h2 class="ddoc-section-title">
+                            <i class="fa-solid fa-circle-info"></i>
+                            Overview
+                        </h2>
+                        <p class="ddoc-text">
+                            <strong>TrainOra</strong> is a Learning Management System (LMS) built for
+                            colleges and institutes. It centralizes everything related to academic
+                            management—batches, courses, attendance, tests, assignments, and study
+                            materials—to real-time communication between teachers and students.
+                        </p>
+
+                        <div class="ddoc-card-grid" style="margin-top:.9rem;">
+                            <div class="ddoc-card">
+                                <div class="ddoc-card-label">Target Users</div>
+                                <h6 class="ddoc-card-title">Colleges &amp; Institutes</h6>
+                                <p class="ddoc-card-text">
+                                    Designed for multi-batch, multi-course environments where admins,
+                                    teachers, and students need a single platform.
+                                </p>
+                            </div>
+                            <div class="ddoc-card">
+                                <div class="ddoc-card-label">Tech Stack</div>
+                                <h6 class="ddoc-card-title">.NET 8 · EF Core · SQL</h6>
+                                <p class="ddoc-card-text">
+                                    ASP.NET Core MVC, Entity Framework Core, SQL Server, SignalR for
+                                    real-time features.
+                                </p>
+                            </div>
+                            <div class="ddoc-card">
+                                <div class="ddoc-card-label">Core Idea</div>
+                                <h6 class="ddoc-card-title">From WhatsApp to LMS</h6>
+                                <p class="ddoc-card-text">
+                                    Replace random groups and manual registers with a clean,
+                                    role-based academic platform.
+                                </p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Quick Start -->
+                    <section id="quickstart" class="ddoc-section">
+                        <h2 class="ddoc-section-title">
+                            <i class="fa-solid fa-bolt"></i>
+                            Quick Start
+                        </h2>
+                        <p class="ddoc-text">
+                            A short guide for getting TrainOra running in a development environment.
+                        </p>
+                        <ol class="ddoc-list">
+                            <li>Clone or download the TrainOra source code.</li>
+                            <li>Open the solution in <strong>Visual Studio 2022+</strong>.</li>
+                            <li>Update the <code>ConnectionStrings:DevCon</code> in <code>appsettings.json</code>.</li>
+                            <li>Apply migrations: <code>dotnet ef database update</code>.</li>
+                            <li>Run the project and log in using the seeded/admin credentials.</li>
+                        </ol>
+                    </section>
+
+                    <!-- Features -->
+                    <section id="features" class="ddoc-section">
+                        <h2 class="ddoc-section-title">
+                            <i class="fa-solid fa-star"></i>
+                            Key Features
+                        </h2>
+                        <ul class="ddoc-list">
+                            <li>College-wise admin and role-based access.</li>
+                            <li>Course and batch management.</li>
+                            <li>Online tests with automatic evaluation.</li>
+                            <li>Assignments and submissions with file uploads.</li>
+                            <li>Study material sharing (PDF/resources).</li>
+                            <li>Attendance tracking module.</li>
+                            <li>Real-time batch-wise chat using SignalR.</li>
+                            <li>Announcements and notifications.</li>
+                        </ul>
+                    </section>
+
+                    <!-- Roles -->
+                    <section id="roles" class="ddoc-section">
+                        <h2 class="ddoc-section-title">
+                            <i class="fa-solid fa-users"></i>
+                            User Roles
+                        </h2>
+
+                        <h6 class="ddoc-subheading">
+                            <i class="fa-solid fa-user-tie"></i>
+                            College Admin
+                        </h6>
+                        <ul class="ddoc-list">
+                            <li>Create and manage batches and courses.</li>
+                            <li>Manage teachers and students.</li>
+                            <li>View overall reports and insights.</li>
+                        </ul>
+
+                        <h6 class="ddoc-subheading">
+                            <i class="fa-solid fa-chalkboard-user"></i>
+                            Teacher
+                        </h6>
+                        <ul class="ddoc-list">
+                            <li>Create tests, questions, and assignments.</li>
+                            <li>Upload study materials.</li>
+                            <li>Mark attendance and evaluate work.</li>
+                            <li>Chat with students in batch rooms.</li>
+                        </ul>
+
+                        <h6 class="ddoc-subheading">
+                            <i class="fa-solid fa-user-graduate"></i>
+                            Student
+                        </h6>
+                        <ul class="ddoc-list">
+                            <li>View assigned courses and timetable.</li>
+                            <li>Attempt tests and see results.</li>
+                            <li>Submit assignments and access materials.</li>
+                            <li>Use chat to communicate with teachers.</li>
+                        </ul>
+                    </section>
+
+                    <!-- Architecture -->
+                    <section id="architecture" class="ddoc-section">
+                        <h2 class="ddoc-section-title">
+                            <i class="fa-solid fa-diagram-project"></i>
+                            System Architecture
+                        </h2>
+                        <p class="ddoc-text">
+                            TrainOra follows the <strong>MVC</strong> pattern and uses
+                            <strong>ASP.NET Core Identity</strong> for authentication and role-based
+                            access. Separate authentication schemes can be configured for Admin,
+                            Teacher, and Student areas.
+                        </p>
+                        <ul class="ddoc-list">
+                            <li>MVC Controllers handle incoming HTTP requests.</li>
+                            <li>Services and EF Core DbContext manage database operations.</li>
+                            <li>SignalR hubs power real-time messaging.</li>
+                            <li>Background tasks can handle cleanup or scheduled jobs.</li>
+                        </ul>
+                    </section>
+
+                    <!-- Database -->
+                    <section id="database" class="ddoc-section">
+                        <h2 class="ddoc-section-title">
+                            <i class="fa-solid fa-database"></i>
+                            Database Design (High Level)
+                        </h2>
+                        <p class="ddoc-text">
+                            The database is organized around colleges, batches, courses, users,
+                            tests, assignments, materials, and messages.
+                        </p>
+                        <ul class="ddoc-list">
+                            <li><strong>Colleges</strong>, <strong>Batches</strong>, <strong>Courses</strong></li>
+                            <li><strong>Tests</strong>, <strong>Questions</strong>, <strong>TestAttempts</strong>, <strong>StudentResults</strong></li>
+                            <li><strong>Assignments</strong>, <strong>Submissions</strong></li>
+                            <li><strong>StudyMaterials</strong></li>
+                            <li><strong>Messages</strong> for batch-wise chat</li>
+                        </ul>
+                    </section>
+
+                    <!-- Modules: Tests -->
+                    <section id="modules-tests" class="ddoc-section">
+                        <h2 class="ddoc-section-title">
+                            <i class="fa-solid fa-list-check"></i>
+                            Tests &amp; Results Module
+                        </h2>
+                        <ol class="ddoc-list">
+                            <li>Teacher creates a test with total marks and duration.</li>
+                            <li>Questions are added with marks per question.</li>
+                            <li>Students attempt the test within the allowed time window.</li>
+                            <li>Marks are calculated and stored in student results.</li>
+                            <li>Students can later view their performance.</li>
+                        </ol>
+                    </section>
+
+                    <!-- Modules: Assignments -->
+                    <section id="modules-assignments" class="ddoc-section">
+                        <h2 class="ddoc-section-title">
+                            <i class="fa-solid fa-file-lines"></i>
+                            Assignments Module
+                        </h2>
+                        <ol class="ddoc-list">
+                            <li>Teacher uploads an assignment with title, description, and deadline.</li>
+                            <li>Students upload their solution files.</li>
+                            <li>Teacher evaluates and records marks/feedback.</li>
+                        </ol>
+                    </section>
+
+                    <!-- Modules: Attendance -->
+                    <section id="modules-attendance" class="ddoc-section">
+                        <h2 class="ddoc-section-title">
+                            <i class="fa-solid fa-calendar-check"></i>
+                            Attendance Module
+                        </h2>
+                        <ol class="ddoc-list">
+                            <li>Teacher selects batch and date.</li>
+                            <li>Each student is marked present or absent.</li>
+                            <li>Records are saved and visible to admins and students.</li>
+                        </ol>
+                    </section>
+
+                    <!-- Modules: Chat -->
+                    <section id="modules-chat" class="ddoc-section">
+                        <h2 class="ddoc-section-title">
+                            <i class="fa-solid fa-comments"></i>
+                            Chat &amp; Announcements
+                        </h2>
+                        <p class="ddoc-text">
+                            TrainOra uses <strong>SignalR</strong> for real-time chat. Each batch has
+                            its own room where teachers and students can communicate instantly.
+                        </p>
+                        <ul class="ddoc-list">
+                            <li>Messages are delivered instantly to connected clients.</li>
+                            <li>Announcements can be shown as alerts or pinned messages.</li>
+                            <li>Can be extended with notification badges on dashboards.</li>
+                        </ul>
+                    </section>
+
+                    <!-- Setup -->
+                    <section id="setup" class="ddoc-section">
+                        <h2 class="ddoc-section-title">
+                            <i class="fa-solid fa-download"></i>
+                            Installation &amp; Setup
+                        </h2>
+                        <h6 class="ddoc-subheading">
+                            <i class="fa-solid fa-toolbox"></i>
+                            Prerequisites
+                        </h6>
+                        <ul class="ddoc-list">
+                            <li>.NET 8 SDK</li>
+                            <li>SQL Server (LocalDB or full)</li>
+                            <li>Visual Studio 2022 or later</li>
+                        </ul>
+
+                        <h6 class="ddoc-subheading">
+                            <i class="fa-solid fa-list-ol"></i>
+                            Steps
+                        </h6>
+                        <ol class="ddoc-list">
+                            <li>Configure <code>appsettings.json</code> with the correct connection string.</li>
+                            <li>Run migrations to create the database.</li>
+                            <li>Run the application.</li>
+                            <li>Create or use default admin credentials for first login.</li>
+                        </ol>
+                    </section>
+
+                    <!-- Future -->
+                    <section id="future" class="ddoc-section">
+                        <h2 class="ddoc-section-title">
+                            <i class="fa-solid fa-lightbulb"></i>
+                            Future Enhancements
+                        </h2>
+                        <ul class="ddoc-list">
+                            <li>Mobile application for students and teachers.</li>
+                            <li>Parent/guardian portal.</li>
+                            <li>Fee management and payment integration.</li>
+                            <li>Analytics dashboards and reporting.</li>
+                        </ul>
+                    </section>
+
+                    <!-- FAQ -->
+                    <section id="faq" class="ddoc-section">
+                        <h2 class="ddoc-section-title">
+                            <i class="fa-solid fa-circle-question"></i>
+                            FAQ / Troubleshooting
+                        </h2>
+
+                        <h6 class="ddoc-subheading">
+                            <i class="fa-solid fa-eye-slash"></i>
+                            Student cannot see a test?
+                        </h6>
+                        <p class="ddoc-text">
+                            Ensure the student is enrolled in the correct batch and the test is
+                            assigned with valid start and end time.
+                        </p>
+
+                        <h6 class="ddoc-subheading">
+                            <i class="fa-solid fa-lock"></i>
+                            Login not working?
+                        </h6>
+                        <p class="ddoc-text">
+                            Confirm that the user is registered under the correct role and is using
+                            the correct login page (Admin / Teacher / Student).
+                        </p>
+
+                        <h6 class="ddoc-subheading">
+                            <i class="fa-solid fa-file-circle-xmark"></i>
+                            File upload fails?
+                        </h6>
+                        <p class="ddoc-text">
+                            Check file size limits and allowed extensions in configuration and in
+                            the hosting environment.
+                        </p>
+                    </section>
+
+                </main>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -135,5 +135,9 @@ namespace LearningManagementSystem.Controllers.Home
         {
             return View();
         }
+        public IActionResult Documentation()
+        {
+            return View();
+        }
     }
 }
