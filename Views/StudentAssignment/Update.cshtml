@@ -1,0 +1,18 @@
+﻿@model LearningManagementSystem.Models.DTO.UpdateAssignmentVM
+
+<div class="container mt-4">
+    <h3>Re-Submit Assignment</h3>
+
+    <form asp-action="Update" method="post" enctype="multipart/form-data">
+        <input type="hidden" asp-for="Id" />
+
+        <div class="mb-3">
+            <label class="form-label">Upload New File</label>
+            <input asp-for="NewFile" type="file" class="form-control" required />
+            <span asp-validation-for="NewFile"></span>
+
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>

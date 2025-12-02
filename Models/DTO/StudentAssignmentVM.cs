@@ -11,7 +11,9 @@ namespace LearningManagementSystem.Models.DTO
         [Required(ErrorMessage ="Student name is required")]
         [StringLength(100,MinimumLength = 10, ErrorMessage ="Name should be at least 10 characters")]
         public string StudentName { get; set; }
-      public Guid? assignmentDMId { get; set; }
+        public string AssignmentTitle { get; set; }
+        public Guid? assignmentDMId { get; set; }
+        public bool IsReverted { get; set; } = false;
         [Required]
         [NotMapped]
         //[FileExtensions(Extensions = ".pdf,.docx,.pptx", ErrorMessage = "Only .pdf, .docx, .pptx files are allowed.")]

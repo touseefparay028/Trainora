@@ -25,7 +25,7 @@ namespace LearningManagementSystem.Controllers.Attendance
         }
         //  MARK ATTENDANCE (Auto or Manual)
         [HttpGet]
-        [Authorize(AuthenticationSchemes ="StudentAuth",Roles ="Student")]
+        [Authorize(AuthenticationSchemes ="StudentAuth", Roles ="Student")]
         public async Task<IActionResult> MarkAttendance(Guid ConferenceId)
         {
             var user = await userManager.GetUserAsync(User);
@@ -96,6 +96,98 @@ namespace LearningManagementSystem.Controllers.Attendance
 
            
         }
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
+        [HttpGet]
+        public async Task<IActionResult> MarkManualAttendance(Guid courseId, DateTime? date)
+        {
+            var attendanceDate = (date ?? DateTime.Today).Date;
+
+            // Enrolled students for this course
+            var enrollments = await lMSDbContext.StudentCourses
+                .Include(e => e.Student)
+                .Include(e => e.Course)
+                    .ThenInclude(b=> b.Batch)
+                .Where(e => e.CourseId == courseId)
+                .ToListAsync();
+
+            // Existing attendance for that course & date
+            var existing = await lMSDbContext.Attendances
+                .Where(a => a.CourseId == courseId && a.Date.Date == attendanceDate)
+                .ToListAsync();
+
+            var model = enrollments.Select(e =>
+            {
+                var rec = existing.FirstOrDefault(a => a.StudentId == e.StudentId);
+
+                return new AttendanceVM
+                {
+                    id = rec?.Id ?? Guid.Empty,
+                    StudentId = e.StudentId,
+                    BatchDMId = (Guid)e.Course.Batch.id,
+                    CourseId = e.CourseId,
+
+                    StudentName = e.Student.Name,          // adjust property names
+                    BatchName = e.Course.Batch.Name,
+                    CourseName = e.Course.Title,
+
+                    Date = attendanceDate,
+                    JoinTime =rec?.JoinTime.ToString() ?? "",
+                    IsPresent = rec?.IsPresent ?? false        // default Absent, or change to true if you want
+                };
+            }).ToList();
+
+            ViewBag.CourseId = courseId;
+            ViewBag.Date = attendanceDate;
+
+            return View(model);   // model is List<AttendanceVM>
+        }
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> MarkManualAttendance(Guid courseId, DateTime date, List<AttendanceVM> model)
+        {
+            var attendanceDate = date.Date;
+
+            // Load existing attendance for this course & date
+            var existing = await lMSDbContext.Attendances
+                .Where(a => a.CourseId == courseId && a.Date.Date == attendanceDate)
+                .ToListAsync();
+
+            foreach (var row in model)
+            {
+                var rec = existing.FirstOrDefault(a => a.StudentId == row.StudentId);
+
+                if (rec == null)
+                {
+                    // create new
+                    var att = new AttendanceDM
+                    {
+                        Id = Guid.NewGuid(),
+                        StudentId = row.StudentId,
+                        BatchDMId = row.BatchDMId,
+                        CourseId = courseId,
+                        Date = attendanceDate,
+                        JoinTime = null,
+                        IsPresent = row.IsPresent,
+                        Remark = null
+                    };
+
+                    lMSDbContext.Attendances.Add(att);
+                }
+                else
+                {
+                    // update existing
+                    rec.IsPresent = row.IsPresent;
+                    // rec.Remark = ...
+                }
+            }
+
+            await lMSDbContext.SaveChangesAsync();
+
+            return RedirectToAction("GetStudentsByCourse", new { courseId = courseId });
+        }
+
+
         // 🧩 TEACHER — SELECT STUDENT
         [Authorize(AuthenticationSchemes ="TeacherAuth",Roles = "Teacher")]
         public async Task<IActionResult> GetStudentsByCourse(Guid courseId)

@@ -8,7 +8,7 @@ namespace LearningManagementSystem.Models.Domains
         public string StudentName { get; set; }
         public string Path  { get; set; }
         public DateTime SubmittedAt { get; set; } = DateTime.Now;
-
+        public bool IsReverted { get; set; }
         //Foriegn Keys
         public Guid assignmentDMId { get; set; }
         public TeacherAssignmentDM assignmentDM { get; set; }

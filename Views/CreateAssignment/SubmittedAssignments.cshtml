@@ -30,7 +30,11 @@ else
                     <td>
                         <a asp-action="ViewAssignment" asp-route-Path="@item.Path">View</a> |
                         @* <a asp-action="Details" asp-route-id="@item.Id">Details</a> | *@
-                        <a asp-action="DeleteSubmission" asp-route-id="@item.Id">Delete</a>
+                        <form asp-action="RevertSubmission" method="post" style="display:inline;">
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <button type="submit" class="btn btn-warning btn-sm">Revert</button>
+                        </form>
+
                     </td>
                  
                 </tr>

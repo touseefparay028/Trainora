@@ -6,6 +6,12 @@
 }
 
 <h2 class="mb-4">Students Enrolled in Course</h2>
+<a asp-action="MarkManualAttendance"
+   asp-controller="Attendance"
+   asp-route-courseId="@ViewBag.CourseId"
+   class="btn btn-sm btn-primary">
+    Mark Attendance
+</a>
 
 @if (Model == null || !Model.Any())
 {

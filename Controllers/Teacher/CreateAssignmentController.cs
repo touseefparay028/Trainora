@@ -132,8 +132,25 @@ namespace LearningManagementSystem.Controllers.Teacher
             lMSDbContext.SaveChanges();
 
             // 4. Redirect back to List of the assignments.
-            return RedirectToAction("SubmittedAssignments");
+            return RedirectToAction("SubmittedAssignments", new { Id = submission.assignmentDMId});
         }
+        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles ="Teacher")]
+        [HttpPost]
+        public async Task<IActionResult> RevertSubmission(Guid id)
+        {
+            var submission = await lMSDbContext.StudentAssignmentDM.FindAsync(id);
+            if (submission == null) return NotFound();
+
+            submission.IsReverted = true;          // 🔁 allow student to resubmit
+                                                   // optional: clear marks / feedback
+                                                   // submission.MarksObtained = null;
+                                                   // submission.TeacherRemark = "Please correct and resubmit";
+
+            await lMSDbContext.SaveChangesAsync();
+
+            return RedirectToAction("SubmittedAssignments", new { Id = submission.assignmentDMId });
+        }
+
         //[HttpPost("Edit/{id}")]
         //public IActionResult Edit(Guid id)
         //{
@@ -148,7 +165,8 @@ namespace LearningManagementSystem.Controllers.Teacher
 
         //    return View(teacherAssignmentVM);
         //}
-        [Authorize(AuthenticationSchemes ="TeacherAuth",Roles ="Teacher")]
+        [Authorize(AuthenticationSchemes = "TeacherAuth", Roles = "Teacher")]
+
         public IActionResult ViewAssignment(string Path)
         {
 

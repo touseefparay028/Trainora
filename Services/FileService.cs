@@ -132,7 +132,7 @@ namespace LearningManagementSystem.Services
         public async Task<List<StudentAssignmentVM>> SubmittedAssignments(Guid Id)
         {
             var assignments = await lMSDbContext.StudentAssignmentDM
-           .Where(sa => sa.assignmentDMId == Id)
+           .Where(sa => sa.assignmentDMId == Id && sa.IsReverted==false)
            .ToListAsync();
             var SubmittedAssignments = mapper.Map<List<StudentAssignmentVM>>(assignments);
             return SubmittedAssignments;
