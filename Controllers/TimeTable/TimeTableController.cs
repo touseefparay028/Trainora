@@ -28,8 +28,12 @@ namespace LearningManagementSystem.Controllers.TimeTable
         [Authorize(AuthenticationSchemes = "TeacherAuth,AdminAuth", Roles = "Teacher,Admin")]
         public IActionResult Create(Guid courseId)
         {
-            ViewBag.CourseId = courseId;
-            return View();
+            var vm = new TimeTableVM
+            {
+                CourseId = courseId
+            };
+
+            return View(vm);
         }
         [Authorize(AuthenticationSchemes ="TeacherAuth,AdminAuth", Roles = "Teacher,Admin")]
         public IActionResult CreateTimeTable(TimeTableVM TimeTable)
@@ -86,12 +90,9 @@ namespace LearningManagementSystem.Controllers.TimeTable
                 var TimeTables = mapper.Map<TimeTableDM>(TimeTable);
                 lMSDbContext.TimeTables.Add(TimeTables);
                 lMSDbContext.SaveChanges();
-                if (User.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == "Admin"))
-                {
-                    return RedirectToAction("AdminGetDetails", "Course", new { id = TimeTable.CourseId });
-                }
 
-                return RedirectToAction("Details", "Course", new { id = TimeTable.CourseId });
+                TempData["SuccessMessage"] = "Time slot created successfully.";
+                return RedirectToAction("ManageTimeTable", "TimeTable", new { courseId = TimeTable.CourseId });
             }
 
             ViewBag.CourseId = TimeTable.CourseId;
@@ -181,6 +182,99 @@ namespace LearningManagementSystem.Controllers.TimeTable
 
             return View(timeTableVMs);
         }
+        [Authorize(AuthenticationSchemes = "TeacherAuth,AdminAuth", Roles = "Teacher,Admin")]
+        public IActionResult EditTimeTable(Guid id)
+        {
+            var slot = lMSDbContext.TimeTables.FirstOrDefault(t => t.Id == id);
+
+            if (slot == null)
+                return NotFound();
+
+            var vm = mapper.Map<TimeTableVM>(slot);
+            return View(vm);
+        }
+
+        
+        [HttpPost]
+        [Authorize(AuthenticationSchemes = "TeacherAuth,AdminAuth", Roles = "Teacher,Admin")]
+        public IActionResult EditTimeTable(TimeTableVM model)
+        {
+            if (!ModelState.IsValid)
+                return View("EditTimeTable",model);
+
+            var TimeTable = lMSDbContext.TimeTables.FirstOrDefault(t => t.Id == model.Id);
+            if (TimeTable == null)
+                return NotFound();
+
+            // Extra Validation
+            if (model.EndTime <= model.StartTime)
+            {
+                ModelState.AddModelError("", "End Time must be greater than Start Time.");
+                return View("EditTimeTable",model);
+            }
+            bool slotExists = lMSDbContext.TimeTables.Any(t =>
+                    t.Id != model.Id &&
+                   t.Day == model.Day &&
+                   t.StartTime == model.StartTime &&
+                   t.EndTime == model.EndTime &&
+                   t.LabLocation == model.LabLocation &&
+                   t.CourseId != model.CourseId); // ensure it belongs to another course
+            bool SlotAlreadyAssigned = lMSDbContext.TimeTables.Any(t =>
+            t.Id != model.Id &&
+                t.Day == model.Day &&
+                t.StartTime == model.StartTime &&
+                t.EndTime ==  model.EndTime &&
+                t.LabLocation == model.LabLocation &&
+                t.CourseId == model.CourseId);
+            bool isOverlapping = lMSDbContext.TimeTables.Any(t =>
+            t.Id != model.Id &&
+                t.Day == model.Day &&       // same day
+                t.LabLocation == model.LabLocation &&  // only check overlap in the same lab
+                (
+                 (model.StartTime >= t.StartTime && model.StartTime < t.EndTime) || // starts inside another slot
+                 (model.EndTime > t.StartTime && model.EndTime <= t.EndTime) ||     // ends inside another slot
+                 (model.StartTime <= t.StartTime && model.EndTime >= t.EndTime)     // completely covers another slot
+                )
+            );
+            var duration = model.EndTime - model.StartTime;
+
+            if (slotExists)
+            {
+                ModelState.AddModelError("", "This time slot and location are already assigned to another course.");
+                ViewBag.CourseId = model.CourseId;
+                return View("EditTimeTable", model);
+            }
+            else if (SlotAlreadyAssigned)
+            {
+                ModelState.AddModelError("", "This time slot and location are already assigned to this course.");
+                ViewBag.CourseId = model.CourseId;
+                return View("EditTimeTable", model);
+            }
+            else if (isOverlapping)
+            {
+                ModelState.AddModelError("", "This time slot overlaps with an existing slot for this course.");
+                ViewBag.CourseId = model.CourseId;
+                return View("EditTimeTable", model);
+            }
+            else if (duration != TimeSpan.FromHours(1))
+            {
+                ModelState.AddModelError("", "Slot must be exactly 1 hour long.");
+                return View("EditTimeTable", model);
+            }
+
+
+            // Update fields
+            TimeTable.Day = model.Day;
+            TimeTable.StartTime = model.StartTime;
+            TimeTable.EndTime = model.EndTime;
+            TimeTable.LabLocation = model.LabLocation;
+           
+            lMSDbContext.TimeTables.Update(TimeTable);
+            lMSDbContext.SaveChanges();
+            TempData["SuccessMessage"] = "Time slot updated successfully.";
+            return RedirectToAction("ManageTimeTable", "TimeTable", new { courseId = model.CourseId });
+        }
+
 
 
     }
