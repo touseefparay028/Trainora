@@ -29,7 +29,7 @@
                 <strong>Correct Answers:</strong> @Model.Score / @Model.TotalQuestions
             </p>
 
-            @if (Model.AssignedMarks.HasValue && Model.AssignedMarks > 0)
+            @if (Model.AssignedMarks.HasValue && Model.AssignedMarks >= 0)
             {
                 <h5 class="text-success mt-3">
                     ✅ Marks Awarded: @Model.AssignedMarks / @Model.TotalMarks

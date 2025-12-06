@@ -9,6 +9,7 @@ namespace LearningManagementSystem.Models.Domains.TestDM
         [Key]
         public Guid TestId { get; set; }
 
+
         [Required]
         public string Title { get; set; }
 
@@ -23,5 +24,6 @@ namespace LearningManagementSystem.Models.Domains.TestDM
         public int DurationMinutes { get; set; }
 
         public ICollection<QuestionDM>? Questions { get; set; }
+       
     }
 }

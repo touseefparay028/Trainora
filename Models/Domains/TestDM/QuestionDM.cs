@@ -31,5 +31,7 @@ namespace LearningManagementSystem.Models.Domains.TestDM
         public Guid TestId { get; set; }
 
         public TestDM? Test { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "Marks must be at least 1.")]
+        public int Marks { get; set; }
     }
 }

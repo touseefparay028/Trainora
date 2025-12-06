@@ -11,6 +11,10 @@
     {
         <div class="alert alert-success mt-3">@TempData["SuccessMessage"]</div>
     }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-success mt-3">@TempData["Error"]</div>
+    }
     <form asp-action="UploadQuestions" asp-controller="Test" enctype="multipart/form-data" method="post">
         <input type="hidden" name="testId" value="@Model.TestId" />
 
@@ -69,6 +73,11 @@
                 <option value="D">Option D</option>
             </select>
             <span asp-validation-for="CorrectAnswer" class="text-danger"></span>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label asp-for="Marks" class="form-label"></label>
+            <input asp-for="Marks" class="form-control" placeholder="Option D" />
+            <span asp-validation-for="Marks" class="text-danger"></span>
         </div>
 
         <div class="d-flex justify-content-between">

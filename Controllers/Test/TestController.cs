@@ -143,13 +143,46 @@ namespace LearningManagementSystem.Controllers.Test
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddQuestion(AddQuestionVM model)
         {
+            // To get the test (title, total marks, existing questions)
+            var test = await lMSDbContext.Tests
+                .Include(t => t.Questions)
+                .FirstOrDefaultAsync(t => t.TestId == model.TestId);
+
+            if (test == null)
+            {
+                return NotFound();
+            }
             if (!ModelState.IsValid)
             {
-                var test = await lMSDbContext.Tests.FirstOrDefaultAsync(t => t.TestId == model.TestId);
+               
                 ViewBag.TestTitle = test?.Title;
+                return View("AddQuestion",model);
+            }
+            if (model.Marks <= 0)
+            {
+                ModelState.AddModelError(nameof(model.Marks), "Marks must be greater than 0.");
                 return View(model);
             }
 
+            // 🔹 Calculate existing total marks of questions for this test
+            int existingMarks = test.Questions?.Sum(q => q.Marks) ?? 0;
+            int newTotalMarks = existingMarks + model.Marks;
+
+            // 🔹 If Test.TotalMarks is set, enforce sum(question marks) ≤ TotalMarks
+            if (test.TotalMarks.HasValue && newTotalMarks > test.TotalMarks.Value)
+            {
+                int remaining = test.TotalMarks.Value - existingMarks;
+
+                ModelState.AddModelError(nameof(model.Marks),
+                    $"You can assign only {remaining} marks more to this test. " +
+                    $"Current total of questions = {existingMarks}, Test total = {test.TotalMarks}.");
+
+                // Optional: show remaining marks in the view
+                ViewBag.RemainingMarks = remaining;
+
+                return View(model);
+            }
+            
             var question = new QuestionDM
             {
                 QuestionId = Guid.NewGuid(),
@@ -159,7 +192,8 @@ namespace LearningManagementSystem.Controllers.Test
                 OptionB = model.OptionB,
                 OptionC = model.OptionC,
                 OptionD = model.OptionD,
-                CorrectAnswer = model.CorrectAnswer
+                CorrectAnswer = model.CorrectAnswer,
+                Marks = model.Marks
             };
 
             lMSDbContext.Questions.Add(question);
@@ -199,6 +233,7 @@ namespace LearningManagementSystem.Controllers.Test
             return View(questions);
         }
         [HttpPost]
+        [Authorize(AuthenticationSchemes = "TeacherAuth", Roles = "Teacher")]
         public async Task<IActionResult> UploadQuestions(Guid testId, IFormFile file)
         {
             if (file == null || file.Length == 0)
@@ -207,31 +242,114 @@ namespace LearningManagementSystem.Controllers.Test
                 return RedirectToAction("AddQuestion", new { testId = testId });
             }
 
+            // Get the test with existing questions for marks validation
+            var test = await lMSDbContext.Tests
+                .Include(t => t.Questions)
+                .FirstOrDefaultAsync(t => t.TestId == testId);
+
+            if (test == null)
+            {
+                TempData["Error"] = "Test not found.";
+                return RedirectToAction("AddQuestion", new { testId = testId });
+            }
+
             using var stream = new MemoryStream();
             await file.CopyToAsync(stream);
             using var package = new ExcelPackage(stream);
             var worksheet = package.Workbook.Worksheets[0];
+
+            if (worksheet.Dimension == null)
+            {
+                TempData["Error"] = "Excel file seems to be empty.";
+                return RedirectToAction("AddQuestion", new { testId = testId });
+            }
+
             int rowCount = worksheet.Dimension.Rows;
 
             List<QuestionDM> questions = new();
+            int newQuestionsTotalMarks = 0;
 
             for (int row = 2; row <= rowCount; row++) // Row 1 = header
             {
+                // Skip completely empty rows
+                var qText = worksheet.Cells[row, 1].Value?.ToString();
+                var optionA = worksheet.Cells[row, 2].Value?.ToString();
+                var optionB = worksheet.Cells[row, 3].Value?.ToString();
+                var optionC = worksheet.Cells[row, 4].Value?.ToString();
+                var optionD = worksheet.Cells[row, 5].Value?.ToString();
+                var correct = worksheet.Cells[row, 6].Value?.ToString();
+                var marksCell = worksheet.Cells[row, 7].Value?.ToString();
+
+                bool isRowEmpty = string.IsNullOrWhiteSpace(qText)
+                                  && string.IsNullOrWhiteSpace(optionA)
+                                  && string.IsNullOrWhiteSpace(optionB)
+                                  && string.IsNullOrWhiteSpace(optionC)
+                                  && string.IsNullOrWhiteSpace(optionD)
+                                  && string.IsNullOrWhiteSpace(correct)
+                                  && string.IsNullOrWhiteSpace(marksCell);
+
+                if (isRowEmpty)
+                    continue;
+
+                // Basic required checks
+                if (string.IsNullOrWhiteSpace(qText)
+                    || string.IsNullOrWhiteSpace(optionA)
+                    || string.IsNullOrWhiteSpace(optionB)
+                    || string.IsNullOrWhiteSpace(optionC)
+                    || string.IsNullOrWhiteSpace(optionD)
+                    || string.IsNullOrWhiteSpace(correct))
+                {
+                    TempData["Error"] = $"Invalid data at row {row}. Please ensure question text, options, and correct answer are filled.";
+                    return RedirectToAction("AddQuestion", new { testId = testId });
+                }
+
+                // 🔹 Marks validation for this row
+                if (string.IsNullOrWhiteSpace(marksCell) || !int.TryParse(marksCell, out int marks) || marks <= 0)
+                {
+                    TempData["Error"] = $"Invalid marks at row {row}. Marks must be a positive integer.";
+                    return RedirectToAction("AddQuestion", new { testId = testId });
+                }
+
+                newQuestionsTotalMarks += marks;
+
                 var question = new QuestionDM
                 {
+                    QuestionId = Guid.NewGuid(),
                     TestId = testId,
-                    QuestionText = worksheet.Cells[row, 1].Value?.ToString(),
-                    OptionA = worksheet.Cells[row, 2].Value?.ToString(),
-                    OptionB = worksheet.Cells[row, 3].Value?.ToString(),
-                    OptionC = worksheet.Cells[row, 4].Value?.ToString(),
-                    OptionD = worksheet.Cells[row, 5].Value?.ToString(),
-                    CorrectAnswer = worksheet.Cells[row, 6].Value?.ToString()
-                  
+                    QuestionText = qText,
+                    OptionA = optionA,
+                    OptionB = optionB,
+                    OptionC = optionC,
+                    OptionD = optionD,
+                    CorrectAnswer = correct,
+                    Marks = marks
                 };
 
                 questions.Add(question);
             }
 
+            if (!questions.Any())
+            {
+                TempData["Error"] = "No valid questions found in the Excel file.";
+                return RedirectToAction("AddQuestion", new { testId = testId });
+            }
+
+            // 🔹 Validate against Test.TotalMarks
+            if (test.TotalMarks.HasValue)
+            {
+                int existingMarks = test.Questions?.Sum(q => q.Marks) ?? 0;
+                int remaining = test.TotalMarks.Value - existingMarks;
+
+                if (newQuestionsTotalMarks > remaining)
+                {
+                    TempData["Error"] =
+                        $"Uploaded questions total marks ({newQuestionsTotalMarks}) exceed the remaining allowed marks ({remaining}). " +
+                        $"Existing questions total = {existingMarks}, Test total = {test.TotalMarks}.";
+                    return RedirectToAction("AddQuestion", new { testId = testId });
+                }
+            }
+
+            // ✅ All good – save to DB
             lMSDbContext.Questions.AddRange(questions);
             await lMSDbContext.SaveChangesAsync();
 
@@ -424,7 +542,8 @@ namespace LearningManagementSystem.Controllers.Test
             }
 
             int score = 0;
-            
+            int MarksObtained = 0;
+
 
             // Save responses for each question
             var studentAnswers = new List<StudentAnswer>();
@@ -434,7 +553,11 @@ namespace LearningManagementSystem.Controllers.Test
                 if (model.Answers.TryGetValue(q.QuestionId.GetHashCode(), out string givenAnswer))
                 {
                     bool isCorrect = string.Equals(givenAnswer, q.CorrectAnswer, StringComparison.OrdinalIgnoreCase);
-                    if (isCorrect) score++;
+                    if (isCorrect)
+                    {
+                        score++;
+                        MarksObtained += q.Marks;
+                    }
 
                     studentAnswers.Add(new StudentAnswer
                     {
@@ -456,7 +579,7 @@ namespace LearningManagementSystem.Controllers.Test
                 StudentId = studentId,
                 TestId = model.TestId,
                 Score = score,
-                AssignedMarks = 0,
+                AssignedMarks = MarksObtained,
                 TakenAt = DateTime.Now
             };
 

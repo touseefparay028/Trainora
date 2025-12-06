@@ -36,5 +36,9 @@ namespace LearningManagementSystem.Models.DTO.TestVM
         [RegularExpression("^(A|B|C|D)$", ErrorMessage = "Correct answer must be A, B, C, or D.")]
         [Display(Name = "Correct Answer (A/B/C/D)")]
         public string CorrectAnswer { get; set; }
+        [Required(ErrorMessage = "Marks is required.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Marks must be at least 1.")]
+        public int Marks { get; set; }
+
     }
 }
