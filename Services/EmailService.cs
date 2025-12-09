@@ -4,6 +4,8 @@ using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
 using Org.BouncyCastle.Tls;
+using System.Net;
+using System.Net.Mail;
 
 namespace LearningManagementSystem.Services
 {
@@ -33,7 +35,7 @@ namespace LearningManagementSystem.Services
                 Text = Body
             };
             //to connect with smtp
-            using (var client = new SmtpClient())
+            using (var client = new MailKit.Net.Smtp.SmtpClient())
             {
                 await client.ConnectAsync(Server, port, false);
                 await client.AuthenticateAsync(SenderEmailAddress, password);
@@ -58,7 +60,32 @@ namespace LearningManagementSystem.Services
             var bodyBuilder = new BodyBuilder { HtmlBody = htmlMessage };
             emailMessage.Body = bodyBuilder.ToMessageBody();
 
-            using (var client = new SmtpClient())
+            using (var client = new MailKit.Net.Smtp.SmtpClient())
+            {
+                await client.ConnectAsync("smtp.gmail.com", 465, true);
+                await client.AuthenticateAsync(SenderEmailAddress, password);
+                await client.SendAsync(emailMessage);
+                await client.DisconnectAsync(true);
+            }
+        }
+        public async Task SendResetLinkAsync(string email, string subject, string htmlMessage)
+        {
+            //Getting sender information from the configuration
+            string? SenderName = _configuration["EmailSetting:SenderName"];
+            string? SenderEmailAddress = _configuration["EmailSetting:SenderEmail"];
+            string? Server = _configuration["EmailSetting:SmtpServer"];
+            int port = Convert.ToInt32(_configuration["EmailSetting:Port"]);
+            string? password = _configuration["EmailSetting:Password"];
+
+            var emailMessage = new MimeMessage();
+            emailMessage.From.Add(new MailboxAddress(SenderName, SenderEmailAddress));
+            emailMessage.To.Add(MailboxAddress.Parse(email));
+            emailMessage.Subject = subject;
+
+            var bodyBuilder = new BodyBuilder { HtmlBody = htmlMessage };
+            emailMessage.Body = bodyBuilder.ToMessageBody();
+
+            using (var client = new MailKit.Net.Smtp.SmtpClient())
             {
                 await client.ConnectAsync("smtp.gmail.com", 465, true);
                 await client.AuthenticateAsync(SenderEmailAddress, password);

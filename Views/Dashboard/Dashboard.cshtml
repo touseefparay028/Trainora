@@ -2,8 +2,6 @@
 
 @{
     ViewData["Title"] = "Admin Dashboard";
-}
-@{
     Layout = null;
 }
 <!DOCTYPE html>
@@ -23,10 +21,10 @@
         }
 
         .sidebar {
-            height: 100vh;
             background-color: #343a40;
             color: #fff;
             padding-top: 1rem;
+            min-height: 100vh;
         }
 
             .sidebar a {
@@ -48,7 +46,7 @@
         }
 
         .dashboard-section {
-            padding: 2rem;
+            padding: 1.5rem 0;
         }
 
         .card-icon {
@@ -60,9 +58,9 @@
 
 <body>
     <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <nav class="col-md-2 sidebar d-none d-md-block">
+        <div class="row flex-nowrap">
+            <!-- Sidebar for large screens -->
+            <nav class="col-lg-2 d-none d-lg-block sidebar">
                 <div class="text-center mb-4">
                     <h4>Admin Panel</h4>
                 </div>
@@ -82,37 +80,50 @@
             </nav>
 
             <!-- Main Content -->
-            <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4">
-                <nav class="navbar navbar-light bg-white shadow-sm p-3">
-                    <span class="navbar-brand">Welcome, @ViewBag.Name!</span>
+            <main class="col-12 col-lg-10 px-3 px-md-4">
+                <!-- Top Navbar -->
+                <nav class="navbar navbar-light bg-white shadow-sm p-3 mt-2 mt-lg-0 rounded-3 d-flex justify-content-between">
+                    <div>
+                        <!-- Toggle button for offcanvas sidebar (visible only on small/medium) -->
+                        <button class="btn btn-outline-secondary me-2 d-lg-none"
+                                type="button"
+                                data-bs-toggle="offcanvas"
+                                data-bs-target="#sidebarOffcanvas"
+                                aria-controls="sidebarOffcanvas">
+                            <i class="bi bi-list"></i>
+                        </button>
+                        <span class="navbar-brand mb-0 h5">Welcome, @ViewBag.Name!</span>
+                    </div>
                 </nav>
 
+                <!-- Dashboard Cards -->
                 <div class="dashboard-section">
                     <div class="row g-4">
-                        <div class="col-md-4">
-                            <div class="card p-4 text-center">
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="card p-4 text-center h-100">
                                 <i class="bi bi-person-video card-icon"></i>
                                 <h5 class="mt-2">View/Manage Teachers</h5>
                                 <p>View, approve, or remove teacher accounts.</p>
                                 <a asp-action="GetTeachers" asp-controller="Admin" class="btn btn-danger">View/Manage</a>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="card p-4 text-center">
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="card p-4 text-center h-100">
                                 <i class="bi bi-people card-icon"></i>
                                 <h5 class="mt-2">Manage Students</h5>
                                 <p>View and control student records.</p>
                                 <a asp-action="GetStudents" asp-controller="Admin" class="btn btn-danger">Manage</a>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="card p-4 text-center">
+                        <div class="col-12 col-md-6 col-lg-4">
+                            <div class="card p-4 text-center h-100">
                                 <i class="bi bi-clipboard-check card-icon"></i>
                                 <h5 class="mt-2">Create/View Announcements</h5>
                                 <p>Review Announcements.</p>
                                 <a asp-action="Create" asp-controller="Announcements" class="btn btn-danger">Create/View Announcements</a>
                             </div>
                         </div>
+                        @* Keep your commented section as is *@
                         @* <div class="col-md-4">
                             <div class="card p-4 text-center">
                                 <i class="bi bi-graph-up-arrow card-icon"></i>
@@ -123,12 +134,14 @@
                         </div> *@
                     </div>
                 </div>
+
+                <!-- Contact Messages -->
                 @if (Model != null && Model.Any())
                 {
-                    <div class="row g-3 mt-4">
+                    <div class="row g-3 mt-3 mt-md-4">
                         <h4 class="mb-3">Recent Contact Messages</h4>
 
-                        <div class="col-6">
+                        <div class="col-12 col-lg-6">
                             <div class="card shadow-sm border-0" style="border-radius: 1rem;">
                                 <div class="card-body" style="max-height: 350px; overflow-y: auto;">
                                     @foreach (var msg in Model)
@@ -146,22 +159,21 @@
                                     }
 
                                     <style>
-                                        /* Remove border for last message */
                                         .card-body > div:last-child {
                                             border-bottom: none !important;
                                             margin-bottom: 0 !important;
                                             padding-bottom: 0 !important;
                                         }
 
-                                        /* Scrollbar styling for better UI */
                                         .card-body::-webkit-scrollbar {
                                             width: 6px;
                                         }
 
                                         .card-body::-webkit-scrollbar-thumb {
-                                            background: rgba(220, 53, 69, 0.5); /* red with opacity */
+                                            background: rgba(220, 53, 69, 0.5);
                                             border-radius: 4px;
                                         }
+
                                             .card-body::-webkit-scrollbar-thumb:hover {
                                                 background: rgba(220, 53, 69, 0.8);
                                             }
@@ -175,8 +187,30 @@
                 {
                     <p class="text-muted mt-4">No contact messages yet.</p>
                 }
-
             </main>
+        </div>
+    </div>
+
+    <!-- Offcanvas Sidebar for small/medium screens -->
+    <div class="offcanvas offcanvas-start sidebar d-lg-none" tabindex="-1" id="sidebarOffcanvas" aria-labelledby="sidebarOffcanvasLabel">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title" id="sidebarOffcanvasLabel">Admin Panel</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <a asp-action="Dashboard" asp-controller="Dashboard" data-bs-dismiss="offcanvas">Dashboard</a>
+            <a asp-action="GetTeachers" asp-controller="Admin" data-bs-dismiss="offcanvas">Manage Teachers</a>
+            <a asp-action="GetStudents" asp-controller="Admin" data-bs-dismiss="offcanvas">Manage Students</a>
+            <a asp-action="EnrollmentRequests" asp-controller="Course" data-bs-dismiss="offcanvas">
+                Enrollment Requests
+                @if (ViewBag.PendingCount > 0)
+                {
+                    <span class="badge bg-danger">@ViewBag.PendingCount</span>
+                }
+            </a>
+            <a asp-action="AdminGetCourses" asp-controller="Course" data-bs-dismiss="offcanvas">View Courses</a>
+            <a asp-action="Create" asp-controller="CreateBatch" data-bs-dismiss="offcanvas">Create Batch</a>
+            <a asp-action="Logout" asp-controller="Admin" data-bs-dismiss="offcanvas">Logout</a>
         </div>
     </div>
 
