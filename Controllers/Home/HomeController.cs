@@ -268,13 +268,13 @@ namespace LearningManagementSystem.Controllers.Home
         public async Task<IActionResult> ResetPassword(string email, string token, ChangePasswordVM model)
         {
             if (!ModelState.IsValid)
-                return View(model);
+                return View("ResetPassword",model);
 
             var user = await userManager.FindByEmailAsync(email);
             if (user == null)
             {
                 TempData["Error"] = "User not found!";
-                return View(model);
+                return View("ResetPassword",model);
             }
 
             // Reset password directly WITHOUT using CurrentPassword
@@ -284,14 +284,34 @@ namespace LearningManagementSystem.Controllers.Home
 
             if (resetResult.Succeeded)
             {
-                TempData["Message"] = "Password reset successful.";
-                return RedirectToAction("Join");
+               
+                var roles = await userManager.GetRolesAsync(user);
+
+                
+                if (roles.Contains("Student"))
+                {
+                    TempData["Message"] = "Password reset successful.";
+                    return RedirectToAction("LoginStudent", "Student");
+                   
+                }
+                else if (roles.Contains("Teacher"))
+                {
+                    TempData["Message"] = "Password reset successful.";
+                    return RedirectToAction("LoginTeacher", "Teacher");
+                   
+                }
+                else if (roles.Contains("Admin"))
+                {
+                    TempData["Message"] = "Password reset successful.";
+                    return RedirectToAction("Login", "Admin");
+                    
+                }
             }
 
             foreach (var error in resetResult.Errors)
                 ModelState.AddModelError("", error.Description);
 
-            return View(model);
+            return View("ResetPassword", model);
         }
 
 
