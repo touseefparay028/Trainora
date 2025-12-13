@@ -377,6 +377,22 @@ namespace LearningManagementSystem.Controllers.Account
 
             return View(teacherList);
         }
+        [Authorize(AuthenticationSchemes = "AdminAuth", Roles = "Admin")]
+        public async Task<IActionResult> GetTeacherProfile(Guid id)
+        {
+            var userid = id.ToString();
+            var user = await _userManager.FindByIdAsync(userid);
+            var profile = new RegisterDTO
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Phone = user.PhoneNumber,
+
+
+            };
+            return View(profile);
+        }
         [Authorize(AuthenticationSchemes ="AdminAuth",Roles ="Admin")]
         public async Task<IActionResult> GetStudents()
         {
@@ -428,6 +444,7 @@ namespace LearningManagementSystem.Controllers.Account
             ViewBag.BatchName = batch != null ? batch.Name : "No Batch Assigned";
             return View(profile);
         }
+       
 
 
     }

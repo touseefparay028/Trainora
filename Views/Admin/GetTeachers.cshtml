@@ -29,6 +29,11 @@ else
                     <td>@teacher.Name</td>
                     <td>@teacher.Email</td>
                     <td>@teacher.UserName</td>
+                    <td>
+                        <a class="nav-link text-white bg-danger" asp-route-id="@teacher.Id" asp-action="GetTeacherProfile" asp-controller="Admin">
+                            <i class="bi bi-person-circle me-2"></i>View Profile
+                        </a>
+                    </td>
                 </tr>
             }
         </tbody>
