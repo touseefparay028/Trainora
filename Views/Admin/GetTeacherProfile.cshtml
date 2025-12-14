@@ -8,37 +8,55 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-lg border-0">
+
                 <div class="card-header bg-primary text-white text-center">
                     <h4 class="mb-0">Teacher Profile</h4>
                 </div>
+                @if (TempData["UpdateMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        @TempData["UpdateMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
 
+                }
                 <div class="card-body">
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Name</label>
-                        <input type="text" class="form-control" value="@Model.Name" readonly />
+                        <p class="form-control-plaintext border rounded px-3 py-2">
+                            @Model.Name
+                        </p>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Email</label>
-                        <input type="email" class="form-control" value="@Model.Email" readonly />
+                        <p class="form-control-plaintext border rounded px-3 py-2">
+                            @Model.Email
+                        </p>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-bold">Phone</label>
-                        <input type="text" class="form-control" value="@Model.Phone" readonly />
+                        <p class="form-control-plaintext border rounded px-3 py-2">
+                            @Model.Phone
+                        </p>
                     </div>
 
                 </div>
 
                 <div class="card-footer text-center">
-                    <a asp-action="GetTeachers" class="btn btn-secondary">
+                    <a asp-action="GetTeachers" class="btn btn-secondary me-2">
                         Back
                     </a>
-                    <a asp-action="EditTeacherProfile" asp-route-id="@Model.Id" class="btn btn-warning">
+
+                    <a asp-action="EditTeacherProfile"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-warning">
                         Edit Profile
                     </a>
                 </div>
+
             </div>
         </div>
     </div>

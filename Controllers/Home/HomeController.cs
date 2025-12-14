@@ -246,7 +246,7 @@ namespace LearningManagementSystem.Controllers.Home
 </body>
 </html>";
 
-            await emailService.SendResetLinkAsync(email, subject, htmlContent);
+            await emailService.SendVerificationEmailAsync(email, subject, htmlContent);
 
             TempData["SentMessage"] = "An email with reset link has been sent to the email, Please check your email and click on the link.";
             return RedirectToAction("ForgotPassword");

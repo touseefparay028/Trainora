@@ -393,6 +393,69 @@ namespace LearningManagementSystem.Controllers.Account
             };
             return View(profile);
         }
+        [Authorize(AuthenticationSchemes = "AdminAuth", Roles = "Admin")]
+        public async Task<IActionResult> EditTeacherProfile(Guid id)
+        {
+            var user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+                return NotFound();
+
+            var model = new RegisterDTO
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Phone = user.PhoneNumber
+            };
+
+            return View(model);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(AuthenticationSchemes = "AdminAuth", Roles = "Admin")]
+        public async Task<IActionResult> EditTeacherProfile(RegisterDTO model)
+        {
+            ModelState.Remove("Password");
+            ModelState.Remove("ConfirmPassword");
+            ModelState.Remove("Address");
+            ModelState.Remove("DateOfBirth");
+            ModelState.Remove("EnrollmentNumber");
+            ModelState.Remove("Course");
+            ModelState.Remove("gender");
+            ModelState.Remove("BatchDMId");
+            if (!ModelState.IsValid)
+                return View("EditTeacherProfile",model);
+
+            var user = await _userManager.FindByIdAsync(model.Id.ToString());
+            if (user == null)
+                return NotFound();
+
+            user.Name = model.Name;
+            user.PhoneNumber = model.Phone;
+
+            // Email change (optional)
+            if (user.Email != model.Email)
+            {
+                user.Email = model.Email;
+                user.UserName = model.Email;
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+
+            if (result.Succeeded)
+            {
+                TempData["UpdateMessage"] = "Teacher profile updated successfully.";
+                return RedirectToAction("GetTeacherProfile", new { id = model.Id });
+            }
+
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+
+            return View("EditTeacherProfile",model);
+        }
+
         [Authorize(AuthenticationSchemes ="AdminAuth",Roles ="Admin")]
         public async Task<IActionResult> GetStudents()
         {
