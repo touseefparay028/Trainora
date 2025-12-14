@@ -303,6 +303,11 @@ namespace LearningManagementSystem.Controllers.Student
                 ModelState.AddModelError(string.Empty, "Student doesn't exist");
                 return View("LoginStudent", loginDTO);
             }
+            if (user.IsDeleted)
+            {
+                ModelState.AddModelError("", "This account has been deactivated.");
+                return View("LoginStudent",loginDTO);
+            }
 
             if (!await userManager.IsEmailConfirmedAsync(user))
             {
@@ -371,6 +376,7 @@ namespace LearningManagementSystem.Controllers.Student
             {
                 return RedirectToAction("LoginStudent", "Student");
             }
+
 
             var result = await userManager.ChangePasswordAsync(user, changePassword.CurrentPassword, changePassword.NewPassword);
             if (result.Succeeded)

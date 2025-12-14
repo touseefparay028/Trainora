@@ -115,24 +115,26 @@ namespace LearningManagementSystem.Controllers.Home
             lMSDbContext.AccountDeletionReasons.Add(reason);
             await lMSDbContext.SaveChangesAsync();
 
-            // Delete user
-            var result = await userManager.DeleteAsync(user);
+            user.IsDeleted = true;
+            await userManager.UpdateAsync(user);
+            //// Delete user
+            //var result = await userManager.DeleteAsync(user);
 
-            if (result.Succeeded)
-            {
+            //if (result.Succeeded)
+            //{
                 await HttpContext.SignOutAsync("AdminAuth");
                 await HttpContext.SignOutAsync("TeacherAuth");
                 await HttpContext.SignOutAsync("StudentAuth");
                 TempData["SuccessMessage"] = "Your account has been deleted successfully.";
                 return RedirectToAction("Index", "Home");
-            }
+            //}
 
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error.Description);
-            }
+            //foreach (var error in result.Errors)
+            //{
+            //    ModelState.AddModelError("", error.Description);
+            //}
 
-            return View("DeleteAccount", accountDeletionReason);
+            //return View("DeleteAccount", accountDeletionReason);
         }
         public IActionResult newmodel()
         {
