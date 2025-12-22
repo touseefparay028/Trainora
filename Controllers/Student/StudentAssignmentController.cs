@@ -40,6 +40,7 @@ namespace LearningManagementSystem.Controllers.Student
         public async Task<IActionResult> Submit(StudentAssignmentVM assignmentVM)
         {
             var studentID = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            ModelState.Remove("AssignmentTitle");
             ModelState.Remove("Path");
             ModelState.Remove("StudentName");
             if (ModelState.IsValid)

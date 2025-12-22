@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LearningManagementSystem.Migrations
 {
     [DbContext(typeof(LMSDbContext))]
-    [Migration("20251206144649_MarksAddedToQuestionDMAndAddQuestionVM")]
-    partial class MarksAddedToQuestionDMAndAddQuestionVM
+    [Migration("20251222113226_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -671,6 +671,9 @@ namespace LearningManagementSystem.Migrations
 
                     b.Property<int?>("EnrollmentNumber")
                         .HasColumnType("int");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
